@@ -17,14 +17,15 @@ jobs:
     steps:
       # ── Source ─────────────────────────────────────────────────────────────
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       # ── Java ───────────────────────────────────────────────────────────────
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
+      # Java 25 (LTS). Gradle 8 and the Android toolchain are fully compatible.
+      - name: Set up Java 25
+        uses: actions/setup-java@v4.7.1
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '25'
 
       # ── Android NDK ────────────────────────────────────────────────────────
       # The NDK version must match android/app/build.gradle.kts → ndkVersion.
@@ -84,7 +85,7 @@ jobs:
 
       # ── GitHub Release ─────────────────────────────────────────────────────
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.3.2
         with:
           name: "Don't Drink ${{ steps.version.outputs.tag }}"
           files: "build/app/outputs/flutter-apk/dont-drink-${{ steps.version.outputs.tag }}.apk"
