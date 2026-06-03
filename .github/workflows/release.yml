@@ -1,0 +1,92 @@
+name: Android Release
+
+# Fires when a version tag is pushed, e.g. v1.0.0 or v2.3.1
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+
+# Needs write access to create the GitHub Release and attach the APK.
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Source ─────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Java ───────────────────────────────────────────────────────────────
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # ── Android NDK ────────────────────────────────────────────────────────
+      # The NDK version must match android/app/build.gradle.kts → ndkVersion.
+      # GitHub's ubuntu-latest ships the Android SDK; we install the NDK on top.
+      - name: Install Android NDK 28.2.13676358
+        run: |
+          echo "y" | \
+            "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            "ndk;28.2.13676358"
+
+      # ── Flutter ────────────────────────────────────────────────────────────
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.2'
+          channel: stable
+          cache: true
+
+      # ── Android SDK path ───────────────────────────────────────────────────
+      # local.properties is gitignored (machine-specific). Regenerate it so
+      # Gradle can find the SDK and Flutter tool paths on this runner.
+      - name: Write android/local.properties
+        run: |
+          {
+            echo "sdk.dir=$ANDROID_SDK_ROOT"
+            echo "flutter.sdk=$FLUTTER_ROOT"
+            echo "ndk.dir=$ANDROID_SDK_ROOT/ndk/28.2.13676358"
+          } > android/local.properties
+
+      # ── Dependencies ───────────────────────────────────────────────────────
+      - name: Get dependencies
+        run: flutter pub get
+
+      # ── Version from tag ───────────────────────────────────────────────────
+      # Strip the leading "v" so pubspec-style semver is used as build-name
+      # (e.g. tag v1.2.3 → build-name 1.2.3).
+      - name: Parse version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "tag=$TAG"         >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # ── Build ──────────────────────────────────────────────────────────────
+      - name: Build release APK
+        run: |
+          flutter build apk --release \
+            --build-name="${{ steps.version.outputs.version }}" \
+            --build-number="${{ github.run_number }}"
+
+      # ── Rename artifact ────────────────────────────────────────────────────
+      - name: Rename APK
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk \
+             "build/app/outputs/flutter-apk/dont-drink-${{ steps.version.outputs.tag }}.apk"
+
+      # ── GitHub Release ─────────────────────────────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Don't Drink ${{ steps.version.outputs.tag }}"
+          files: "build/app/outputs/flutter-apk/dont-drink-${{ steps.version.outputs.tag }}.apk"
+          generate_release_notes: true
+          fail_on_unmatched_files: true
