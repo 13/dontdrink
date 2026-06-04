@@ -5,6 +5,7 @@ import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/settings_viewmodel.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -75,31 +76,7 @@ class SettingsScreen extends StatelessWidget {
             const _DataSection(),
             const SizedBox(height: 24),
             const SectionHeader('About'),
-            const AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Don't Drink",
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w700)),
-                  SizedBox(height: 4),
-                  Text('Small daily choices. Big long-term changes.'),
-                  SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Icon(Icons.lock_outline, size: 18),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'All data is stored privately on this device. '
-                          'No account, no cloud, fully offline.',
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            const _AboutCard(),
           ],
         ),
       ),
@@ -266,6 +243,78 @@ class _DataSectionState extends State<_DataSection> {
         content: Text(message),
         backgroundColor:
             isError ? Theme.of(context).colorScheme.error : null,
+      ),
+    );
+  }
+}
+
+// ── About card ────────────────────────────────────────────────────────────────
+
+class _AboutCard extends StatefulWidget {
+  const _AboutCard();
+
+  @override
+  State<_AboutCard> createState() => _AboutCardState();
+}
+
+class _AboutCardState extends State<_AboutCard> {
+  PackageInfo? _info;
+
+  @override
+  void initState() {
+    super.initState();
+    PackageInfo.fromPlatform().then((info) {
+      if (mounted) setState(() => _info = info);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset(
+            isDark ? 'assets/dontdrinkbw.png' : 'assets/dontdrink.png',
+            height: 72,
+          ),
+          const SizedBox(height: 16),
+          if (_info != null) ...[
+            Text(
+              'Version ${_info!.version} (build ${_info!.buildNumber})',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Built on 2026-06-04',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          Row(
+            children: [
+              Icon(Icons.lock_outline,
+                  size: 16, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'All data is stored privately on this device. '
+                  'No account, no cloud, fully offline.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

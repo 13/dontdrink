@@ -1,4 +1,4 @@
-# Don't Drink
+# <img src="assets/dontdrink.png" width="30" height="30" /> Don't Drink
 
 > *Small daily choices. Big long-term changes.*
 

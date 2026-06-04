@@ -1,7 +1,11 @@
+import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/services/stats_service.dart';
+import 'package:dont_drink/ui/dashboard/widgets/month_summary_card.dart';
+import 'package:dont_drink/ui/dashboard/widgets/quick_stats_row.dart';
 import 'package:dont_drink/ui/statistics/widgets/distribution_pie.dart';
 import 'package:dont_drink/ui/statistics/widgets/monthly_bar_chart.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
+import 'package:dont_drink/ui/widgets/recovery_section.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -17,16 +21,23 @@ class StatisticsScreen extends StatelessWidget {
     const service = StatsService();
     final monthly = service.recentMonths(vm.allEntries, count: 6);
     final hasData = stats.totalLoggedDays > 0;
+    final today = DateOnly.today();
 
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            const SliverAppBar(floating: true, title: Text('Statistics')),
+            const SliverAppBar(floating: true, title: Text('Stats')),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
               sliver: SliverList.list(
                 children: [
+                  const SectionHeader('Quick Stats'),
+                  QuickStatsRow(stats: stats),
+                  const SizedBox(height: 24),
+                  const SectionHeader('This Month'),
+                  MonthSummaryCard(counts: vm.monthCounts(today)),
+                  const SizedBox(height: 24),
                   if (!hasData)
                     const AppCard(
                       child: Padding(
@@ -63,7 +74,10 @@ class StatisticsScreen extends StatelessWidget {
                       freePct: stats.alcoholFreePercentage,
                       totalLogged: stats.totalLoggedDays,
                     ),
+                    const SizedBox(height: 24),
                   ],
+                  const SectionHeader('Recovery Timeline'),
+                  const RecoverySection(),
                 ],
               ),
             ),

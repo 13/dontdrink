@@ -1,7 +1,6 @@
 import 'package:dont_drink/ui/achievements/achievements_screen.dart';
-import 'package:dont_drink/ui/calendar/calendar_screen.dart';
 import 'package:dont_drink/ui/dashboard/dashboard_screen.dart';
-import 'package:dont_drink/ui/more/more_screen.dart';
+import 'package:dont_drink/ui/settings/settings_screen.dart';
 import 'package:dont_drink/ui/statistics/statistics_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -18,10 +17,9 @@ class _HomeShellState extends State<HomeShell> {
 
   static const _tabs = <Widget>[
     DashboardScreen(),
-    CalendarScreen(),
     AchievementsScreen(),
     StatisticsScreen(),
-    MoreScreen(),
+    SettingsScreen(),
   ];
 
   @override
@@ -33,14 +31,9 @@ class _HomeShellState extends State<HomeShell> {
         onDestinationSelected: (i) => setState(() => _index = i),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month_outlined),
-            selectedIcon: Icon(Icons.calendar_month),
-            label: 'Calendar',
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: 'Dashboard',
           ),
           NavigationDestination(
             icon: Icon(Icons.emoji_events_outlined),
@@ -53,9 +46,9 @@ class _HomeShellState extends State<HomeShell> {
             label: 'Stats',
           ),
           NavigationDestination(
-            icon: Icon(Icons.more_horiz),
-            selectedIcon: Icon(Icons.more_horiz),
-            label: 'More',
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),
