@@ -4,6 +4,12 @@
 
 A mobile app that helps you reduce or eliminate alcohol consumption through daily tracking, streaks, achievements, education, and motivation.
 
+<p align="center">
+  <img src="assets/screenshot1.png" width="200" />
+  <img src="assets/screenshot2.png" width="200" />
+  <img src="assets/screenshot3.png" width="200" />
+</p>
+
 ---
 
 ## Features
