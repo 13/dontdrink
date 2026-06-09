@@ -278,7 +278,7 @@ class _AboutCardState extends State<_AboutCard> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Image.asset(
-            isDark ? 'assets/dontdrinkbw.png' : 'assets/dontdrink.png',
+            'assets/dontdrink.png',
             height: 72,
           ),
           const SizedBox(height: 16),
