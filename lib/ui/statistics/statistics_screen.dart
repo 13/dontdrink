@@ -5,7 +5,6 @@ import 'package:dont_drink/ui/dashboard/widgets/quick_stats_row.dart';
 import 'package:dont_drink/ui/statistics/widgets/distribution_pie.dart';
 import 'package:dont_drink/ui/statistics/widgets/monthly_bar_chart.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
-import 'package:dont_drink/ui/widgets/recovery_section.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -76,8 +75,6 @@ class StatisticsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                   ],
-                  const SectionHeader('Recovery Timeline'),
-                  const RecoverySection(),
                 ],
               ),
             ),
