@@ -33,11 +33,24 @@ class ModesSection extends StatelessWidget {
   }
 }
 
-class _ModeTile extends StatelessWidget {
+class _ModeTile extends StatefulWidget {
   const _ModeTile({required this.mode, required this.vm});
 
   final ModeDefinition mode;
   final ModeViewModel vm;
+
+  @override
+  State<_ModeTile> createState() => _ModeTileState();
+}
+
+class _ModeTileState extends State<_ModeTile> {
+  /// True while a delete confirmation is in flight, so a fast double-tap on
+  /// the delete button cannot stack two confirmation dialogs on top of each
+  /// other for this — the single most destructive action in the app.
+  bool _busy = false;
+
+  ModeDefinition get mode => widget.mode;
+  ModeViewModel get vm => widget.vm;
 
   bool get _enabled => vm.enabledModes.any((m) => m.id == mode.id);
   bool get _isActive => vm.activeMode.id == mode.id;
@@ -87,7 +100,7 @@ class _ModeTile extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.delete_outline),
               tooltip: 'Delete',
-              onPressed: () => _confirmDelete(context),
+              onPressed: _busy ? null : () => _confirmDelete(context),
             ),
           Switch(
             value: _enabled,
@@ -109,38 +122,44 @@ class _ModeTile extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
-    final count = await vm.loggedDayCount(mode.id);
-    if (!context.mounted) return;
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final count = await vm.loggedDayCount(mode.id);
+      if (!context.mounted) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Delete ${mode.name}?'),
-        content: Text(
-          count == 0
-              ? 'This mode has no logged days. It will be removed permanently.'
-              : 'This will permanently delete this mode and its '
-                  '$count logged ${count == 1 ? "day" : "days"}. '
-                  'This cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Delete ${mode.name}?'),
+          content: Text(
+            count == 0
+                ? 'This mode has no logged days. It will be removed permanently.'
+                : 'This will permanently delete this mode and its '
+                    '$count logged ${count == 1 ? "day" : "days"}. '
+                    'This cannot be undone.',
           ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancel'),
             ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(ctx).colorScheme.error,
+              ),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      );
 
-    if (confirmed == true) {
-      await vm.deleteCustom(mode.id);
+      if (confirmed == true) {
+        await vm.deleteCustom(mode.id);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 }

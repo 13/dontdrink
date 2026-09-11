@@ -52,9 +52,10 @@ class _CustomModeEditorState extends State<CustomModeEditor> {
   bool get _canSave => _name.text.trim().isNotEmpty && !_saving;
 
   Future<void> _save() async {
+    if (_saving) return;
+    setState(() => _saving = true);
     final vm = context.read<ModeViewModel>();
     final name = _name.text.trim();
-    setState(() => _saving = true);
     try {
       if (widget.existing == null) {
         await vm.createCustom(name, _emoji);
