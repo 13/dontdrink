@@ -72,6 +72,8 @@ class NotificationService {
       iOS: DarwinNotificationDetails(),
     );
 
+    // One reminder for the whole app, not one per active mode: several active
+    // modes should not mean several nightly pings.
     await _plugin.zonedSchedule(
       id: _dailyReminderId,
       title: "Don't Drink",

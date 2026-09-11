@@ -14,8 +14,23 @@ A mobile app that helps you reduce or eliminate alcohol consumption through dail
 
 ## Features
 
+### Tracking Modes
+The app can track more than alcohol. Turn modes on in **Settings ▸ Modes**, then
+switch between them from the dashboard title.
+
+| Mode | Levels | Content |
+|---|---|---|
+| Don't Drink | None / 1–2 / 3–5 / 6+ / Blackout | Full facts, recovery timeline, awards |
+| Don't Smoke | None / 1–5 / 6–15 / 16+ / Chain | Full facts, recovery timeline, awards |
+| No Contact | No contact / Thought about it / Checked profile / Reached out | Full facts, recovery timeline, awards |
+| Custom | Clean / Slip / Relapse | Generic awards and motivations |
+
+Each mode keeps its own history, streak, calendar and achievements — a relapse
+in one mode never touches another. Turning a mode off keeps its data; deleting
+a custom mode deletes its days.
+
 ### Daily Tracker
-Log exactly one status per day by tapping any date. Five levels:
+Log exactly one status per day per mode by tapping any date. Don't Drink has five levels:
 
 | Status | Color | Meaning |
 |---|---|---|
@@ -73,15 +88,16 @@ Light, dark, or system-default — switchable in Settings.
 ```
 lib/
 ├── core/
-│   ├── models/         # DrinkLevel, DayEntry, Achievement
+│   ├── models/         # ModeDefinition, TrackedLevel, ContentPack, DayEntry, Achievement
 │   ├── theme/          # AppTheme (Material 3), AppColors
 │   └── utils/          # DateOnly helpers
 ├── data/
 │   ├── database/       # AppDatabase (SQLite via sqflite)
-│   ├── repositories/   # EntryRepository, SettingsRepository
-│   └── static/         # Achievements, facts, recovery, motivation
-├── services/           # StatsService, AchievementService, NotificationService
-├── viewmodels/         # TrackerViewModel, SettingsViewModel (ChangeNotifier / Provider)
+│   ├── repositories/   # EntryRepository, ModeRepository, SettingsRepository
+│   └── static/
+│       └── modes/      # Built-in mode definitions + content packs
+├── services/           # StatsService, AchievementService, NotificationService, ExportImportService
+├── viewmodels/         # TrackerViewModel, ModeViewModel, SettingsViewModel
 └── ui/
     ├── dashboard/
     ├── calendar/
@@ -90,6 +106,7 @@ lib/
     ├── recovery/
     ├── facts/
     ├── motivation/
+    ├── modes/          # Custom mode editor
     ├── settings/
     ├── more/
     ├── shell/          # HomeShell (NavigationBar)
@@ -143,7 +160,9 @@ flutter build apk --release
 flutter test
 ```
 
-Covers streak calculation, longest-streak detection, monthly aggregation, and stats computation (7 unit tests in `test/stats_service_test.dart`).
+Covers streak calculation, longest-streak detection, monthly aggregation, stats
+computation, mode definitions and invariants, the v1→v2 database migration,
+per-mode entry isolation, mode activation rules, and export/import across modes.
 
 ### Static analysis
 

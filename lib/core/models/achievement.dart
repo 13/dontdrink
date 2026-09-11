@@ -1,5 +1,5 @@
 /// A streak-based achievement. Achievements unlock automatically once the
-/// user's longest (or current) alcohol-free streak reaches [dayThreshold].
+/// user's longest (or current) clean streak reaches [dayThreshold].
 class Achievement {
   const Achievement({
     required this.id,
@@ -13,7 +13,7 @@ class Achievement {
   /// Stable identifier (used for persistence of unlock dates if needed).
   final String id;
 
-  /// Number of consecutive alcohol-free days required to unlock.
+  /// Number of consecutive clean days required to unlock.
   final int dayThreshold;
 
   final String title;

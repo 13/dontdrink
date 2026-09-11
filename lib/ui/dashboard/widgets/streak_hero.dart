@@ -77,7 +77,7 @@ class StreakHero extends StatelessWidget {
               ),
               if (hasStreak)
                 Text(
-                  cleanDayLabel.toLowerCase(),
+                  '${cleanDayLabel.toLowerCase()} streak',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.white70,
                   ),
