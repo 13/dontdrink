@@ -17,8 +17,15 @@ sealed class ImportResult {
 }
 
 class ImportSuccess extends ImportResult {
-  const ImportSuccess(this.count);
+  const ImportSuccess(this.count, {this.skipped = 0});
+
+  /// Entries actually written.
   final int count;
+
+  /// Entries present in the file that could not be applied — an unknown
+  /// mode, a malformed row, or (v2 only) a missing `mode_id`. Not fatal, but
+  /// worth surfacing so a partial import isn't mistaken for a complete one.
+  final int skipped;
 }
 
 class ImportCancelled extends ImportResult {
@@ -101,9 +108,14 @@ class ExportImportService {
   ///
   /// Accepts both version 1 (single-mode, no `mode_id`) and version 2. Custom
   /// modes named in the backup are recreated (keeping their original id)
-  /// before entries are applied, so those entries resolve. Entries naming a
-  /// mode that cannot be resolved are skipped rather than failing the whole
-  /// import.
+  /// before entries are applied, so those entries resolve. A version 1 entry
+  /// with no `mode_id` resolves to [kDefaultMode] — that is what those
+  /// entries always were. A version 2 entry with no `mode_id` is skipped
+  /// rather than guessed at, since a level integer only means something
+  /// within its own mode. Any row — an entry or a custom-mode definition —
+  /// that cannot be resolved or is malformed (e.g. hand-edited or truncated
+  /// file content with the wrong type) is skipped rather than failing the
+  /// whole import.
   Future<ImportResult> applyPayload(
     Map<String, dynamic> payload, {
     required EntryRepository entries,
@@ -119,34 +131,59 @@ class ExportImportService {
       return const ImportError('Backup file is missing the entries list.');
     }
 
-    // Recreate any custom modes the backup carried, so their entries resolve.
-    final rawModes = payload['custom_modes'];
-    if (rawModes is List) {
-      final existing = {for (final m in await modes.customModes()) m.id};
-      for (final raw in rawModes) {
-        if (raw is! Map) continue;
-        final id = raw['id'] as String?;
-        final name = raw['name'] as String?;
-        if (id == null || name == null || existing.contains(id)) continue;
-        await modes.restoreCustom(
-          id: id,
-          name: name,
-          emoji: raw['emoji'] as String? ?? '🎯',
-        );
-      }
-    }
-
-    // Index every known mode by id so a level integer can be resolved.
-    final byId = {for (final mode in await modes.allModes()) mode.id: mode};
+    final version = payload['version'];
+    final isV1 = version == null || version == 1;
 
     int count = 0;
+    int skipped = 0;
     try {
+      // Recreate any custom modes the backup carried, so their entries
+      // resolve. Everything here reads untrusted file content, so every
+      // field is type-tested rather than cast — a malformed mode definition
+      // is skipped, not fatal.
+      final rawModes = payload['custom_modes'];
+      if (rawModes is List) {
+        final existing = {for (final m in await modes.customModes()) m.id};
+        for (final raw in rawModes) {
+          if (raw is! Map) continue;
+          final id = raw['id'];
+          final name = raw['name'];
+          if (id is! String || name is! String || existing.contains(id)) {
+            continue;
+          }
+          final rawEmoji = raw['emoji'];
+          await modes.restoreCustom(
+            id: id,
+            name: name,
+            emoji: rawEmoji is String ? rawEmoji : '🎯',
+          );
+        }
+      }
+
+      // Index every known mode by id so a level integer can be resolved.
+      final byId = {
+        for (final mode in await modes.allModes()) mode.id: mode,
+      };
+
       for (final raw in rawEntries) {
-        if (raw is! Map) continue;
+        if (raw is! Map) {
+          skipped++;
+          continue;
+        }
         final map = Map<String, Object?>.from(raw);
-        final modeId = map['mode_id'] as String? ?? kDefaultMode.id;
+        final rawModeId = map['mode_id'];
+        final modeId = rawModeId is String
+            ? rawModeId
+            : (isV1 ? kDefaultMode.id : null);
+        if (modeId == null) {
+          skipped++;
+          continue; // v2 row with no mode_id — skip, don't guess
+        }
         final mode = byId[modeId];
-        if (mode == null) continue; // unknown mode — skip, don't fail
+        if (mode == null) {
+          skipped++;
+          continue; // unknown mode — skip, don't fail
+        }
         await entries.upsert(DayEntry.fromMap(map, mode));
         count++;
       }
@@ -154,7 +191,7 @@ class ExportImportService {
       return ImportError('Import failed after $count entries: $e');
     }
 
-    return ImportSuccess(count);
+    return ImportSuccess(count, skipped: skipped);
   }
 
   /// Prompts the user to pick a backup file and applies it via

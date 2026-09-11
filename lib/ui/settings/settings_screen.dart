@@ -234,13 +234,20 @@ class _DataSectionState extends State<_DataSection> {
       if (!mounted) return;
 
       switch (result) {
-        case ImportSuccess(:final count):
+        case ImportSuccess(:final count, :final skipped):
           // Reload the ViewModels so the dashboard/calendar/mode list reflect
           // changes, including any custom modes the backup recreated.
           await context.read<TrackerViewModel>().load();
           if (mounted) await context.read<ModeViewModel>().load();
           if (mounted) {
-            _showSnack('Imported $count ${count == 1 ? "entry" : "entries"} successfully.');
+            final base =
+                'Imported $count ${count == 1 ? "entry" : "entries"}';
+            _showSnack(
+              skipped > 0
+                  ? '$base. $skipped skipped — some modes in this backup '
+                      'could not be restored.'
+                  : '$base successfully.',
+            );
           }
         case ImportCancelled():
           break; // user dismissed the picker — do nothing
