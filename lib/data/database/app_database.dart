@@ -59,17 +59,33 @@ class AppDatabase {
   /// SQLite cannot add a primary key with ALTER TABLE, so the table is rebuilt.
   /// The whole rebuild runs in one transaction: either the user ends up on v2
   /// with all their data, or nothing changes.
+  ///
+  /// No `onDowngrade` is supplied, so sqflite's open path can write
+  /// `user_version` back down (e.g. a sideloaded older build, or a device
+  /// restore pairing a newer DB file with an older app) while leaving the
+  /// tables untouched — the next open then sees `oldVersion == 1` against an
+  /// already-v2 schema. Downgrade safety is therefore handled by making this
+  /// upgrade idempotent: it inspects the actual table shape rather than
+  /// trusting the stored version, so running it again on an already-migrated
+  /// database is a no-op instead of a crash or, worse, a silent
+  /// mode_id-collapsing re-rebuild.
   static Future<void> _migrateToV2(Database db) async {
+    final columns = await db.rawQuery('PRAGMA table_info($tableEntries)');
+    final alreadyV2 = columns.any((c) => c['name'] == 'mode_id');
+
     await db.transaction((txn) async {
-      await txn.execute(_createEntriesSql('${tableEntries}_new'));
-      await txn.execute('''
-        INSERT INTO ${tableEntries}_new (mode_id, date_key, level, note, updated_at)
-        SELECT 'dont_drink', date_key, level, note, updated_at FROM $tableEntries
-      ''');
-      await txn.execute('DROP TABLE $tableEntries');
+      if (!alreadyV2) {
+        await txn.execute(_createEntriesSql('${tableEntries}_new'));
+        await txn.execute('''
+          INSERT INTO ${tableEntries}_new (mode_id, date_key, level, note, updated_at)
+          SELECT 'dont_drink', date_key, level, note, updated_at FROM $tableEntries
+        ''');
+        await txn.execute('DROP TABLE $tableEntries');
+        await txn.execute(
+            'ALTER TABLE ${tableEntries}_new RENAME TO $tableEntries');
+      }
       await txn.execute(
-          'ALTER TABLE ${tableEntries}_new RENAME TO $tableEntries');
-      await txn.execute(_createModesSql);
+          _createModesSql.replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
     });
   }
 
