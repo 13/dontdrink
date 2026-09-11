@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dont_drink/core/models/day_entry.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/static/modes/dont_drink_mode.dart';
@@ -9,9 +11,21 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() {
+  late Directory tempDbDir;
+
+  setUpAll(() async {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
+    // Each test file gets its own database directory. AppDatabase.instance is
+    // a process-wide singleton pointing at getDatabasesPath()/dont_drink.db,
+    // so without this, files running in parallel share one file and race.
+    tempDbDir =
+        Directory.systemTemp.createTempSync('dontdrink_mode_isolation');
+    await databaseFactory.setDatabasesPath(tempDbDir.path);
+  });
+
+  tearDownAll(() {
+    if (tempDbDir.existsSync()) tempDbDir.deleteSync(recursive: true);
   });
 
   final repo = EntryRepository();
