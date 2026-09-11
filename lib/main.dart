@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:dont_drink/app.dart';
 import 'package:dont_drink/core/models/mode_definition.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
@@ -7,7 +9,9 @@ import 'package:dont_drink/services/notification_service.dart';
 import 'package:dont_drink/viewmodels/mode_viewmodel.dart';
 import 'package:dont_drink/viewmodels/settings_viewmodel.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
+import 'package:dont_drink/viewmodels/update_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -34,8 +38,9 @@ Future<void> main() async {
     final ModeDefinition activeMode = await modeRepository.resolveActiveMode();
     final trackerViewModel =
         TrackerViewModel(repository: entryRepository, mode: activeMode);
+    final settingsRepository = SettingsRepository();
     final settingsViewModel =
-        SettingsViewModel(repository: SettingsRepository());
+        SettingsViewModel(repository: settingsRepository);
 
     // Load persisted data before the first frame so the UI starts in its
     // real state rather than flashing empty values.
@@ -52,16 +57,28 @@ Future<void> main() async {
     await modeViewModel.load();
     trackerViewModel.onDataChanged = modeViewModel.refreshStreaks;
 
+    final updateViewModel = UpdateViewModel(
+      settings: settingsRepository,
+      currentVersion: () async =>
+          (await PackageInfo.fromPlatform()).version,
+    );
+
     runApp(
       MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: trackerViewModel),
           ChangeNotifierProvider.value(value: settingsViewModel),
           ChangeNotifierProvider.value(value: modeViewModel),
+          ChangeNotifierProvider.value(value: updateViewModel),
         ],
         child: const DontDrinkApp(),
       ),
     );
+
+    // Once-a-day check for a newer release, after the first frame. Deliberately
+    // not awaited and deliberately silent: it must never delay startup or
+    // interrupt someone opening the app to log a day.
+    unawaited(updateViewModel.silentCheck());
   } catch (e, stack) {
     // Startup failed before any provider could be built — most likely the
     // v1→v2 migration hitting a full disk or a corrupt database file. The

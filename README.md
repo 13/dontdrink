@@ -81,6 +81,21 @@ An on-device scheduled notification at a time you choose (default 8:00 PM). Can 
 ### Theme
 Light, dark, or system-default — switchable in Settings.
 
+### Updates
+The app installs as a sideloaded APK, so it checks GitHub Releases for a newer
+version itself. **Settings ▸ Updates** checks on demand; the app also checks
+quietly at most once every 24 hours on launch and puts a dot on the Settings tab
+when something newer exists. Downloads show progress, then hand the APK to
+Android's installer, which asks you to confirm.
+
+"Later" keeps a version quiet until a newer one appears. A failed background
+check is silent — only a check you asked for reports errors. Android-only:
+the section is hidden on iOS.
+
+> Release APKs must keep a stable signing key. Android refuses to install an
+> update signed with a different key than the installed app, with a confusing
+> system error.
+
 ---
 
 ## Architecture
@@ -88,7 +103,8 @@ Light, dark, or system-default — switchable in Settings.
 ```
 lib/
 ├── core/
-│   ├── models/         # ModeDefinition, TrackedLevel, ContentPack, DayEntry, Achievement
+│   ├── models/         # ModeDefinition, TrackedLevel, ContentPack, DayEntry,
+│   │                   # Achievement, AppRelease
 │   ├── theme/          # AppTheme (Material 3), AppColors
 │   └── utils/          # DateOnly helpers
 ├── data/
@@ -96,8 +112,10 @@ lib/
 │   ├── repositories/   # EntryRepository, ModeRepository, SettingsRepository
 │   └── static/
 │       └── modes/      # Built-in mode definitions + content packs
-├── services/           # StatsService, AchievementService, NotificationService, ExportImportService
-├── viewmodels/         # TrackerViewModel, ModeViewModel, SettingsViewModel
+├── services/           # StatsService, AchievementService, NotificationService,
+│                       # ExportImportService, UpdateService
+├── viewmodels/         # TrackerViewModel, ModeViewModel, SettingsViewModel,
+│                       # UpdateViewModel
 └── ui/
     ├── dashboard/
     ├── calendar/
@@ -175,7 +193,14 @@ flutter analyze
 
 ## Android Manifest Notes
 
-The app declares `POST_NOTIFICATIONS` and `RECEIVE_BOOT_COMPLETED` permissions for the optional daily reminder. No network permission is declared — the app is fully offline.
+The app declares `POST_NOTIFICATIONS` and `RECEIVE_BOOT_COMPLETED` for the
+optional daily reminder, and `INTERNET` plus `REQUEST_INSTALL_PACKAGES` for the
+in-app updater. The media-read permissions that `open_filex` declares are
+stripped in the manifest — the updater only ever opens an APK from the app's own
+cache directory.
+
+Your tracking data never leaves the device. The only outbound requests are to
+`api.github.com` for release metadata and to GitHub's asset host for the APK.
 
 ---
 
@@ -193,3 +218,4 @@ The app declares `POST_NOTIFICATIONS` and `RECEIVE_BOOT_COMPLETED` permissions f
 | `intl` | Date formatting |
 | `google_fonts` | Inter typeface |
 | `path` | Database path construction |
+| `open_filex` | Hands a downloaded APK to Android's package installer |

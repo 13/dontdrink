@@ -2,7 +2,9 @@ import 'package:dont_drink/ui/achievements/achievements_screen.dart';
 import 'package:dont_drink/ui/dashboard/dashboard_screen.dart';
 import 'package:dont_drink/ui/settings/settings_screen.dart';
 import 'package:dont_drink/ui/statistics/statistics_screen.dart';
+import 'package:dont_drink/viewmodels/update_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 /// Lets a descendant jump to one of the shell's tabs — used by the mode
 /// switcher's "Manage modes…" row.
@@ -56,29 +58,45 @@ class _HomeShellState extends State<HomeShell> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.dashboard_outlined),
             selectedIcon: Icon(Icons.dashboard),
             label: 'Dashboard',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.emoji_events_outlined),
             selectedIcon: Icon(Icons.emoji_events),
             label: 'Awards',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.bar_chart_outlined),
             selectedIcon: Icon(Icons.bar_chart),
             label: 'Stats',
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
+            icon: _MaybeBadged(child: const Icon(Icons.settings_outlined)),
+            selectedIcon: _MaybeBadged(child: const Icon(Icons.settings)),
             label: 'Settings',
           ),
         ],
       ),
     );
+  }
+}
+
+/// Wraps [child] in a small dot when an update is waiting, so the Settings tab
+/// advertises it without a dialog.
+class _MaybeBadged extends StatelessWidget {
+  const _MaybeBadged({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final showDot =
+        context.select<UpdateViewModel, bool>((vm) => vm.updateAvailable);
+    if (!showDot) return child;
+    return Badge(child: child);
   }
 }

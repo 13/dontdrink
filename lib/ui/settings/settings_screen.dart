@@ -337,8 +337,9 @@ class _AboutCardState extends State<_AboutCard> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'All data is stored privately on this device. '
-                  'No account, no cloud, fully offline.',
+                  'All your tracking data is stored privately on this device. '
+                  'No account, no cloud sync. The app contacts GitHub only to '
+                  'check for and download updates.',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
