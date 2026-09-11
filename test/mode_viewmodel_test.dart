@@ -175,20 +175,29 @@ void main() {
     final tracker =
         TrackerViewModel(repository: entries, mode: kDontDrinkMode);
     await tracker.load();
-    tracker.onDataChanged = vm.refreshStreaks;
-
-    expect(vm.streakFor('dont_drink'), 0);
 
     // onDataChanged is a fire-and-forget VoidCallback (it must be, to match
     // TrackerViewModel's signature) even though ModeViewModel.refreshStreaks
-    // is async, so give its microtasks a chance to run before asserting —
-    // exactly as a real UI frame would after logDay's notifyListeners.
+    // is async and does a real database query. Rather than pumping the event
+    // queue and hoping the query finishes in time — which is exactly the
+    // race that made this test flaky under parallel load — capture the
+    // future the callback creates and await that directly. If
+    // onDataChanged were never invoked, pendingRefresh would stay null and
+    // `await null` would complete immediately, so the assertions below would
+    // still fail as they should.
+    Future<void>? pendingRefresh;
+    tracker.onDataChanged = () {
+      pendingRefresh = vm.refreshStreaks();
+    };
+
+    expect(vm.streakFor('dont_drink'), 0);
+
     await tracker.logDay(DateTime.now(), kDontDrinkLevels[0]);
-    await pumpEventQueue();
+    await pendingRefresh;
     expect(vm.streakFor('dont_drink'), 1);
 
     await tracker.clearDay(DateTime.now());
-    await pumpEventQueue();
+    await pendingRefresh;
     expect(vm.streakFor('dont_drink'), 0);
   });
 }
