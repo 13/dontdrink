@@ -4,6 +4,8 @@ import 'package:dont_drink/core/models/mode_definition.dart';
 import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
+import 'package:dont_drink/l10n/content/content_strings.dart';
+import 'package:dont_drink/l10n/content/mode_localizer.dart';
 import 'package:dont_drink/services/achievement_service.dart';
 import 'package:dont_drink/services/stats_service.dart';
 import 'package:flutter/foundation.dart';
@@ -20,12 +22,20 @@ class TrackerViewModel extends ChangeNotifier {
     StatsService stats = const StatsService(),
     AchievementService achievements = const AchievementService(),
   })  : _repo = repository,
+        _rawMode = mode,
         _mode = mode,
         _stats = stats,
         _achievements = achievements;
 
   final EntryRepository _repo;
+
+  /// The mode as defined in code — English, and the input to translation.
+  ModeDefinition _rawMode;
+
+  /// [_rawMode] with its content run through the active language.
   ModeDefinition _mode;
+
+  ContentStrings _strings = ContentStrings.english;
   final StatsService _stats;
   final AchievementService _achievements;
 
@@ -36,14 +46,28 @@ class TrackerViewModel extends ChangeNotifier {
   /// refresh its cached per-mode streaks.
   VoidCallback? onDataChanged;
 
+  /// Switch the language the mode's content is shown in.
+  ///
+  /// Ids, level values and achievement thresholds are untouched, so nothing
+  /// that is persisted or counted depends on the language.
+  void setContentStrings(ContentStrings strings) {
+    if (strings.languageCode == _strings.languageCode) return;
+    _strings = strings;
+    _mode = _rawMode.localized(strings);
+    notifyListeners();
+  }
+
   /// Point this view model at a different mode and reload its history.
   Future<void> switchMode(ModeDefinition mode) async {
     if (mode.id == _mode.id) {
-      _mode = mode; // a rename of the same mode
+      // A rename of the same mode.
+      _rawMode = mode;
+      _mode = mode.localized(_strings);
       notifyListeners();
       return;
     }
-    _mode = mode;
+    _rawMode = mode;
+    _mode = mode.localized(_strings);
     _visibleMonth = DateOnly.firstOfMonth(DateTime.now());
     _pendingEarns = const [];
     await load();

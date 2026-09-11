@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 import 'dart:io' show Platform;
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:dont_drink/app.dart';
 import 'package:dont_drink/core/models/mode_definition.dart';
@@ -8,6 +9,7 @@ import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
 import 'package:dont_drink/data/repositories/settings_repository.dart';
 import 'package:dont_drink/l10n/app_localizations.dart';
+import 'package:dont_drink/l10n/content/content_strings.dart';
 import 'package:dont_drink/l10n/supported_locales.dart';
 import 'package:dont_drink/services/notification_service.dart';
 import 'package:dont_drink/viewmodels/mode_viewmodel.dart';
@@ -60,11 +62,19 @@ Future<void> main() async {
       settingsViewModel.load(),
     ]);
 
+    // Resolve the starting language before anything loads, so mode content is
+    // built in the right language for the first frame instead of appearing in
+    // English and being swapped a frame later.
+    final startupStrings = ContentStrings.of(
+      settingsViewModel.locale ?? _systemLocale(),
+    );
+    trackerViewModel.setContentStrings(startupStrings);
+
     final modeViewModel = ModeViewModel(
       repository: modeRepository,
       entries: entryRepository,
       onActiveModeChanged: trackerViewModel.switchMode,
-    );
+    )..setContentStrings(startupStrings);
     await modeViewModel.load();
     trackerViewModel.onDataChanged = modeViewModel.refreshStreaks;
 
@@ -110,6 +120,16 @@ Future<void> main() async {
     debugPrint('Startup failed: $e\n$stack');
     runApp(_StartupErrorApp(error: e));
   }
+}
+
+/// The device language, narrowed to one the app ships. Matches how
+/// MaterialApp resolves `supportedLocales` when no explicit locale is set.
+Locale _systemLocale() {
+  final device = PlatformDispatcher.instance.locale;
+  return kSupportedLocales.firstWhere(
+    (l) => l.languageCode == device.languageCode,
+    orElse: () => kSupportedLocales.first,
+  );
 }
 
 /// Minimal, self-contained error screen shown when startup fails before the

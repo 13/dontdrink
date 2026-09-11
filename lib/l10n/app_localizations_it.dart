@@ -684,6 +684,13 @@ class AppLocalizationsIt extends AppLocalizations {
       'Il file selezionato non è un JSON valido.';
 
   @override
+  String get modesRuleSwitchFirst =>
+      'Passa a un\'altra modalità prima di disattivare questa.';
+
+  @override
+  String get modesRuleKeepOne => 'Almeno una modalità deve restare attiva.';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink non è riuscita ad avviarsi';
 
   @override

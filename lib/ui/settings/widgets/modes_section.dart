@@ -116,10 +116,16 @@ class _ModeTileState extends State<_ModeTile> {
 
   Future<void> _toggle(BuildContext context, bool on) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
     try {
       await vm.setEnabled(mode.id, on);
     } on ModeRuleError catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+      messenger.showSnackBar(SnackBar(
+        content: Text(switch (e.rule) {
+          ModeRule.switchBeforeDisabling => l10n.modesRuleSwitchFirst,
+          ModeRule.keepOneEnabled => l10n.modesRuleKeepOne,
+        }),
+      ));
     }
   }
 

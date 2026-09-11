@@ -1,17 +1,28 @@
 import 'package:dont_drink/core/models/mode_definition.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
+import 'package:dont_drink/l10n/content/content_strings.dart';
+import 'package:dont_drink/l10n/content/mode_localizer.dart';
 import 'package:dont_drink/services/stats_service.dart';
 import 'package:flutter/foundation.dart';
 
-/// Raised when an activation rule is violated. [message] is written for the
-/// user and can be shown directly in a snackbar.
+/// Which activation rule was violated. The wording lives in the .arb files —
+/// this view model has no business choosing the user's language.
+enum ModeRule {
+  /// The active mode cannot be switched off; move somewhere else first.
+  switchBeforeDisabling,
+
+  /// The last enabled mode cannot be switched off either.
+  keepOneEnabled,
+}
+
+/// Raised when an activation rule is violated.
 class ModeRuleError implements Exception {
-  const ModeRuleError(this.message);
-  final String message;
+  const ModeRuleError(this.rule);
+  final ModeRule rule;
 
   @override
-  String toString() => message;
+  String toString() => 'ModeRuleError(${rule.name})';
 }
 
 /// Owns which tracking modes exist, which are enabled, and which one the app
@@ -33,6 +44,19 @@ class ModeViewModel extends ChangeNotifier {
   final ModeRepository _repo;
   final EntryRepository _entries;
   final StatsService _stats;
+
+  /// The language every mode's content is presented in. Mode ids and level
+  /// values are untouched by it — only the copy changes.
+  ContentStrings _strings = ContentStrings.english;
+
+  /// Switch the language of every mode this view model hands out.
+  void setContentStrings(ContentStrings strings) {
+    if (strings.languageCode == _strings.languageCode) return;
+    _strings = strings;
+    _all = [for (final mode in _all) mode.localized(strings)];
+    _active = _active?.localized(strings);
+    notifyListeners();
+  }
 
   /// Called whenever the active mode changes, so the tracker can reload.
   final Future<void> Function(ModeDefinition mode) onActiveModeChanged;
@@ -60,9 +84,11 @@ class ModeViewModel extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    _all = await _repo.allModes();
+    _all = [
+      for (final mode in await _repo.allModes()) mode.localized(_strings),
+    ];
     _enabledIds = await _repo.enabledModeIds();
-    _active = await _repo.resolveActiveMode();
+    _active = (await _repo.resolveActiveMode()).localized(_strings);
     await refreshStreaks(); // ends in its own notifyListeners()
   }
 
@@ -95,11 +121,10 @@ class ModeViewModel extends ChangeNotifier {
   Future<void> setEnabled(String id, bool enabled) async {
     if (!enabled) {
       if (id == activeMode.id) {
-        throw const ModeRuleError(
-            'Switch to another mode before turning this one off.');
+        throw const ModeRuleError(ModeRule.switchBeforeDisabling);
       }
       if (_enabledIds.length <= 1) {
-        throw const ModeRuleError('At least one mode has to stay on.');
+        throw const ModeRuleError(ModeRule.keepOneEnabled);
       }
       _enabledIds = _enabledIds.where((e) => e != id).toList();
     } else if (!_enabledIds.contains(id)) {

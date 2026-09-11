@@ -193,6 +193,9 @@
   "importErrorReadFailed": "Datei konnte nicht gelesen werden: {error}",
   "importErrorInvalidJson": "Die ausgewählte Datei ist kein gültiges JSON.",
 
+  "modesRuleSwitchFirst": "Wechsle zu einem anderen Modus, bevor du diesen ausschaltest.",
+  "modesRuleKeepOne": "Mindestens ein Modus muss eingeschaltet bleiben.",
+
   "startupFailedTitle": "Don't Drink konnte nicht starten",
   "startupFailedBody": "Deine Daten sind sicher und unverändert. Bitte melde diesen Fehler."
 }

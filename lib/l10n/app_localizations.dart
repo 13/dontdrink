@@ -1114,6 +1114,18 @@ abstract class AppLocalizations {
   /// **'The selected file is not valid JSON.'**
   String get importErrorInvalidJson;
 
+  /// No description provided for @modesRuleSwitchFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to another mode before turning this one off.'**
+  String get modesRuleSwitchFirst;
+
+  /// No description provided for @modesRuleKeepOne.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one mode has to stay on.'**
+  String get modesRuleKeepOne;
+
   /// No description provided for @startupFailedTitle.
   ///
   /// In en, this message translates to:

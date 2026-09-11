@@ -677,6 +677,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importErrorInvalidJson => 'The selected file is not valid JSON.';
 
   @override
+  String get modesRuleSwitchFirst =>
+      'Switch to another mode before turning this one off.';
+
+  @override
+  String get modesRuleKeepOne => 'At least one mode has to stay on.';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink couldn\'t start';
 
   @override

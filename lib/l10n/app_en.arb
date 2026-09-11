@@ -256,6 +256,9 @@
   "@importErrorReadFailed": {"placeholders": {"error": {"type": "String"}}},
   "importErrorInvalidJson": "The selected file is not valid JSON.",
 
+  "modesRuleSwitchFirst": "Switch to another mode before turning this one off.",
+  "modesRuleKeepOne": "At least one mode has to stay on.",
+
   "startupFailedTitle": "Don't Drink couldn't start",
   "startupFailedBody": "Your data is safe and has not been changed. Please report this error."
 }

@@ -193,6 +193,9 @@
   "importErrorReadFailed": "Lettura del file non riuscita: {error}",
   "importErrorInvalidJson": "Il file selezionato non è un JSON valido.",
 
+  "modesRuleSwitchFirst": "Passa a un'altra modalità prima di disattivare questa.",
+  "modesRuleKeepOne": "Almeno una modalità deve restare attiva.",
+
   "startupFailedTitle": "Don't Drink non è riuscita ad avviarsi",
   "startupFailedBody": "I tuoi dati sono al sicuro e non sono stati modificati. Segnala questo errore."
 }
