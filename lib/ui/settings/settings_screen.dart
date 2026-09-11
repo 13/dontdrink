@@ -1,8 +1,11 @@
+import 'dart:io' show Platform;
+
 import 'package:dont_drink/core/models/day_entry.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
 import 'package:dont_drink/services/export_import_service.dart';
 import 'package:dont_drink/ui/settings/widgets/modes_section.dart';
+import 'package:dont_drink/ui/settings/widgets/update_section.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/mode_viewmodel.dart';
@@ -81,6 +84,11 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 24),
             const SectionHeader('Data'),
             const _DataSection(),
+            if (Platform.isAndroid) ...[
+              const SizedBox(height: 24),
+              const SectionHeader('Updates'),
+              const UpdateSection(),
+            ],
             const SizedBox(height: 24),
             const SectionHeader('About'),
             const _AboutCard(),
