@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:dont_drink/core/models/day_entry.dart';
+import 'package:dont_drink/data/database/app_database.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
 import 'package:dont_drink/data/static/modes/dont_drink_mode.dart';
 import 'package:dont_drink/viewmodels/mode_viewmodel.dart';
+import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -36,6 +38,11 @@ void main() {
     for (final id in ['dont_drink', 'dont_smoke', 'no_contact']) {
       await entries.deleteAllForMode(id);
     }
+    // Custom modes created by one test otherwise leak into the next, since
+    // AppDatabase.instance is a process-wide singleton shared by every test
+    // in this file.
+    final db = await AppDatabase.instance.database;
+    await db.delete(AppDatabase.tableModes);
   });
 
   Future<ModeViewModel> buildVm() async {
@@ -128,5 +135,60 @@ void main() {
     expect(vm.activeMode.id, 'dont_drink');
     expect(vm.allAvailableModes.map((m) => m.id), isNot(contains(mode.id)));
     expect(switched, ['dont_drink']);
+  });
+
+  test('updateCustom renames a non-active mode without touching activeMode',
+      () async {
+    final vm = await buildVm();
+    final mode = await vm.createCustom('No Sugar', '🍭');
+    // dont_drink stays active — the new custom mode is not.
+    expect(vm.activeMode.id, 'dont_drink');
+
+    await vm.updateCustom(mode.id, 'No Sugar At All', '🚫');
+
+    final updated =
+        vm.allAvailableModes.firstWhere((m) => m.id == mode.id);
+    expect(updated.name, 'No Sugar At All');
+    expect(updated.emoji, '🚫');
+    expect(vm.activeMode.id, 'dont_drink');
+  });
+
+  test('updateCustom renaming the active mode refreshes the held instance',
+      () async {
+    final vm = await buildVm();
+    final mode = await vm.createCustom('Temp', '🎯');
+    await vm.setActive(mode.id);
+    switched.clear();
+
+    await vm.updateCustom(mode.id, 'Renamed', '✨');
+
+    expect(vm.activeMode.id, mode.id);
+    expect(vm.activeMode.name, 'Renamed');
+    expect(vm.activeMode.emoji, '✨');
+  });
+
+  test(
+      'logging and clearing a day refreshes the tracker\'s mode streak '
+      'through onDataChanged, with no explicit refreshStreaks call',
+      () async {
+    final vm = await buildVm();
+    final tracker =
+        TrackerViewModel(repository: entries, mode: kDontDrinkMode);
+    await tracker.load();
+    tracker.onDataChanged = vm.refreshStreaks;
+
+    expect(vm.streakFor('dont_drink'), 0);
+
+    // onDataChanged is a fire-and-forget VoidCallback (it must be, to match
+    // TrackerViewModel's signature) even though ModeViewModel.refreshStreaks
+    // is async, so give its microtasks a chance to run before asserting —
+    // exactly as a real UI frame would after logDay's notifyListeners.
+    await tracker.logDay(DateTime.now(), kDontDrinkLevels[0]);
+    await pumpEventQueue();
+    expect(vm.streakFor('dont_drink'), 1);
+
+    await tracker.clearDay(DateTime.now());
+    await pumpEventQueue();
+    expect(vm.streakFor('dont_drink'), 0);
   });
 }

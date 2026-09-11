@@ -63,8 +63,7 @@ class ModeViewModel extends ChangeNotifier {
     _all = await _repo.allModes();
     _enabledIds = await _repo.enabledModeIds();
     _active = await _repo.resolveActiveMode();
-    await refreshStreaks();
-    notifyListeners();
+    await refreshStreaks(); // ends in its own notifyListeners()
   }
 
   /// Recompute the cached streak for every enabled mode. Cheap: at most one
@@ -81,9 +80,12 @@ class ModeViewModel extends ChangeNotifier {
     final mode = _byId(id);
     if (mode == null || mode.id == _active?.id) return;
     _active = mode;
-    notifyListeners();
+    // Persist and switch the tracker over before announcing the change, so
+    // any listener that reads activeMode alongside the tracker never sees
+    // the new mode name paired with the old mode's still-loaded data.
     await _repo.setActiveModeId(id);
     await onActiveModeChanged(mode);
+    notifyListeners();
   }
 
   /// Enable or disable a mode.
@@ -115,8 +117,7 @@ class ModeViewModel extends ChangeNotifier {
     _all = await _repo.allModes();
     _enabledIds = [..._enabledIds, mode.id];
     await _repo.setEnabledModeIds(_enabledIds);
-    await refreshStreaks();
-    notifyListeners();
+    await refreshStreaks(); // ends in its own notifyListeners()
     return mode;
   }
 
@@ -142,8 +143,7 @@ class ModeViewModel extends ChangeNotifier {
       await onActiveModeChanged(activeMode);
     }
     _streaks.remove(id);
-    await refreshStreaks();
-    notifyListeners();
+    await refreshStreaks(); // ends in its own notifyListeners()
   }
 
   /// How many days [modeId] has logged — shown in the delete confirmation.
