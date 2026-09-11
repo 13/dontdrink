@@ -16,6 +16,7 @@ class StatisticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<TrackerViewModel>();
+    final mode = vm.mode;
     final stats = vm.stats;
     const service = StatsService();
     final monthly = service.recentMonths(vm.allEntries, count: 6);
@@ -32,7 +33,7 @@ class StatisticsScreen extends StatelessWidget {
               sliver: SliverList.list(
                 children: [
                   const SectionHeader('Quick Stats'),
-                  QuickStatsRow(stats: stats),
+                  QuickStatsRow(stats: stats, cleanDayLabel: mode.cleanDayLabel),
                   const SizedBox(height: 24),
                   const SectionHeader('This Month'),
                   MonthSummaryCard(
@@ -53,7 +54,7 @@ class StatisticsScreen extends StatelessWidget {
                       ),
                     )
                   else ...[
-                    const SectionHeader('Alcohol-Free Days per Month'),
+                    SectionHeader('${mode.cleanDayLabel} Days per Month'),
                     AppCard(
                       child: SizedBox(
                         height: 220,
@@ -61,7 +62,7 @@ class StatisticsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const SectionHeader('Drinking Distribution'),
+                    const SectionHeader('Day Distribution'),
                     AppCard(
                       child: SizedBox(
                         height: 220,
@@ -78,6 +79,7 @@ class StatisticsScreen extends StatelessWidget {
                       longestStreak: stats.longestStreak,
                       freePct: stats.cleanDayPercentage,
                       totalLogged: stats.totalLoggedDays,
+                      cleanDayLabel: mode.cleanDayLabel,
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -97,12 +99,14 @@ class _OverviewCard extends StatelessWidget {
     required this.longestStreak,
     required this.freePct,
     required this.totalLogged,
+    required this.cleanDayLabel,
   });
 
   final List<MonthlyTotals> monthly;
   final int longestStreak;
   final double freePct;
   final int totalLogged;
+  final String cleanDayLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +119,7 @@ class _OverviewCard extends StatelessWidget {
         children: [
           _row(context, 'Longest streak', '$longestStreak days'),
           const Divider(height: 24),
-          _row(context, 'Alcohol-free rate',
+          _row(context, '$cleanDayLabel rate',
               '${freePct.toStringAsFixed(0)}%'),
           const Divider(height: 24),
           _row(context, 'Total days logged', '$totalLogged'),
@@ -124,7 +128,7 @@ class _OverviewCard extends StatelessWidget {
             _row(
               context,
               'Best month',
-              '${_monthName(bestMonth.month.month)} (${bestMonth.cleanDays} free)',
+              '${_monthName(bestMonth.month.month)} (${bestMonth.cleanDays} clean)',
             ),
           ],
         ],

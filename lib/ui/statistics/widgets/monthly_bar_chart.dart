@@ -3,7 +3,7 @@ import 'package:dont_drink/services/stats_service.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-/// Bar chart of alcohol-free days for each of the recent months.
+/// Bar chart of clean days for each of the recent months.
 class MonthlyBarChart extends StatelessWidget {
   const MonthlyBarChart({super.key, required this.data});
 

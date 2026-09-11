@@ -5,18 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 /// Full recovery timeline section — reused in both Stats and Awards screens.
+/// Renders nothing for a mode whose content pack has no recovery milestones.
 class RecoverySection extends StatelessWidget {
   const RecoverySection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final streakHours =
-        context.select<TrackerViewModel, int>((vm) => vm.stats.currentStreak) *
-            24;
-    final byTier = kRecoveryByTier;
-    final totalMilestones = kRecoveryTimeline.length;
-    final reachedCount =
-        kRecoveryTimeline.where((m) => streakHours >= m.afterHours).length;
+    final vm = context.watch<TrackerViewModel>();
+    final pack = vm.mode.content;
+    if (!pack.hasRecovery) return const SizedBox.shrink();
+
+    final streakHours = vm.stats.currentStreak * 24;
+    final byTier = pack.recoveryByTier;
+    final totalMilestones = pack.recoveryMilestones.length;
+    final reachedCount = pack.recoveryMilestones
+        .where((m) => streakHours >= m.afterHours)
+        .length;
 
     return Column(
       children: [

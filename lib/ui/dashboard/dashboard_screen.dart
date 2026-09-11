@@ -40,6 +40,7 @@ class DashboardScreen extends StatelessWidget {
                   StreakHero(
                     currentStreak: vm.stats.currentStreak,
                     longestStreak: vm.stats.longestStreak,
+                    cleanDayLabel: vm.mode.cleanDayLabel,
                   ),
                   if (todayEntry == null) ...[
                     const SizedBox(height: 16),

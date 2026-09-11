@@ -4,7 +4,9 @@ import 'package:dont_drink/ui/motivation/motivation_screen.dart';
 import 'package:dont_drink/ui/recovery/recovery_screen.dart';
 import 'package:dont_drink/ui/settings/settings_screen.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
+import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 /// Hub for the secondary screens that don't warrant a primary tab.
 class MoreScreen extends StatelessWidget {
@@ -12,21 +14,24 @@ class MoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pack = context.watch<TrackerViewModel>().mode.content;
     final items = <_MoreItem>[
-      _MoreItem(
-        icon: Icons.timeline,
-        color: AppColors.brand,
-        title: 'Recovery Timeline',
-        subtitle: 'What your body gains over time',
-        builder: (_) => const RecoveryScreen(),
-      ),
-      _MoreItem(
-        icon: Icons.lightbulb_outline,
-        color: const Color(0xFFFF9800),
-        title: 'Facts',
-        subtitle: 'Harms of alcohol & benefits of quitting',
-        builder: (_) => const FactsScreen(),
-      ),
+      if (pack.hasRecovery)
+        _MoreItem(
+          icon: Icons.timeline,
+          color: AppColors.brand,
+          title: 'Recovery Timeline',
+          subtitle: pack.recoverySubtitle,
+          builder: (_) => const RecoveryScreen(),
+        ),
+      if (pack.hasFacts)
+        _MoreItem(
+          icon: Icons.lightbulb_outline,
+          color: const Color(0xFFFF9800),
+          title: 'Facts',
+          subtitle: pack.factsSubtitle,
+          builder: (_) => const FactsScreen(),
+        ),
       _MoreItem(
         icon: Icons.favorite_outline,
         color: const Color(0xFFF44336),
@@ -38,7 +43,7 @@ class MoreScreen extends StatelessWidget {
         icon: Icons.settings_outlined,
         color: AppColors.green,
         title: 'Settings',
-        subtitle: 'Theme, reminders & privacy',
+        subtitle: 'Modes, theme, reminders & privacy',
         builder: (_) => const SettingsScreen(),
       ),
     ];

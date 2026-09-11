@@ -123,6 +123,7 @@ class TrackerViewModel extends ChangeNotifier {
     _recompute();
 
     _pendingUnlocks = _achievements.newlyUnlocked(
+      achievements: _mode.content.achievements,
       previousLongest: previousLongest,
       newLongest: _statsCache.longestStreak,
     );
@@ -162,10 +163,12 @@ class TrackerViewModel extends ChangeNotifier {
 
   // --- Derived helpers for the UI -----------------------------------------
 
-  List<AchievementStatus> get achievements =>
-      _achievements.evaluate(longestStreak: _statsCache.longestStreak);
+  List<AchievementStatus> get achievements => _achievements.evaluate(
+        achievements: _mode.content.achievements,
+        longestStreak: _statsCache.longestStreak,
+      );
 
   /// The next achievement still to unlock, for the dashboard progress hint.
-  Achievement? get nextAchievement =>
-      _achievements.nextLocked(_statsCache.longestStreak);
+  Achievement? get nextAchievement => _achievements.nextLocked(
+      _mode.content.achievements, _statsCache.longestStreak);
 }

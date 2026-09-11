@@ -7,10 +7,12 @@ class StreakHero extends StatelessWidget {
     super.key,
     required this.currentStreak,
     required this.longestStreak,
+    required this.cleanDayLabel,
   });
 
   final int currentStreak;
   final int longestStreak;
+  final String cleanDayLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +77,7 @@ class StreakHero extends StatelessWidget {
               ),
               if (hasStreak)
                 Text(
-                  'alcohol-free',
+                  cleanDayLabel.toLowerCase(),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.white70,
                   ),

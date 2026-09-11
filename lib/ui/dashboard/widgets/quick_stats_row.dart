@@ -5,9 +5,14 @@ import 'package:flutter/material.dart';
 
 /// Two-by-two grid of headline statistics.
 class QuickStatsRow extends StatelessWidget {
-  const QuickStatsRow({super.key, required this.stats});
+  const QuickStatsRow({
+    super.key,
+    required this.stats,
+    required this.cleanDayLabel,
+  });
 
   final TrackerStats stats;
+  final String cleanDayLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +21,7 @@ class QuickStatsRow extends StatelessWidget {
         icon: Icons.percent,
         color: AppColors.green,
         value: '${stats.cleanDayPercentage.toStringAsFixed(0)}%',
-        label: 'Alcohol-free',
+        label: cleanDayLabel,
       ),
       _StatData(
         icon: Icons.local_fire_department,

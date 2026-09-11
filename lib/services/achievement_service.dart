@@ -1,5 +1,4 @@
 import 'package:dont_drink/core/models/achievement.dart';
-import 'package:dont_drink/data/static/achievements_data.dart';
 
 /// A view of an achievement plus whether the user has unlocked it.
 class AchievementStatus {
@@ -12,12 +11,17 @@ class AchievementStatus {
 /// Derives achievement unlock state from streak data.
 ///
 /// An achievement is considered permanently earned once the user's *longest*
-/// streak has ever reached its threshold — so a relapse doesn't erase a badge.
+/// streak in that mode has ever reached its threshold — so a relapse doesn't
+/// erase a badge. The achievement list comes from the active mode's content
+/// pack, so badges never cross between modes.
 class AchievementService {
   const AchievementService();
 
-  List<AchievementStatus> evaluate({required int longestStreak}) {
-    return kAchievements
+  List<AchievementStatus> evaluate({
+    required List<Achievement> achievements,
+    required int longestStreak,
+  }) {
+    return achievements
         .map((a) => AchievementStatus(
               achievement: a,
               unlocked: longestStreak >= a.dayThreshold,
@@ -28,18 +32,19 @@ class AchievementService {
   /// Achievements newly crossed when the longest streak grows from
   /// [previousLongest] to [newLongest]. Used to trigger unlock animations.
   List<Achievement> newlyUnlocked({
+    required List<Achievement> achievements,
     required int previousLongest,
     required int newLongest,
   }) {
-    return kAchievements
+    return achievements
         .where((a) =>
             a.dayThreshold > previousLongest && a.dayThreshold <= newLongest)
         .toList();
   }
 
   /// The next achievement the user is working toward, or null if all unlocked.
-  Achievement? nextLocked(int longestStreak) {
-    for (final a in kAchievements) {
+  Achievement? nextLocked(List<Achievement> achievements, int longestStreak) {
+    for (final a in achievements) {
       if (longestStreak < a.dayThreshold) return a;
     }
     return null;

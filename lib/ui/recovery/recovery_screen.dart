@@ -9,10 +9,11 @@ class RecoveryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final streak = context.select<TrackerViewModel, int>(
-        (vm) => vm.stats.currentStreak);
+    final vm = context.watch<TrackerViewModel>();
+    final streak = vm.stats.currentStreak;
     final streakHours = streak * 24;
-    final byTier = kRecoveryByTier;
+    final pack = vm.mode.content;
+    final byTier = pack.recoveryByTier;
 
     // Flat list of items to render: tier header then its milestones.
     final items = <_ListItem>[];
@@ -42,7 +43,7 @@ class RecoveryScreen extends StatelessWidget {
               streak > 0
                   ? "You're $streak ${streak == 1 ? 'day' : 'days'} into recovery. "
                       "Here's what your body is doing."
-                  : 'Start an alcohol-free streak to begin your recovery journey.',
+                  : 'Start a streak to begin your recovery journey.',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
