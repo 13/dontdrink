@@ -244,8 +244,9 @@ class _DataSectionState extends State<_DataSection> {
                 'Imported $count ${count == 1 ? "entry" : "entries"}';
             _showSnack(
               skipped > 0
-                  ? '$base. $skipped entries were skipped because they '
-                      'could not be read.'
+                  ? '$base. $skipped ${skipped == 1 ? "entry" : "entries"} '
+                      '${skipped == 1 ? "was" : "were"} skipped because '
+                      '${skipped == 1 ? "it" : "they"} could not be read.'
                   : '$base successfully.',
             );
           }

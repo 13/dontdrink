@@ -13,8 +13,15 @@ import 'package:provider/provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Notifications init is best-effort; the app works fully without them.
-  await NotificationService.instance.init();
+  // Notifications init is best-effort; the app works fully without them, so
+  // a failure here (e.g. tz.initializeTimeZones() or the plugin's
+  // initialize() throwing) is swallowed rather than allowed to take down
+  // startup the way an unguarded throw did before this try/catch existed.
+  try {
+    await NotificationService.instance.init();
+  } catch (e, stack) {
+    debugPrint('Notification init failed (continuing without it): $e\n$stack');
+  }
 
   final entryRepository = EntryRepository();
   final modeRepository = ModeRepository(entries: entryRepository);
