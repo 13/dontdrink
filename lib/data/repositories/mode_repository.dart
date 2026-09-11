@@ -61,6 +61,27 @@ class ModeRepository {
     return customModeFrom(id: id, name: name, emoji: emoji);
   }
 
+  /// Recreate a custom mode with its original id — used when importing a
+  /// backup, where entries already reference that id.
+  Future<ModeDefinition> restoreCustom({
+    required String id,
+    required String name,
+    required String emoji,
+  }) async {
+    final db = await _appDb.database;
+    await db.insert(
+      AppDatabase.tableModes,
+      {
+        'id': id,
+        'name': name,
+        'emoji': emoji,
+        'created_at': DateTime.now().millisecondsSinceEpoch,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    return customModeFrom(id: id, name: name, emoji: emoji);
+  }
+
   Future<void> updateCustom(
     String id, {
     required String name,

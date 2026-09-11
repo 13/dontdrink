@@ -1,8 +1,11 @@
+import 'package:dont_drink/core/models/day_entry.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
+import 'package:dont_drink/data/repositories/mode_repository.dart';
 import 'package:dont_drink/services/export_import_service.dart';
 import 'package:dont_drink/ui/settings/widgets/modes_section.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
+import 'package:dont_drink/viewmodels/mode_viewmodel.dart';
 import 'package:dont_drink/viewmodels/settings_viewmodel.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -175,8 +178,13 @@ class _DataSectionState extends State<_DataSection> {
   Future<void> _export() async {
     setState(() => _exporting = true);
     try {
-      final entries = context.read<TrackerViewModel>().allEntries;
-      await _service.export(entries);
+      final modeVm = context.read<ModeViewModel>();
+      final repo = EntryRepository();
+      final modes = modeVm.allAvailableModes;
+      final byMode = <String, List<DayEntry>>{
+        for (final mode in modes) mode.id: await repo.getAll(mode),
+      };
+      await _service.export(modes: modes, entriesByMode: byMode);
     } catch (e) {
       if (mounted) {
         _showSnack('Export failed: $e', isError: true);
@@ -192,10 +200,10 @@ class _DataSectionState extends State<_DataSection> {
       builder: (ctx) => AlertDialog(
         title: const Text('Import data'),
         content: const Text(
-          'Importing a backup will merge its entries with your current data. '
-          'Days already logged will be overwritten with the values from the file. '
-          'Days not present in the file are left unchanged.\n\n'
-          'Continue?',
+          'Importing a backup will merge its entries with your current data, '
+          'across all modes. Days already logged will be overwritten with the '
+          'values from the file. Days not present in the file are left '
+          'unchanged.\n\nContinue?',
         ),
         actions: [
           TextButton(
@@ -218,14 +226,19 @@ class _DataSectionState extends State<_DataSection> {
     setState(() => _importing = true);
     try {
       final repo = EntryRepository();
-      final result = await _service.import(repo);
+      final result = await _service.import(
+        entries: repo,
+        modes: ModeRepository(entries: repo),
+      );
 
       if (!mounted) return;
 
       switch (result) {
         case ImportSuccess(:final count):
-          // Reload the ViewModel so the dashboard/calendar reflect changes.
+          // Reload the ViewModels so the dashboard/calendar/mode list reflect
+          // changes, including any custom modes the backup recreated.
           await context.read<TrackerViewModel>().load();
+          if (mounted) await context.read<ModeViewModel>().load();
           if (mounted) {
             _showSnack('Imported $count ${count == 1 ? "entry" : "entries"} successfully.');
           }
