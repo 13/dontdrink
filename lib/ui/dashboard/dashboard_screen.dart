@@ -3,8 +3,10 @@ import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/ui/calendar/widgets/month_grid.dart';
 import 'package:dont_drink/ui/dashboard/widgets/next_achievement_card.dart';
 import 'package:dont_drink/ui/dashboard/widgets/streak_hero.dart';
+import 'package:dont_drink/ui/shell/home_shell.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/day_entry_sheet.dart';
+import 'package:dont_drink/ui/widgets/mode_switcher.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -29,9 +31,12 @@ class DashboardScreen extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            const SliverAppBar(
+            SliverAppBar(
               floating: true,
-              title: Text("Don't Drink"),
+              title: ModeSwitcher(
+                onManageModes: () => HomeShellController.instance
+                    .selectTab(HomeShellController.settingsTab),
+              ),
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
