@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Grants the system package installer read access to the APK we download
-     into the app's own cache directory. open_filex provides the FileProvider
-     that consumes this. -->
-<paths>
-    <cache-path name="cache" path="."/>
-    <external-cache-path name="external_cache" path="."/>
-</paths>

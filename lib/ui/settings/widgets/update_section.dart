@@ -130,13 +130,33 @@ class UpdateSection extends StatelessWidget {
               child: const Text('Install'),
             ),
           ),
-        UpdateError(:final message) => ListTile(
+        UpdateCheckError(:final message) => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
             title: const Text("Couldn't check for updates"),
             subtitle: Text(message),
             trailing: TextButton(
               onPressed: () => context.read<UpdateViewModel>().checkNow(),
+              child: const Text('Retry'),
+            ),
+          ),
+        UpdateDownloadError(:final message) => ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
+            title: const Text('Download failed'),
+            subtitle: Text(message),
+            trailing: TextButton(
+              onPressed: () => context.read<UpdateViewModel>().download(),
+              child: const Text('Retry'),
+            ),
+          ),
+        UpdateInstallError(:final message) => ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
+            title: const Text("Couldn't start the installer"),
+            subtitle: Text(message),
+            trailing: TextButton(
+              onPressed: () => context.read<UpdateViewModel>().install(),
               child: const Text('Retry'),
             ),
           ),

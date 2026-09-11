@@ -198,6 +198,35 @@ class UpdateService {
     }
   }
 
+  /// Remove APKs left in the cache by previous updates. The install intent is
+  /// asynchronous, so the file cannot safely be deleted right after handing it
+  /// over — it is swept on the next launch instead.
+  ///
+  /// Best-effort only: every error (missing directory, a file locked by the
+  /// installer, permission trouble) is swallowed, since a failure to clean up
+  /// must never surface as a visible error.
+  Future<void> cleanUpDownloadedApks() async {
+    try {
+      final dir = await getTemporaryDirectory();
+      if (!dir.existsSync()) return;
+      await for (final entity in dir.list()) {
+        if (entity is! File) continue;
+        final name = entity.uri.pathSegments.last;
+        if (!name.startsWith('dont-drink-') || !name.endsWith('.apk')) {
+          continue;
+        }
+        try {
+          await entity.delete();
+        } catch (_) {
+          // Best-effort: skip a file we can't remove right now, try again
+          // next launch.
+        }
+      }
+    } catch (_) {
+      // Best-effort cleanup only; never let this affect startup.
+    }
+  }
+
   /// Hand [apk] to Android's package installer.
   ///
   /// Returns true when the installer was launched. On Android 8+ the

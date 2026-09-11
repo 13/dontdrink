@@ -6,7 +6,13 @@
 
     <!-- The in-app updater: fetch the latest release from api.github.com and
          hand the downloaded APK to the system installer. No tracking data
-         ever leaves the device. -->
+         ever leaves the device.
+
+         Installing a locally-downloaded APK needs a FileProvider to grant the
+         installer read access; open_filex supplies its own (@xml/filepaths,
+         which declares a cache-path covering the whole cache dir) via its own
+         manifest merge, so no app-side <provider> or paths resource is
+         declared here. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
 

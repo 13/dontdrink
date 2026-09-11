@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:dont_drink/ui/achievements/achievements_screen.dart';
 import 'package:dont_drink/ui/dashboard/dashboard_screen.dart';
 import 'package:dont_drink/ui/settings/settings_screen.dart';
@@ -87,6 +89,10 @@ class _HomeShellState extends State<HomeShell> {
 
 /// Wraps [child] in a small dot when an update is waiting, so the Settings tab
 /// advertises it without a dialog.
+///
+/// Android-only: the updater never runs on iOS (see main.dart), and the
+/// Settings card that could clear this badge is hidden there too, so a badge
+/// on iOS would stay lit forever.
 class _MaybeBadged extends StatelessWidget {
   const _MaybeBadged({required this.child});
 
@@ -94,6 +100,7 @@ class _MaybeBadged extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!Platform.isAndroid) return child;
     final showDot =
         context.select<UpdateViewModel, bool>((vm) => vm.updateAvailable);
     if (!showDot) return child;

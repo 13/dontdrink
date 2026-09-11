@@ -46,8 +46,28 @@ class UpdateReadyToInstall extends UpdateState {
   final File file;
 }
 
-class UpdateError extends UpdateState {
-  const UpdateError(this.message);
+/// A deliberate [UpdateViewModel.checkNow] failed. There is no known release
+/// to retry with — retry means checking again.
+class UpdateCheckError extends UpdateState {
+  const UpdateCheckError(this.message);
+  final String message;
+}
+
+/// [UpdateViewModel.download] failed partway through. [release] is retained
+/// so retry re-downloads the same release rather than losing track of it.
+class UpdateDownloadError extends UpdateState {
+  const UpdateDownloadError(this.release, this.message);
+  final AppRelease release;
+  final String message;
+}
+
+/// [UpdateViewModel.install] failed to hand the APK to the installer.
+/// [release] and [file] are retained so retry reuses the already-downloaded,
+/// already-validated APK rather than re-downloading it.
+class UpdateInstallError extends UpdateState {
+  const UpdateInstallError(this.release, this.file, this.message);
+  final AppRelease release;
+  final File file;
   final String message;
 }
 
@@ -73,11 +93,16 @@ class UpdateViewModel extends ChangeNotifier {
   UpdateState get state => _state;
 
   /// True when there is a newer release the user has been told about — drives
-  /// the badge on the Settings tab.
+  /// the badge on the Settings tab. A download or install error still means
+  /// an update is pending (the release is known and retry is one tap away),
+  /// so those keep the badge lit; a check error does not, since no release is
+  /// known to be waiting.
   bool get updateAvailable =>
       _state is UpdateAvailable ||
       _state is UpdateDownloading ||
-      _state is UpdateReadyToInstall;
+      _state is UpdateReadyToInstall ||
+      _state is UpdateDownloadError ||
+      _state is UpdateInstallError;
 
   void _set(UpdateState next) {
     _state = next;
@@ -100,9 +125,9 @@ class UpdateViewModel extends ChangeNotifier {
       }
       _set(UpdateAvailable(release));
     } on UpdateException catch (e) {
-      _set(UpdateError(e.message));
+      _set(UpdateCheckError(e.message));
     } catch (e) {
-      _set(UpdateError('Update check failed: $e'));
+      _set(UpdateCheckError('Update check failed: $e'));
     }
   }
 
@@ -138,48 +163,92 @@ class UpdateViewModel extends ChangeNotifier {
 
   /// Download the available release's APK, reporting progress.
   ///
+  /// Runs from [UpdateAvailable] (the normal path) or [UpdateDownloadError]
+  /// (retry after a failed download) — both carry the release to download.
+  ///
   /// [UpdateService.downloadApk]'s `onProgress` fires once per network
   /// chunk — hundreds to low thousands of times for a multi-megabyte APK.
-  /// Each call is throttled to at most one `notifyListeners()` per whole
-  /// percentage point, except the very last one (received >= total), which
-  /// always goes through so the progress bar reliably reaches 100%.
+  /// When the total size is known, each call is throttled to at most one
+  /// `notifyListeners()` per whole percentage point. When it is unknown
+  /// (`percent` is null, so the UI shows an indeterminate bar that cannot
+  /// benefit from percent-based throttling), it is instead throttled to at
+  /// most one emission per 100ms. Either way the very last call (received >=
+  /// total) always goes through, so a determinate bar reliably reaches 100%.
   Future<void> download() async {
-    final available = _state;
-    if (available is! UpdateAvailable) return;
+    final AppRelease release;
+    final current = _state;
+    if (current is UpdateAvailable) {
+      release = current.release;
+    } else if (current is UpdateDownloadError) {
+      release = current.release;
+    } else {
+      return;
+    }
 
-    _set(UpdateDownloading(available.release, 0, available.release.apkSizeBytes));
+    _set(UpdateDownloading(release, 0, release.apkSizeBytes));
     int? lastEmittedPercent;
+    DateTime? lastEmittedAt;
     try {
       final file = await _service.downloadApk(
-        available.release,
+        release,
         onProgress: (received, total) {
           final isFinal = total > 0 && received >= total;
           final percent = total > 0 ? (received * 100) ~/ total : null;
-          if (!isFinal && percent != null && percent == lastEmittedPercent) {
-            return;
+          if (!isFinal) {
+            if (percent != null) {
+              if (percent == lastEmittedPercent) return;
+            } else {
+              final now = DateTime.now();
+              if (lastEmittedAt != null &&
+                  now.difference(lastEmittedAt!) <
+                      const Duration(milliseconds: 100)) {
+                return;
+              }
+              lastEmittedAt = now;
+            }
           }
           lastEmittedPercent = percent;
-          _set(UpdateDownloading(available.release, received, total));
+          _set(UpdateDownloading(release, received, total));
         },
       );
-      _set(UpdateReadyToInstall(available.release, file));
+      _set(UpdateReadyToInstall(release, file));
     } on UpdateException catch (e) {
-      _set(UpdateError(e.message));
+      _set(UpdateDownloadError(release, e.message));
     } catch (e) {
-      _set(UpdateError('Download failed: $e'));
+      _set(UpdateDownloadError(release, 'Download failed: $e'));
     }
   }
 
   /// Hand the downloaded APK to the system installer.
+  ///
+  /// Runs from [UpdateReadyToInstall] (the normal path) or
+  /// [UpdateInstallError] (retry after a failed install) — both carry the
+  /// already-downloaded, already-validated file, so retrying here never
+  /// re-downloads it.
+  ///
+  /// Deliberately does not delete [file] on success: the install intent is
+  /// asynchronous, so Android may still be reading it when [installApk]
+  /// returns. It is swept on the next launch instead — see
+  /// [UpdateService.cleanUpDownloadedApks].
   Future<void> install() async {
-    final ready = _state;
-    if (ready is! UpdateReadyToInstall) return;
+    final AppRelease release;
+    final File file;
+    final current = _state;
+    if (current is UpdateReadyToInstall) {
+      release = current.release;
+      file = current.file;
+    } else if (current is UpdateInstallError) {
+      release = current.release;
+      file = current.file;
+    } else {
+      return;
+    }
     try {
-      await _service.installApk(ready.file);
+      await _service.installApk(file);
     } on UpdateException catch (e) {
-      _set(UpdateError(e.message));
+      _set(UpdateInstallError(release, file, e.message));
     } catch (e) {
-      _set(UpdateError('Could not start the installer: $e'));
+      _set(UpdateInstallError(release, file, 'Could not start the installer: $e'));
     }
   }
 
@@ -191,6 +260,11 @@ class UpdateViewModel extends ChangeNotifier {
     await _settings.setSkippedVersion(available.release.version);
     _set(const UpdateIdle());
   }
+
+  /// Remove APKs left in the cache by a previous update's install hand-off.
+  /// Safe to call on every launch; [UpdateService.cleanUpDownloadedApks]
+  /// swallows every error itself.
+  Future<void> cleanUpDownloadedApks() => _service.cleanUpDownloadedApks();
 
   /// Return to the resting state, e.g. after the user dismisses an error.
   void reset() => _set(const UpdateIdle());

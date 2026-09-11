@@ -1,7 +1,9 @@
 import 'dart:async' show unawaited;
+import 'dart:io' show Platform;
 
 import 'package:dont_drink/app.dart';
 import 'package:dont_drink/core/models/mode_definition.dart';
+import 'package:dont_drink/core/theme/font_config.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
 import 'package:dont_drink/data/repositories/settings_repository.dart';
@@ -11,7 +13,6 @@ import 'package:dont_drink/viewmodels/settings_viewmodel.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:dont_drink/viewmodels/update_viewmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
@@ -22,7 +23,7 @@ Future<void> main() async {
   // fonts.gstatic.com. Without this the INTERNET permission the updater needs
   // would silently enable a second network destination, contradicting what the
   // About card tells the user.
-  GoogleFonts.config.allowRuntimeFetching = false;
+  configureBundledFonts();
 
   // Notifications init is best-effort; the app works fully without them, so
   // a failure here (e.g. tz.initializeTimeZones() or the plugin's
@@ -82,10 +83,20 @@ Future<void> main() async {
       ),
     );
 
-    // Once-a-day check for a newer release, after the first frame. Deliberately
-    // not awaited and deliberately silent: it must never delay startup or
-    // interrupt someone opening the app to log a day.
-    unawaited(updateViewModel.silentCheck());
+    // The updater is Android-only: this app is distributed as a sideloaded
+    // APK, and an iOS build cannot install one, nor does it expose any
+    // Settings control that could ever clear a badge the check might set.
+    if (Platform.isAndroid) {
+      // Once-a-day check for a newer release, after the first frame.
+      // Deliberately not awaited and deliberately silent: it must never delay
+      // startup or interrupt someone opening the app to log a day.
+      unawaited(updateViewModel.silentCheck());
+
+      // Sweep any APK left behind by a previous update's install hand-off.
+      // Also not awaited and best-effort: cleanup must never delay startup or
+      // surface an error.
+      unawaited(updateViewModel.cleanUpDownloadedApks());
+    }
   } catch (e, stack) {
     // Startup failed before any provider could be built — most likely the
     // v1→v2 migration hitting a full disk or a corrupt database file. The
