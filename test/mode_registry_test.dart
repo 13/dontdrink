@@ -1,3 +1,4 @@
+import 'package:dont_drink/data/static/modes/custom_mode.dart';
 import 'package:dont_drink/data/static/modes/mode_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -58,6 +59,37 @@ void main() {
 
     test('builtInModeById returns null for an unknown id', () {
       expect(builtInModeById('nope'), isNull);
+    });
+  });
+
+  group('custom modes', () {
+    test('use the three-level template and have no facts or recovery', () {
+      final mode = customModeFrom(id: 'custom_1', name: 'My Mode', emoji: '🎯');
+      expect(mode.levels.length, 3);
+      expect(mode.isBuiltIn, isFalse);
+      expect(mode.cleanLevel.value, 0);
+      expect(mode.content.hasFacts, isFalse);
+      expect(mode.content.hasRecovery, isFalse);
+      expect(mode.content.motivations, isNotEmpty);
+    });
+
+    test('prefix their achievement ids with the mode id', () {
+      final mode = customModeFrom(id: 'custom_1', name: 'My Mode', emoji: '🎯');
+      expect(mode.content.achievements.first.id, 'custom_1.day_1');
+      for (final a in mode.content.achievements) {
+        expect(a.id, startsWith('custom_1.'));
+      }
+    });
+
+    test('two custom modes do not share achievement ids', () {
+      final a = customModeFrom(id: 'custom_1', name: 'A', emoji: '🎯');
+      final b = customModeFrom(id: 'custom_2', name: 'B', emoji: '🎲');
+      final ids = {
+        ...a.content.achievements.map((x) => x.id),
+        ...b.content.achievements.map((x) => x.id),
+      };
+      expect(ids.length,
+          a.content.achievements.length + b.content.achievements.length);
     });
   });
 }
