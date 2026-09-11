@@ -48,6 +48,10 @@ dependencies:
   share_plus: ^10.1.4
   file_picker: ^8.0.0
 
+  # Hands a downloaded APK to Android's package installer. Ships its own
+  # FileProvider, so we must NOT declare a second one.
+  open_filex: ^4.7.0
+
   # Charts for the statistics screen
   fl_chart: ^1.2.0
 
