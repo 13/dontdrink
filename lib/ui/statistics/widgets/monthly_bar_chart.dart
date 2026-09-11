@@ -2,6 +2,7 @@ import 'package:dont_drink/core/theme/app_colors.dart';
 import 'package:dont_drink/services/stats_service.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 /// Bar chart of clean days for each of the recent months.
 class MonthlyBarChart extends StatelessWidget {
@@ -9,14 +10,13 @@ class MonthlyBarChart extends StatelessWidget {
 
   final List<MonthlyTotals> data;
 
-  static const _monthLabels = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Short month names come from the active locale rather than a hardcoded
+    // English list.
+    final monthLabel =
+        DateFormat('MMM', Localizations.localeOf(context).toString());
     final maxY = data.fold<int>(
       0,
       (m, t) => t.cleanDays > m ? t.cleanDays : m,
@@ -62,7 +62,7 @@ class MonthlyBarChart extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
-                    _monthLabels[data[i].month.month - 1],
+                    monthLabel.format(data[i].month),
                     style: theme.textTheme.labelSmall,
                   ),
                 );

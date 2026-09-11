@@ -1,4 +1,5 @@
 import 'package:dont_drink/core/theme/app_colors.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/services/stats_service.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class QuickStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final tiles = [
       _StatData(
         icon: Icons.percent,
@@ -27,19 +29,19 @@ class QuickStatsRow extends StatelessWidget {
         icon: Icons.local_fire_department,
         color: const Color(0xFFFF9800),
         value: '${stats.currentStreak}',
-        label: 'Current streak',
+        label: l10n.statCurrentStreak,
       ),
       _StatData(
         icon: Icons.emoji_events,
         color: const Color(0xFFFFC107),
         value: '${stats.longestStreak}',
-        label: 'Longest streak',
+        label: l10n.statLongestStreak,
       ),
       _StatData(
         icon: Icons.event_available,
         color: AppColors.brand,
         value: '${stats.totalCleanDays}',
-        label: 'Total clean days',
+        label: l10n.statTotalCleanDays,
       ),
     ];
 

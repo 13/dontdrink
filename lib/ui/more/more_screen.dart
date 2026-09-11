@@ -1,4 +1,5 @@
 import 'package:dont_drink/core/theme/app_colors.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/facts/facts_screen.dart';
 import 'package:dont_drink/ui/motivation/motivation_screen.dart';
 import 'package:dont_drink/ui/recovery/recovery_screen.dart';
@@ -14,13 +15,14 @@ class MoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final pack = context.watch<TrackerViewModel>().mode.content;
     final items = <_MoreItem>[
       if (pack.hasRecovery)
         _MoreItem(
           icon: Icons.timeline,
           color: AppColors.brand,
-          title: 'Recovery Timeline',
+          title: l10n.recoveryTimelineTitle,
           subtitle: pack.recoverySubtitle,
           builder: (_) => const RecoveryScreen(),
         ),
@@ -28,22 +30,22 @@ class MoreScreen extends StatelessWidget {
         _MoreItem(
           icon: Icons.lightbulb_outline,
           color: const Color(0xFFFF9800),
-          title: 'Facts',
+          title: l10n.factsTitle,
           subtitle: pack.factsSubtitle,
           builder: (_) => const FactsScreen(),
         ),
       _MoreItem(
         icon: Icons.favorite_outline,
         color: const Color(0xFFF44336),
-        title: 'Motivation',
-        subtitle: 'A boost when you need it',
+        title: l10n.motivationTitle,
+        subtitle: l10n.moreMotivationSubtitle,
         builder: (_) => const MotivationScreen(),
       ),
       _MoreItem(
         icon: Icons.settings_outlined,
         color: AppColors.green,
-        title: 'Settings',
-        subtitle: 'Modes, theme, reminders & privacy',
+        title: l10n.navSettings,
+        subtitle: l10n.moreSettingsSubtitle,
         builder: (_) => const SettingsScreen(),
       ),
     ];
@@ -52,7 +54,7 @@ class MoreScreen extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            const SliverAppBar(floating: true, title: Text('More')),
+            SliverAppBar(floating: true, title: Text(l10n.moreTitle)),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
               sliver: SliverList.list(

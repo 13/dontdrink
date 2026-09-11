@@ -32,9 +32,39 @@ class ImportCancelled extends ImportResult {
   const ImportCancelled();
 }
 
+/// Why an import failed. The wording lives in the .arb files: this service
+/// runs outside the widget tree and must not decide what language the user
+/// reads.
+enum ImportFailure {
+  /// The file is JSON, but not one of ours.
+  notABackup,
+
+  /// Our file, but the entries list is absent or the wrong type.
+  missingEntries,
+
+  /// Some entries were written before something threw — a partial import.
+  partial,
+
+  /// The picker returned a file with neither bytes nor a readable path.
+  unreadable,
+
+  /// Reading the bytes threw.
+  readFailed,
+
+  /// The content is not valid JSON at all.
+  invalidJson,
+}
+
 class ImportError extends ImportResult {
-  const ImportError(this.message);
-  final String message;
+  const ImportError(this.failure, {this.detail, this.count = 0});
+
+  final ImportFailure failure;
+
+  /// Exception text for the failures that carry one, else null.
+  final String? detail;
+
+  /// Entries already applied when a [ImportFailure.partial] failure hit.
+  final int count;
 }
 
 /// Handles JSON export and import of all [DayEntry] data, across every
@@ -85,6 +115,7 @@ class ExportImportService {
   Future<void> export({
     required List<ModeDefinition> modes,
     required Map<String, List<DayEntry>> entriesByMode,
+    required String shareSubject,
   }) async {
     final payload = buildPayload(modes: modes, entriesByMode: entriesByMode);
 
@@ -97,7 +128,7 @@ class ExportImportService {
 
     await Share.shareXFiles(
       [XFile(file.path, mimeType: 'application/json')],
-      subject: "Don't Drink — data backup",
+      subject: shareSubject,
     );
   }
 
@@ -122,13 +153,12 @@ class ExportImportService {
     required ModeRepository modes,
   }) async {
     if (payload['app'] != 'dont_drink') {
-      return const ImportError(
-          "This file doesn't look like a Don't Drink backup.");
+      return const ImportError(ImportFailure.notABackup);
     }
 
     final rawEntries = payload['entries'];
     if (rawEntries is! List) {
-      return const ImportError('Backup file is missing the entries list.');
+      return const ImportError(ImportFailure.missingEntries);
     }
 
     final version = payload['version'];
@@ -195,7 +225,7 @@ class ExportImportService {
         }
       }
     } catch (e) {
-      return ImportError('Import failed after $count entries: $e');
+      return ImportError(ImportFailure.partial, detail: '$e', count: count);
     }
 
     return ImportSuccess(count, skipped: skipped);
@@ -227,10 +257,10 @@ class ExportImportService {
       } else if (picked.path != null) {
         content = await File(picked.path!).readAsString(encoding: utf8);
       } else {
-        return const ImportError('Could not read the selected file.');
+        return const ImportError(ImportFailure.unreadable);
       }
     } catch (e) {
-      return ImportError('Failed to read file: $e');
+      return ImportError(ImportFailure.readFailed, detail: '$e');
     }
 
     // Parse JSON.
@@ -238,7 +268,7 @@ class ExportImportService {
     try {
       payload = jsonDecode(content) as Map<String, dynamic>;
     } catch (_) {
-      return const ImportError('The selected file is not valid JSON.');
+      return const ImportError(ImportFailure.invalidJson);
     }
 
     return applyPayload(payload, entries: entries, modes: modes);

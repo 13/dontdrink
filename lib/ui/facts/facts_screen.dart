@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:dont_drink/core/theme/app_colors.dart';
 import 'package:dont_drink/data/static/facts_data.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
@@ -38,11 +39,12 @@ class _FactsScreenState extends State<FactsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final pack = context.watch<TrackerViewModel>().mode.content;
 
     if (!pack.hasFacts) {
-      return const Scaffold(
-        body: Center(child: Text('This mode has no facts yet.')),
+      return Scaffold(
+        body: Center(child: Text(l10n.factsNoneForMode)),
       );
     }
 
@@ -55,12 +57,12 @@ class _FactsScreenState extends State<FactsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Facts')),
+      appBar: AppBar(title: Text(l10n.factsTitle)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
-            const SectionHeader('Fact of the Day'),
+            SectionHeader(l10n.factOfTheDay),
             _FactOfDayCard(
               fact: _factOfDay!,
               onShuffle: () => _shuffle(pack.facts),
@@ -107,7 +109,9 @@ class _FactOfDayCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                fact.isHarm ? '⚠️  Did you know?' : '✨  Good news',
+                fact.isHarm
+                    ? AppLocalizations.of(context).factDidYouKnow
+                    : AppLocalizations.of(context).factGoodNews,
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: Colors.white70,
                   fontWeight: FontWeight.w700,
@@ -116,7 +120,7 @@ class _FactOfDayCard extends StatelessWidget {
               IconButton(
                 onPressed: onShuffle,
                 icon: const Icon(Icons.shuffle, color: Colors.white),
-                tooltip: 'Show another',
+                tooltip: AppLocalizations.of(context).factShowAnother,
               ),
             ],
           ),

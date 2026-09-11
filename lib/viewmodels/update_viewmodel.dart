@@ -127,7 +127,10 @@ class UpdateViewModel extends ChangeNotifier {
     } on UpdateException catch (e) {
       _set(UpdateCheckError(e.message));
     } catch (e) {
-      _set(UpdateCheckError('Update check failed: $e'));
+      // No English prefix here: the card above this message already shows a
+      // translated "Couldn't check for updates" title, and this view model
+      // cannot reach AppLocalizations.
+      _set(UpdateCheckError('$e'));
     }
   }
 
@@ -215,7 +218,7 @@ class UpdateViewModel extends ChangeNotifier {
     } on UpdateException catch (e) {
       _set(UpdateDownloadError(release, e.message));
     } catch (e) {
-      _set(UpdateDownloadError(release, 'Download failed: $e'));
+      _set(UpdateDownloadError(release, '$e'));
     }
   }
 
@@ -248,7 +251,7 @@ class UpdateViewModel extends ChangeNotifier {
     } on UpdateException catch (e) {
       _set(UpdateInstallError(release, file, e.message));
     } catch (e) {
-      _set(UpdateInstallError(release, file, 'Could not start the installer: $e'));
+      _set(UpdateInstallError(release, file, '$e'));
     }
   }
 

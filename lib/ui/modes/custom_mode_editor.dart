@@ -1,4 +1,5 @@
 import 'package:dont_drink/core/models/mode_definition.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/viewmodels/mode_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -62,7 +63,8 @@ class _CustomModeEditorState extends State<CustomModeEditor> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Could not save this mode: $e'),
+            content: Text(
+                AppLocalizations.of(context).modeEditorSaveFailed('$e')),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -75,6 +77,7 @@ class _CustomModeEditorState extends State<CustomModeEditor> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final isNew = widget.existing == null;
 
     // The keyboard insets have to be read from a context *inside* the sheet
@@ -92,13 +95,13 @@ class _CustomModeEditorState extends State<CustomModeEditor> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              isNew ? 'New mode' : 'Rename mode',
+              isNew ? l10n.modeEditorNew : l10n.modeEditorRename,
               style: theme.textTheme.headlineSmall
                   ?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
-              'Custom modes track clean days, slips and relapses.',
+              l10n.modeEditorSubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -109,16 +112,16 @@ class _CustomModeEditorState extends State<CustomModeEditor> {
               autofocus: isNew,
               textCapitalization: TextCapitalization.words,
               maxLength: 24,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                hintText: 'e.g. No Sugar',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.modeEditorName,
+                hintText: l10n.modeEditorNameHint,
+                border: const OutlineInputBorder(),
               ),
               onChanged: (_) => setState(() {}),
               onSubmitted: (_) => _canSave ? _save() : null,
             ),
             const SizedBox(height: 8),
-            Text('Icon', style: theme.textTheme.labelLarge),
+            Text(l10n.modeEditorIcon, style: theme.textTheme.labelLarge),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -137,7 +140,8 @@ class _CustomModeEditorState extends State<CustomModeEditor> {
               width: double.infinity,
               child: FilledButton(
                 onPressed: _canSave ? _save : null,
-                child: Text(isNew ? 'Create mode' : 'Save'),
+                child: Text(
+                    isNew ? l10n.modeEditorCreate : l10n.commonSave),
               ),
             ),
           ],

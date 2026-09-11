@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/viewmodels/update_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class UpdateSection extends StatelessWidget {
 
     final vm = context.watch<UpdateViewModel>();
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return AppCard(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -26,29 +28,29 @@ class UpdateSection extends StatelessWidget {
         UpdateIdle() => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: const Icon(Icons.system_update_outlined),
-            title: const Text('Check for updates'),
-            subtitle: const Text('Looks for a newer release on GitHub'),
+            title: Text(l10n.updateCheck),
+            subtitle: Text(l10n.updateCheckSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.read<UpdateViewModel>().checkNow(),
           ),
-        UpdateChecking() => const ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 12),
-            leading: SizedBox(
+        UpdateChecking() => ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            leading: const SizedBox(
               width: 24,
               height: 24,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
-            title: Text('Checking for updates…'),
+            title: Text(l10n.updateChecking),
           ),
         UpdateUpToDate(:final currentVersion) => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: Icon(Icons.check_circle_outline,
                 color: theme.colorScheme.primary),
-            title: const Text("You're up to date"),
-            subtitle: Text('Version $currentVersion is the latest release'),
+            title: Text(l10n.updateUpToDate),
+            subtitle: Text(l10n.updateUpToDateSubtitle(currentVersion)),
             trailing: TextButton(
               onPressed: () => context.read<UpdateViewModel>().checkNow(),
-              child: const Text('Check again'),
+              child: Text(l10n.updateCheckAgain),
             ),
           ),
         UpdateAvailable(:final release) => Column(
@@ -58,11 +60,12 @@ class UpdateSection extends StatelessWidget {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                 leading: Icon(Icons.system_update,
                     color: theme.colorScheme.primary),
-                title: Text('Version ${release.version} is available'),
+                title: Text(l10n.updateAvailable(release.version)),
                 subtitle: Text(
                   release.apkSizeBytes > 0
-                      ? '${_formatBytes(release.apkSizeBytes)} download'
-                      : 'Tap to download and install',
+                      ? l10n.updateDownloadSize(
+                          _formatBytes(release.apkSizeBytes))
+                      : l10n.updateTapToInstall,
                 ),
               ),
               if (release.notes.trim().isNotEmpty)
@@ -84,14 +87,14 @@ class UpdateSection extends StatelessWidget {
                     TextButton(
                       onPressed: () =>
                           context.read<UpdateViewModel>().skipAvailableVersion(),
-                      child: const Text('Later'),
+                      child: Text(l10n.commonLater),
                     ),
                     const Spacer(),
                     FilledButton.icon(
                       onPressed: () =>
                           context.read<UpdateViewModel>().download(),
                       icon: const Icon(Icons.download),
-                      label: const Text('Download'),
+                      label: Text(l10n.commonDownload),
                     ),
                   ],
                 ),
@@ -103,14 +106,14 @@ class UpdateSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Downloading ${release.version}…',
+                Text(l10n.updateDownloadingVersion(release.version),
                     style: theme.textTheme.titleMedium),
                 const SizedBox(height: 12),
                 LinearProgressIndicator(value: progress),
                 const SizedBox(height: 6),
                 Text(
                   progress == null
-                      ? 'Downloading…'
+                      ? l10n.updateDownloading
                       : '${(progress * 100).round()}%',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
@@ -122,42 +125,41 @@ class UpdateSection extends StatelessWidget {
         UpdateReadyToInstall(:final release) => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: Icon(Icons.download_done, color: theme.colorScheme.primary),
-            title: Text('Version ${release.version} is ready'),
-            subtitle: const Text(
-                'Android will ask you to confirm the installation'),
+            title: Text(l10n.updateReady(release.version)),
+            subtitle: Text(l10n.updateReadySubtitle),
             trailing: FilledButton(
               onPressed: () => context.read<UpdateViewModel>().install(),
-              child: const Text('Install'),
+              child: Text(l10n.commonInstall),
             ),
           ),
         UpdateCheckError(:final message) => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
-            title: const Text("Couldn't check for updates"),
+            title: Text(l10n.updateCheckFailed),
             subtitle: Text(message),
             trailing: TextButton(
               onPressed: () => context.read<UpdateViewModel>().checkNow(),
-              child: const Text('Retry'),
+              child: Text(l10n.commonRetry),
             ),
           ),
         UpdateDownloadError(:final message) => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
-            title: const Text('Download failed'),
+            title: Text(l10n.updateDownloadFailed),
             subtitle: Text(message),
             trailing: TextButton(
               onPressed: () => context.read<UpdateViewModel>().download(),
-              child: const Text('Retry'),
+              child: Text(l10n.commonRetry),
             ),
           ),
         UpdateInstallError(:final message) => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
-            title: const Text("Couldn't start the installer"),
+            title: Text(l10n.updateInstallFailed),
             subtitle: Text(message),
             trailing: TextButton(
               onPressed: () => context.read<UpdateViewModel>().install(),
-              child: const Text('Retry'),
+              child: Text(l10n.commonRetry),
             ),
           ),
       },

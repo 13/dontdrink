@@ -1,3 +1,4 @@
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/viewmodels/mode_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +25,7 @@ class ModeSwitcher extends StatelessWidget {
     }
 
     return PopupMenuButton<String>(
-      tooltip: 'Switch mode',
+      tooltip: AppLocalizations.of(context).modesSwitchMode,
       position: PopupMenuPosition.under,
       onSelected: (value) {
         if (value == _manageValue) {
@@ -44,7 +45,7 @@ class ModeSwitcher extends StatelessWidget {
                 Expanded(child: Text(mode.name)),
                 const SizedBox(width: 12),
                 Text(
-                  '${vm.streakFor(mode.id)} d',
+                  AppLocalizations.of(context).modesStreakShort(vm.streakFor(mode.id)),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -61,13 +62,13 @@ class ModeSwitcher extends StatelessWidget {
             ),
           ),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: _manageValue,
           child: Row(
             children: [
-              Icon(Icons.tune, size: 18),
-              SizedBox(width: 12),
-              Text('Manage modes…'),
+              const Icon(Icons.tune, size: 18),
+              const SizedBox(width: 12),
+              Text(AppLocalizations.of(context).modesManage),
             ],
           ),
         ),

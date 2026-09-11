@@ -1,4 +1,5 @@
 import 'package:dont_drink/core/models/tracked_level.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ class MonthSummaryCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Text(
-                'No days logged this month yet.',
+                AppLocalizations.of(context).monthNoDaysLogged,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -89,7 +90,7 @@ class _LevelRow extends StatelessWidget {
             child: Text(level.label, style: theme.textTheme.bodyMedium),
           ),
           Text(
-            '$count ${count == 1 ? "day" : "days"}',
+            AppLocalizations.of(context).dayCount(count),
             style: theme.textTheme.bodyMedium
                 ?.copyWith(fontWeight: FontWeight.w700),
           ),

@@ -1,4 +1,5 @@
 import 'package:dont_drink/data/static/recovery_timeline_data.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +70,8 @@ class RecoveryProgressHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$reached of $total milestones reached',
+                  AppLocalizations.of(context)
+                      .recoveryMilestonesReached(reached, total),
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
@@ -121,13 +123,13 @@ class RecoveryTierSection extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                tier.label.split(' ').first,
+                tier.emoji,
                 style: const TextStyle(fontSize: 18),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  tier.label.replaceFirst(RegExp(r'^[^ ]+ '), ''),
+                  tier.label(AppLocalizations.of(context)),
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: tier.color,

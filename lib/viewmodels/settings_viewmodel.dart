@@ -2,7 +2,8 @@ import 'package:dont_drink/data/repositories/settings_repository.dart';
 import 'package:dont_drink/services/notification_service.dart';
 import 'package:flutter/material.dart';
 
-/// View model for app settings: theme mode and the optional daily reminder.
+/// View model for app settings: theme mode, language, and the optional daily
+/// reminder.
 class SettingsViewModel extends ChangeNotifier {
   SettingsViewModel({
     required SettingsRepository repository,
@@ -16,6 +17,10 @@ class SettingsViewModel extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   ThemeMode get themeMode => _themeMode;
 
+  /// The language the user picked, or null while following the system.
+  Locale? _locale;
+  Locale? get locale => _locale;
+
   bool _notificationsEnabled = false;
   bool get notificationsEnabled => _notificationsEnabled;
 
@@ -24,6 +29,7 @@ class SettingsViewModel extends ChangeNotifier {
 
   Future<void> load() async {
     _themeMode = await _repo.getThemeMode();
+    _locale = await _repo.getLocale();
     _notificationsEnabled = await _repo.getNotificationsEnabled();
     _reminderTime = await _repo.getReminderTime();
     notifyListeners();
@@ -35,9 +41,19 @@ class SettingsViewModel extends ChangeNotifier {
     await _repo.setThemeMode(mode);
   }
 
+  /// Set the app language, or pass null to follow the system again.
+  Future<void> setLocale(Locale? locale) async {
+    _locale = locale;
+    notifyListeners();
+    await _repo.setLocale(locale);
+  }
+
   /// Toggle the daily reminder. Requests OS permission when enabling; if the
   /// user declines we keep it off. Returns true if the final state is enabled.
-  Future<bool> setNotificationsEnabled(bool enabled) async {
+  Future<bool> setNotificationsEnabled(
+    bool enabled, {
+    required ReminderCopy copy,
+  }) async {
     if (enabled) {
       final granted = await _notifications.requestPermissions();
       if (!granted) {
@@ -45,7 +61,7 @@ class SettingsViewModel extends ChangeNotifier {
         notifyListeners();
         return false;
       }
-      await _notifications.scheduleDailyReminder(_reminderTime);
+      await _notifications.scheduleDailyReminder(_reminderTime, copy: copy);
     } else {
       await _notifications.cancelDailyReminder();
     }
@@ -55,12 +71,22 @@ class SettingsViewModel extends ChangeNotifier {
     return enabled;
   }
 
-  Future<void> setReminderTime(TimeOfDay time) async {
+  Future<void> setReminderTime(
+    TimeOfDay time, {
+    required ReminderCopy copy,
+  }) async {
     _reminderTime = time;
     notifyListeners();
     await _repo.setReminderTime(time);
     if (_notificationsEnabled) {
-      await _notifications.scheduleDailyReminder(time);
+      await _notifications.scheduleDailyReminder(time, copy: copy);
     }
+  }
+
+  /// Re-schedule the reminder so its wording follows a language change.
+  /// Does nothing when the reminder is off.
+  Future<void> refreshReminderCopy(ReminderCopy copy) async {
+    if (!_notificationsEnabled) return;
+    await _notifications.scheduleDailyReminder(_reminderTime, copy: copy);
   }
 }

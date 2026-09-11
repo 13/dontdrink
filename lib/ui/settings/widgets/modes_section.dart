@@ -1,4 +1,5 @@
 import 'package:dont_drink/core/models/mode_definition.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/modes/custom_mode_editor.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/viewmodels/mode_viewmodel.dart';
@@ -23,8 +24,9 @@ class ModesSection extends StatelessWidget {
           const Divider(height: 1, indent: 56),
           ListTile(
             leading: const Icon(Icons.add),
-            title: const Text('Create custom mode'),
-            subtitle: const Text('Track any habit with clean days and slips'),
+            title: Text(AppLocalizations.of(context).modesCreateCustom),
+            subtitle:
+                Text(AppLocalizations.of(context).modesCreateCustomSubtitle),
             onTap: () => CustomModeEditor.show(context),
           ),
         ],
@@ -75,7 +77,7 @@ class _ModeTileState extends State<_ModeTile> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Active',
+                AppLocalizations.of(context).modesActive,
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.colorScheme.onPrimaryContainer,
                 ),
@@ -85,21 +87,21 @@ class _ModeTileState extends State<_ModeTile> {
         ],
       ),
       subtitle: _enabled
-          ? Text('$streak day streak')
-          : const Text('Off — your data is kept'),
+          ? Text(AppLocalizations.of(context).modesDayStreak(streak))
+          : Text(AppLocalizations.of(context).modesOffDataKept),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (!mode.isBuiltIn)
             IconButton(
               icon: const Icon(Icons.edit_outlined),
-              tooltip: 'Rename',
+              tooltip: AppLocalizations.of(context).commonRename,
               onPressed: () => CustomModeEditor.show(context, existing: mode),
             ),
           if (!mode.isBuiltIn)
             IconButton(
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Delete',
+              tooltip: AppLocalizations.of(context).commonDelete,
               onPressed: _busy ? null : () => _confirmDelete(context),
             ),
           Switch(
@@ -130,29 +132,30 @@ class _ModeTileState extends State<_ModeTile> {
 
       final confirmed = await showDialog<bool>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('Delete ${mode.name}?'),
-          content: Text(
-            count == 0
-                ? 'This mode has no logged days. It will be removed permanently.'
-                : 'This will permanently delete this mode and its '
-                    '$count logged ${count == 1 ? "day" : "days"}. '
-                    'This cannot be undone.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel'),
+        builder: (ctx) {
+          final l10n = AppLocalizations.of(ctx);
+          return AlertDialog(
+            title: Text(l10n.modesDeleteTitle(mode.name)),
+            content: Text(
+              count == 0
+                  ? l10n.modesDeleteBodyEmpty
+                  : l10n.modesDeleteBody(count),
             ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.error,
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(l10n.commonCancel),
               ),
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('Delete'),
-            ),
-          ],
-        ),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(ctx).colorScheme.error,
+                ),
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(l10n.commonDelete),
+              ),
+            ],
+          );
+        },
       );
 
       if (confirmed == true) {
@@ -162,7 +165,8 @@ class _ModeTileState extends State<_ModeTile> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Could not delete this mode: $e'),
+            content: Text(
+                AppLocalizations.of(context).modesDeleteFailed('$e')),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );

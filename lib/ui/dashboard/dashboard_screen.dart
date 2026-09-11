@@ -1,5 +1,6 @@
 import 'package:dont_drink/core/theme/app_colors.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/calendar/widgets/month_grid.dart';
 import 'package:dont_drink/ui/dashboard/widgets/next_achievement_card.dart';
 import 'package:dont_drink/ui/dashboard/widgets/streak_hero.dart';
@@ -57,7 +58,8 @@ class DashboardScreen extends StatelessWidget {
                   const _MonthCalendarSection(),
                   if (vm.nextAchievement != null) ...[
                     const SizedBox(height: 24),
-                    const SectionHeader('Next Achievement'),
+                    SectionHeader(
+                        AppLocalizations.of(context).dashboardNextAchievement),
                     NextAchievementCard(
                       achievement: vm.nextAchievement!,
                       currentStreak: vm.stats.currentStreak,
@@ -105,12 +107,12 @@ class _TodayCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Log today',
+                  AppLocalizations.of(context).dashboardLogToday,
                   style: theme.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  'How did today go?',
+                  AppLocalizations.of(context).dashboardHowDidTodayGo,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -152,7 +154,8 @@ class _MonthCalendarSection extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                DateFormat('MMMM y').format(month),
+                DateFormat('MMMM y', Localizations.localeOf(context).toString())
+                    .format(month),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.w700),

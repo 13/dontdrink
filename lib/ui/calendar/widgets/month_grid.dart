@@ -1,5 +1,6 @@
 import 'package:dont_drink/core/models/day_entry.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// A color-coded month calendar. Each cell is tinted by that day's
@@ -27,7 +28,16 @@ class MonthGrid extends StatelessWidget {
     final leadingBlanks = first.weekday - 1;
     final today = DateOnly.today();
 
-    const weekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final l10n = AppLocalizations.of(context);
+    final weekdayLabels = [
+      l10n.weekdayMon,
+      l10n.weekdayTue,
+      l10n.weekdayWed,
+      l10n.weekdayThu,
+      l10n.weekdayFri,
+      l10n.weekdaySat,
+      l10n.weekdaySun,
+    ];
 
     return Column(
       children: [

@@ -1,5 +1,6 @@
 import 'package:dont_drink/core/models/achievement.dart';
 import 'package:dont_drink/core/theme/app_colors.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +27,7 @@ class NextAchievementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final progress =
         (currentStreak / achievement.dayThreshold).clamp(0.0, 1.0);
     final remaining = achievement.dayThreshold - currentStreak;
@@ -55,8 +57,7 @@ class NextAchievementCard extends StatelessWidget {
                     ),
                     if (earnedCount > 0)
                       Text(
-                        'Earned $earnedCount time${earnedCount == 1 ? '' : 's'}'
-                        ' before',
+                        l10n.badgeEarnedBefore(earnedCount),
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: AppColors.brand,
                           fontWeight: FontWeight.w700,
@@ -80,9 +81,10 @@ class NextAchievementCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             remaining > 0
-                ? '$remaining more ${remaining == 1 ? "day" : "days"} to earn'
-                    '${earnedCount > 0 ? " it again" : " it"}'
-                : 'Earned!',
+                ? (earnedCount > 0
+                    ? l10n.badgeDaysToEarnAgain(remaining)
+                    : l10n.badgeDaysToEarn(remaining))
+                : l10n.badgeEarnedExclamation,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/achievements/achievements_screen.dart';
 import 'package:dont_drink/ui/dashboard/dashboard_screen.dart';
 import 'package:dont_drink/ui/settings/settings_screen.dart';
@@ -55,31 +56,32 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: IndexedStack(index: _index, children: _tabs),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
         destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+          NavigationDestination(
+            icon: const Icon(Icons.dashboard_outlined),
+            selectedIcon: const Icon(Icons.dashboard),
+            label: l10n.navDashboard,
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.emoji_events_outlined),
-            selectedIcon: Icon(Icons.emoji_events),
-            label: 'Awards',
+          NavigationDestination(
+            icon: const Icon(Icons.emoji_events_outlined),
+            selectedIcon: const Icon(Icons.emoji_events),
+            label: l10n.navAwards,
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: 'Stats',
+          NavigationDestination(
+            icon: const Icon(Icons.bar_chart_outlined),
+            selectedIcon: const Icon(Icons.bar_chart),
+            label: l10n.navStats,
           ),
           NavigationDestination(
             icon: _MaybeBadged(child: const Icon(Icons.settings_outlined)),
             selectedIcon: _MaybeBadged(child: const Icon(Icons.settings)),
-            label: 'Settings',
+            label: l10n.navSettings,
           ),
         ],
       ),

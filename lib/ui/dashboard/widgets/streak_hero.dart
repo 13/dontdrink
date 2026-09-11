@@ -1,4 +1,5 @@
 import 'package:dont_drink/core/theme/app_colors.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Compact streak counter shown at the top of the dashboard.
@@ -17,6 +18,7 @@ class StreakHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final hasStreak = currentStreak > 0;
 
     return Container(
@@ -41,7 +43,7 @@ class StreakHero extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                hasStreak ? '🔥 Current Streak' : 'Start your streak',
+                hasStreak ? l10n.streakCurrent : l10n.streakStart,
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: hasStreak
                       ? Colors.white70
@@ -66,7 +68,7 @@ class StreakHero extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    currentStreak == 1 ? 'day' : 'days',
+                    l10n.dayUnit(currentStreak),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: hasStreak
                           ? Colors.white70
@@ -77,7 +79,7 @@ class StreakHero extends StatelessWidget {
               ),
               if (hasStreak)
                 Text(
-                  '${cleanDayLabel.toLowerCase()} streak',
+                  l10n.streakOf(cleanDayLabel.toLowerCase()),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.white70,
                   ),
@@ -106,7 +108,7 @@ class StreakHero extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'best',
+                  l10n.streakBest,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: hasStreak
                         ? Colors.white70

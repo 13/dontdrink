@@ -1,6 +1,7 @@
 import 'package:dont_drink/core/models/mode_definition.dart';
 import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/calendar/widgets/month_grid.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/day_entry_sheet.dart';
@@ -24,7 +25,9 @@ class CalendarScreen extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            const SliverAppBar(floating: true, title: Text('Calendar')),
+            SliverAppBar(
+                floating: true,
+                title: Text(AppLocalizations.of(context).calendarTitle)),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
               sliver: SliverList.list(
@@ -46,7 +49,11 @@ class CalendarScreen extends StatelessWidget {
                   _Legend(levels: vm.mode.levels),
                   const SizedBox(height: 24),
                   SectionHeader(
-                      '${DateFormat('MMMM').format(month)} Statistics'),
+                    AppLocalizations.of(context).calendarMonthStatistics(
+                      DateFormat('MMMM', Localizations.localeOf(context).toString())
+                          .format(month),
+                    ),
+                  ),
                   _MonthStats(counts: counts, mode: vm.mode),
                 ],
               ),
@@ -157,9 +164,13 @@ class _MonthStats extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _Stat(value: '$total', label: 'Logged'),
+              _Stat(
+                  value: '$total',
+                  label: AppLocalizations.of(context).calendarLogged),
               _Stat(value: '$clean', label: mode.cleanDayLabel),
-              _Stat(value: '$pct%', label: 'Clean rate'),
+              _Stat(
+                  value: '$pct%',
+                  label: AppLocalizations.of(context).calendarCleanRate),
             ],
           ),
           const Divider(height: 28),

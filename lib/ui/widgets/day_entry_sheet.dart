@@ -1,5 +1,6 @@
 import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/widgets/achievement_unlock_dialog.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,7 @@ class DayEntrySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final vm = context.watch<TrackerViewModel>();
     final mode = vm.mode;
     final normalized = DateOnly.normalize(date);
@@ -46,13 +48,15 @@ class DayEntrySheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              isToday ? 'How did today go?' : 'Log this day',
+              isToday ? l10n.dashboardHowDidTodayGo : l10n.sheetLogThisDay,
               style: theme.textTheme.headlineSmall
                   ?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
-              DateFormat('EEEE, MMMM d, y').format(normalized),
+              DateFormat('EEEE, MMMM d, y',
+                      Localizations.localeOf(context).toString())
+                  .format(normalized),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -78,7 +82,7 @@ class DayEntrySheet extends StatelessWidget {
                     if (context.mounted) Navigator.of(context).pop();
                   },
                   icon: const Icon(Icons.delete_outline),
-                  label: const Text('Clear this day'),
+                  label: Text(l10n.sheetClearDay),
                 ),
               ),
             ],

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:confetti/confetti.dart';
 import 'package:dont_drink/core/theme/app_colors.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/services/achievement_service.dart';
 import 'package:flutter/material.dart';
 
@@ -60,6 +61,7 @@ class _AchievementUnlockDialogState extends State<AchievementUnlockDialog>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Stack(
       alignment: Alignment.topCenter,
       children: [
@@ -74,7 +76,7 @@ class _AchievementUnlockDialogState extends State<AchievementUnlockDialog>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    _allRepeats ? 'Earned Again!' : 'Achievement Unlocked!',
+                    _allRepeats ? l10n.unlockTitleRepeat : l10n.unlockTitle,
                     style: theme.textTheme.labelLarge?.copyWith(
                       color: AppColors.brand,
                       letterSpacing: 1,
@@ -88,7 +90,7 @@ class _AchievementUnlockDialogState extends State<AchievementUnlockDialog>
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Keep going'),
+                      child: Text(l10n.unlockKeepGoing),
                     ),
                   ),
                 ],
@@ -155,7 +157,7 @@ class _Badge extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '${_ordinal(earn.count)} time',
+                AppLocalizations.of(context).unlockRepeatChip(earn.count),
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: AppColors.brand,
                   fontWeight: FontWeight.w700,
@@ -169,17 +171,3 @@ class _Badge extends StatelessWidget {
   }
 }
 
-/// 1 -> 1st, 2 -> 2nd, 23 -> 23rd. The teens are all "th".
-String _ordinal(int n) {
-  if (n % 100 >= 11 && n % 100 <= 13) return '${n}th';
-  switch (n % 10) {
-    case 1:
-      return '${n}st';
-    case 2:
-      return '${n}nd';
-    case 3:
-      return '${n}rd';
-    default:
-      return '${n}th';
-  }
-}

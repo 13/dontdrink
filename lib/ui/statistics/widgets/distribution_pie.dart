@@ -1,5 +1,6 @@
 import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Pie chart of logged days by level, with a side legend.
@@ -20,7 +21,8 @@ class DistributionPie extends StatelessWidget {
     final present = levels.where((l) => (counts[l] ?? 0) > 0).toList();
 
     if (total == 0) {
-      return const Center(child: Text('No data yet'));
+      return Center(
+          child: Text(AppLocalizations.of(context).statsNoDataYet));
     }
 
     return Row(

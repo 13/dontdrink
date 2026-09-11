@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:dont_drink/core/theme/app_colors.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +51,7 @@ class _MotivationScreenState extends State<MotivationScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Motivation')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).motivationTitle)),
       body: SafeArea(
         child: Column(
           children: [
@@ -134,7 +135,7 @@ class _MotivationScreenState extends State<MotivationScreen> {
                           );
                         },
                   icon: const Icon(Icons.auto_awesome),
-                  label: const Text('Inspire me'),
+                  label: Text(AppLocalizations.of(context).motivationInspireMe),
                 ),
               ),
             ),

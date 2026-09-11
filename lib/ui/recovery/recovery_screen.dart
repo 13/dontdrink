@@ -1,4 +1,5 @@
 import 'package:dont_drink/data/static/recovery_timeline_data.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ class RecoveryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final vm = context.watch<TrackerViewModel>();
     final streak = vm.stats.currentStreak;
     final streakHours = streak * 24;
@@ -34,16 +36,13 @@ class RecoveryScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Recovery Timeline')),
+      appBar: AppBar(title: Text(l10n.recoveryTimelineTitle)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
             Text(
-              streak > 0
-                  ? "You're $streak ${streak == 1 ? 'day' : 'days'} into recovery. "
-                      "Here's what your body is doing."
-                  : 'Start a streak to begin your recovery journey.',
+              streak > 0 ? l10n.recoveryIntro(streak) : l10n.recoveryNoStreak,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -118,7 +117,7 @@ class _TierBanner extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  tier.label.split(' ').first, // just the emoji
+                  tier.emoji,
                   style: const TextStyle(fontSize: 18),
                 ),
               ),
@@ -129,15 +128,14 @@ class _TierBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    // strip the emoji prefix from label
-                    tier.label.replaceFirst(RegExp(r'^[^ ]+ '), ''),
+                    tier.label(AppLocalizations.of(context)),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: tier.color,
                     ),
                   ),
                   Text(
-                    tier.subtitle,
+                    tier.subtitle(AppLocalizations.of(context)),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),

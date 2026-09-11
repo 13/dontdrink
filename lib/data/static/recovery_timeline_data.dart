@@ -1,3 +1,4 @@
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 enum RecoveryTier {
@@ -6,18 +7,30 @@ enum RecoveryTier {
   gold,
   diamond;
 
-  String get label => switch (this) {
-        RecoveryTier.bronze => '🥉 Bronze — The Acute Phase',
-        RecoveryTier.silver => '🥈 Silver — The Regeneration Phase',
-        RecoveryTier.gold => '🥇 Gold — The Vitality Phase',
-        RecoveryTier.diamond => '💎 Diamond — Long-Term Protection',
+  /// The tier's medal, shown next to its translated name. Kept here because
+  /// an emoji is the same in every language; the name and the time range it
+  /// covers live in the .arb files and are read with [label] / [subtitle].
+  String get emoji => switch (this) {
+        RecoveryTier.bronze => '🥉',
+        RecoveryTier.silver => '🥈',
+        RecoveryTier.gold => '🥇',
+        RecoveryTier.diamond => '💎',
       };
 
-  String get subtitle => switch (this) {
-        RecoveryTier.bronze => 'Days 1 to 7',
-        RecoveryTier.silver => 'Weeks 2 to Month 3',
-        RecoveryTier.gold => 'Month 6 to Year 2',
-        RecoveryTier.diamond => 'Year 5 and Beyond',
+  /// Translated tier name, e.g. "Bronze — The Acute Phase".
+  String label(AppLocalizations l10n) => switch (this) {
+        RecoveryTier.bronze => l10n.tierBronze,
+        RecoveryTier.silver => l10n.tierSilver,
+        RecoveryTier.gold => l10n.tierGold,
+        RecoveryTier.diamond => l10n.tierDiamond,
+      };
+
+  /// Translated time range the tier covers, e.g. "Days 1 to 7".
+  String subtitle(AppLocalizations l10n) => switch (this) {
+        RecoveryTier.bronze => l10n.tierBronzeRange,
+        RecoveryTier.silver => l10n.tierSilverRange,
+        RecoveryTier.gold => l10n.tierGoldRange,
+        RecoveryTier.diamond => l10n.tierDiamondRange,
       };
 
   Color get color => switch (this) {

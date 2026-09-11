@@ -1,4 +1,5 @@
 import 'package:dont_drink/core/utils/date_utils.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/services/stats_service.dart';
 import 'package:dont_drink/ui/dashboard/widgets/month_summary_card.dart';
 import 'package:dont_drink/ui/dashboard/widgets/quick_stats_row.dart';
@@ -8,6 +9,7 @@ import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class StatisticsScreen extends StatelessWidget {
@@ -17,6 +19,7 @@ class StatisticsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<TrackerViewModel>();
     final mode = vm.mode;
+    final l10n = AppLocalizations.of(context);
     final stats = vm.stats;
     const service = StatsService();
     final monthly = service.recentMonths(vm.allEntries, count: 6);
@@ -27,34 +30,34 @@ class StatisticsScreen extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            const SliverAppBar(floating: true, title: Text('Stats')),
+            SliverAppBar(floating: true, title: Text(l10n.statsTitle)),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
               sliver: SliverList.list(
                 children: [
-                  const SectionHeader('Quick Stats'),
+                  SectionHeader(l10n.statsQuickStats),
                   QuickStatsRow(stats: stats, cleanDayLabel: mode.cleanDayLabel),
                   const SizedBox(height: 24),
-                  const SectionHeader('This Month'),
+                  SectionHeader(l10n.statsThisMonth),
                   MonthSummaryCard(
                     counts: vm.monthCounts(today),
                     levels: vm.mode.levels,
                   ),
                   const SizedBox(height: 24),
                   if (!hasData)
-                    const AppCard(
+                    AppCard(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 24),
+                        padding: const EdgeInsets.symmetric(vertical: 24),
                         child: Center(
                           child: Text(
-                            'Log a few days to see your statistics here.',
+                            l10n.statsEmpty,
                             textAlign: TextAlign.center,
                           ),
                         ),
                       ),
                     )
                   else ...[
-                    SectionHeader('${mode.cleanDayLabel} Days per Month'),
+                    SectionHeader(l10n.statsDaysPerMonth(mode.cleanDayLabel)),
                     AppCard(
                       child: SizedBox(
                         height: 220,
@@ -62,7 +65,7 @@ class StatisticsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const SectionHeader('Day Distribution'),
+                    SectionHeader(l10n.statsDayDistribution),
                     AppCard(
                       child: SizedBox(
                         height: 220,
@@ -73,7 +76,7 @@ class StatisticsScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const SectionHeader('Overview'),
+                    SectionHeader(l10n.statsOverview),
                     _OverviewCard(
                       monthly: monthly,
                       longestStreak: stats.longestStreak,
@@ -110,6 +113,7 @@ class _OverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final bestMonth = monthly.isEmpty
         ? null
         : monthly.reduce((a, b) => a.cleanDays >= b.cleanDays ? a : b);
@@ -117,18 +121,22 @@ class _OverviewCard extends StatelessWidget {
     return AppCard(
       child: Column(
         children: [
-          _row(context, 'Longest streak', '$longestStreak days'),
+          _row(context, l10n.statLongestStreak,
+              l10n.statsDaysValue(longestStreak)),
           const Divider(height: 24),
-          _row(context, '$cleanDayLabel rate',
+          _row(context, l10n.statsRateOf(cleanDayLabel),
               '${cleanDayPercentage.toStringAsFixed(0)}%'),
           const Divider(height: 24),
-          _row(context, 'Total days logged', '$totalLogged'),
+          _row(context, l10n.statsTotalDaysLogged, '$totalLogged'),
           if (bestMonth != null && bestMonth.cleanDays > 0) ...[
             const Divider(height: 24),
             _row(
               context,
-              'Best month',
-              '${_monthName(bestMonth.month.month)} (${bestMonth.cleanDays} clean)',
+              l10n.statsBestMonth,
+              l10n.statsBestMonthValue(
+                _monthName(context, bestMonth.month),
+                bestMonth.cleanDays,
+              ),
             ),
           ],
         ],
@@ -151,8 +159,8 @@ class _OverviewCard extends StatelessWidget {
     );
   }
 
-  static String _monthName(int month) => const [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-      ][month - 1];
+  /// Short month name in the active language.
+  static String _monthName(BuildContext context, DateTime month) =>
+      DateFormat('MMM', Localizations.localeOf(context).toString())
+          .format(month);
 }

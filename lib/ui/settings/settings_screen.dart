@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:dont_drink/core/models/day_entry.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
@@ -11,6 +12,9 @@ import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/mode_viewmodel.dart';
 import 'package:dont_drink/viewmodels/settings_viewmodel.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
+import 'package:dont_drink/l10n/supported_locales.dart';
+import 'package:dont_drink/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -21,17 +25,18 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<SettingsViewModel>();
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
-            const SectionHeader('Modes'),
+            SectionHeader(l10n.settingsModes),
             const ModesSection(),
             const SizedBox(height: 24),
-            const SectionHeader('Appearance'),
+            SectionHeader(l10n.settingsAppearance),
             AppCard(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: RadioGroup<ThemeMode>(
@@ -43,7 +48,7 @@ class SettingsScreen extends StatelessWidget {
                     for (final mode in ThemeMode.values)
                       RadioListTile<ThemeMode>(
                         value: mode,
-                        title: Text(_themeLabel(mode)),
+                        title: Text(_themeLabel(l10n, mode)),
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 12),
                       ),
@@ -52,7 +57,35 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const SectionHeader('Daily Reminder'),
+            SectionHeader(l10n.settingsLanguage),
+            AppCard(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: RadioGroup<String>(
+                // 'system' rather than null: RadioGroup needs a value, and
+                // "follow the system" is a real choice, not the absence of one.
+                groupValue: vm.locale?.languageCode ?? _systemLanguage,
+                onChanged: (code) => _setLanguage(context, code!),
+                child: Column(
+                  children: [
+                    RadioListTile<String>(
+                      value: _systemLanguage,
+                      title: Text(l10n.settingsLanguageSystem),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    for (final locale in kSupportedLocales)
+                      RadioListTile<String>(
+                        value: locale.languageCode,
+                        title: Text(kLanguageNames[locale.languageCode]!),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 12),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SectionHeader(l10n.settingsDailyReminderSection),
             AppCard(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Column(
@@ -61,15 +94,15 @@ class SettingsScreen extends StatelessWidget {
                     value: vm.notificationsEnabled,
                     onChanged: (enabled) =>
                         _toggleNotifications(context, enabled),
-                    title: const Text('Daily reminder'),
-                    subtitle: const Text('A gentle nudge to log your day'),
+                    title: Text(l10n.settingsDailyReminder),
+                    subtitle: Text(l10n.settingsDailyReminderSubtitle),
                     contentPadding:
                         const EdgeInsets.symmetric(horizontal: 12),
                   ),
                   ListTile(
                     enabled: vm.notificationsEnabled,
                     leading: const Icon(Icons.access_time),
-                    title: const Text('Reminder time'),
+                    title: Text(l10n.settingsReminderTime),
                     trailing: Text(
                       vm.reminderTime.format(context),
                       style: Theme.of(context).textTheme.titleMedium,
@@ -82,15 +115,15 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const SectionHeader('Data'),
+            SectionHeader(l10n.settingsData),
             const _DataSection(),
             if (Platform.isAndroid) ...[
               const SizedBox(height: 24),
-              const SectionHeader('Updates'),
+              SectionHeader(l10n.settingsUpdates),
               const UpdateSection(),
             ],
             const SizedBox(height: 24),
-            const SectionHeader('About'),
+            SectionHeader(l10n.settingsAbout),
             const _AboutCard(),
           ],
         ),
@@ -98,35 +131,71 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  String _themeLabel(ThemeMode mode) => switch (mode) {
-        ThemeMode.system => 'System default',
-        ThemeMode.light => 'Light',
-        ThemeMode.dark => 'Dark',
+  static const String _systemLanguage = 'system';
+
+  String _themeLabel(AppLocalizations l10n, ThemeMode mode) => switch (mode) {
+        ThemeMode.system => l10n.settingsThemeSystem,
+        ThemeMode.light => l10n.settingsThemeLight,
+        ThemeMode.dark => l10n.settingsThemeDark,
       };
+
+  /// Apply a language choice and keep the scheduled reminder in step.
+  ///
+  /// The reminder's text was baked in when it was scheduled, so it has to be
+  /// re-scheduled in the new language — using strings loaded for the new
+  /// locale, not the ones from the widget tree, which still speaks the old one.
+  Future<void> _setLanguage(BuildContext context, String code) async {
+    final vm = context.read<SettingsViewModel>();
+    final locale = code == _systemLanguage ? null : Locale(code);
+    await vm.setLocale(locale);
+
+    final effective = locale ?? _systemLocale();
+    final newL10n = await AppLocalizations.delegate.load(effective);
+    await vm.refreshReminderCopy(_reminderCopy(newL10n));
+  }
+
+  /// The device language, narrowed to one the app ships.
+  static Locale _systemLocale() {
+    final device = PlatformDispatcher.instance.locale;
+    return kSupportedLocales.firstWhere(
+      (l) => l.languageCode == device.languageCode,
+      orElse: () => kSupportedLocales.first,
+    );
+  }
 
   Future<void> _toggleNotifications(
       BuildContext context, bool enabled) async {
     final vm = context.read<SettingsViewModel>();
-    final result = await vm.setNotificationsEnabled(enabled);
+    final l10n = AppLocalizations.of(context);
+    final result = await vm.setNotificationsEnabled(
+      enabled,
+      copy: _reminderCopy(l10n),
+    );
     if (enabled && !result && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Notification permission was not granted.'),
-        ),
+        SnackBar(content: Text(l10n.settingsNotificationDenied)),
       );
     }
   }
 
   Future<void> _pickTime(BuildContext context) async {
     final vm = context.read<SettingsViewModel>();
+    final copy = _reminderCopy(AppLocalizations.of(context));
     final picked = await showTimePicker(
       context: context,
       initialTime: vm.reminderTime,
     );
     if (picked != null) {
-      await vm.setReminderTime(picked);
+      await vm.setReminderTime(picked, copy: copy);
     }
   }
+
+  static ReminderCopy _reminderCopy(AppLocalizations l10n) => ReminderCopy(
+        title: l10n.appTitle,
+        body: l10n.notificationBody,
+        channelName: l10n.notificationChannelName,
+        channelDescription: l10n.notificationChannelDescription,
+      );
 }
 
 // ── Data section ─────────────────────────────────────────────────────────────
@@ -157,8 +226,9 @@ class _DataSectionState extends State<_DataSection> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.upload_outlined),
-            title: const Text('Export data'),
-            subtitle: const Text('Save a backup of all your logs as JSON'),
+            title: Text(AppLocalizations.of(context).settingsExport),
+            subtitle:
+                Text(AppLocalizations.of(context).settingsExportSubtitle),
             trailing: const Icon(Icons.chevron_right),
             enabled: !_exporting && !_importing,
             onTap: _export,
@@ -172,8 +242,9 @@ class _DataSectionState extends State<_DataSection> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.download_outlined),
-            title: const Text('Import data'),
-            subtitle: const Text('Restore logs from a backup file'),
+            title: Text(AppLocalizations.of(context).settingsImport),
+            subtitle:
+                Text(AppLocalizations.of(context).settingsImportSubtitle),
             trailing: const Icon(Icons.chevron_right),
             enabled: !_exporting && !_importing,
             onTap: _confirmImport,
@@ -185,6 +256,7 @@ class _DataSectionState extends State<_DataSection> {
 
   Future<void> _export() async {
     setState(() => _exporting = true);
+    final l10n = AppLocalizations.of(context);
     try {
       final modeVm = context.read<ModeViewModel>();
       final repo = EntryRepository();
@@ -192,10 +264,14 @@ class _DataSectionState extends State<_DataSection> {
       final byMode = <String, List<DayEntry>>{
         for (final mode in modes) mode.id: await repo.getAll(mode),
       };
-      await _service.export(modes: modes, entriesByMode: byMode);
+      await _service.export(
+        modes: modes,
+        entriesByMode: byMode,
+        shareSubject: l10n.backupShareSubject,
+      );
     } catch (e) {
       if (mounted) {
-        _showSnack('Export failed: $e', isError: true);
+        _showSnack(l10n.settingsExportFailed('$e'), isError: true);
       }
     } finally {
       if (mounted) setState(() => _exporting = false);
@@ -205,25 +281,23 @@ class _DataSectionState extends State<_DataSection> {
   Future<void> _confirmImport() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Import data'),
-        content: const Text(
-          'Importing a backup will merge its entries with your current data, '
-          'across all modes. Days already logged will be overwritten with the '
-          'values from the file. Days not present in the file are left '
-          'unchanged.\n\nContinue?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Import'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final l10n = AppLocalizations.of(ctx);
+        return AlertDialog(
+          title: Text(l10n.settingsImport),
+          content: Text(l10n.settingsImportConfirmBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.commonCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.commonImport),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true) return;
@@ -232,6 +306,7 @@ class _DataSectionState extends State<_DataSection> {
 
   Future<void> _import() async {
     setState(() => _importing = true);
+    final l10n = AppLocalizations.of(context);
     try {
       final repo = EntryRepository();
       final result = await _service.import(
@@ -248,27 +323,35 @@ class _DataSectionState extends State<_DataSection> {
           await context.read<TrackerViewModel>().load();
           if (mounted) await context.read<ModeViewModel>().load();
           if (mounted) {
-            final base =
-                'Imported $count ${count == 1 ? "entry" : "entries"}';
+            final base = l10n.settingsImportedCount(count);
             _showSnack(
               skipped > 0
-                  ? '$base. $skipped ${skipped == 1 ? "entry" : "entries"} '
-                      '${skipped == 1 ? "was" : "were"} skipped because '
-                      '${skipped == 1 ? "it" : "they"} could not be read.'
-                  : '$base successfully.',
+                  ? l10n.settingsImportedSkipped(base, skipped)
+                  : l10n.settingsImportedSuccess(base),
             );
           }
         case ImportCancelled():
           break; // user dismissed the picker — do nothing
-        case ImportError(:final message):
-          _showSnack(message, isError: true);
+        case ImportError():
+          _showSnack(_importErrorMessage(l10n, result), isError: true);
       }
     } catch (e) {
-      if (mounted) _showSnack('Import failed: $e', isError: true);
+      if (mounted) _showSnack(l10n.settingsImportFailed('$e'), isError: true);
     } finally {
       if (mounted) setState(() => _importing = false);
     }
   }
+
+  static String _importErrorMessage(AppLocalizations l10n, ImportError e) =>
+      switch (e.failure) {
+        ImportFailure.notABackup => l10n.importErrorNotABackup,
+        ImportFailure.missingEntries => l10n.importErrorMissingEntries,
+        ImportFailure.partial =>
+          l10n.importErrorPartial(e.count, e.detail ?? ''),
+        ImportFailure.unreadable => l10n.importErrorUnreadable,
+        ImportFailure.readFailed => l10n.importErrorReadFailed(e.detail ?? ''),
+        ImportFailure.invalidJson => l10n.importErrorInvalidJson,
+      };
 
   void _showSnack(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -316,14 +399,15 @@ class _AboutCardState extends State<_AboutCard> {
           const SizedBox(height: 16),
           if (_info != null) ...[
             Text(
-              'Version ${_info!.version} (build ${_info!.buildNumber})',
+              AppLocalizations.of(context)
+                  .settingsVersion(_info!.version, _info!.buildNumber),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Built on 2026-06-04',
+              AppLocalizations.of(context).settingsBuiltOn('2026-06-04'),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -337,9 +421,7 @@ class _AboutCardState extends State<_AboutCard> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'All your tracking data is stored privately on this device. '
-                  'No account, no cloud sync. The app contacts GitHub only to '
-                  'check for and download updates.',
+                  AppLocalizations.of(context).settingsPrivacyBody,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

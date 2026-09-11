@@ -1,3 +1,4 @@
+import 'package:dont_drink/l10n/supported_locales.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -5,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// state) in [SharedPreferences]. No personal data, no account.
 class SettingsRepository {
   static const _kThemeMode = 'theme_mode';
+  static const _kLocale = 'locale';
   static const _kNotifEnabled = 'notif_enabled';
   static const _kNotifHour = 'notif_hour';
   static const _kNotifMinute = 'notif_minute';
@@ -29,6 +31,30 @@ class SettingsRepository {
   Future<void> setThemeMode(ThemeMode mode) async {
     final prefs = await _p;
     await prefs.setString(_kThemeMode, mode.name);
+  }
+
+  /// The language the user picked, or null for "follow the system".
+  ///
+  /// Stored as a language code ('de', 'it', 'en'); anything unrecognized is
+  /// treated as "follow the system" so a stale value can never strand the UI
+  /// in a language the app no longer ships.
+  Future<Locale?> getLocale() async {
+    final prefs = await _p;
+    final code = prefs.getString(_kLocale);
+    if (code == null) return null;
+    return kSupportedLocales
+        .where((l) => l.languageCode == code)
+        .firstOrNull;
+  }
+
+  /// Pass null to follow the system language.
+  Future<void> setLocale(Locale? locale) async {
+    final prefs = await _p;
+    if (locale == null) {
+      await prefs.remove(_kLocale);
+    } else {
+      await prefs.setString(_kLocale, locale.languageCode);
+    }
   }
 
   Future<bool> getNotificationsEnabled() async {

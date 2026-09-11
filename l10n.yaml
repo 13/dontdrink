@@ -1,0 +1,10 @@
+# Drives `flutter gen-l10n`, which runs automatically on every build because
+# pubspec.yaml sets `generate: true`.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false
+# Every string must exist in every locale: a missing key is a bug to fix in
+# the .arb file, not something to paper over with an English fallback.
+untranslated-messages-file: l10n-untranslated.txt

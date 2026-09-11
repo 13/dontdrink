@@ -1,4 +1,5 @@
 import 'package:dont_drink/core/theme/app_colors.dart';
+import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/services/achievement_service.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/recovery_section.dart';
@@ -12,6 +13,7 @@ class AchievementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -20,11 +22,11 @@ class AchievementsScreen extends StatelessWidget {
             headerSliverBuilder: (context, _) => [
               SliverAppBar(
                 floating: true,
-                title: const Text('Achievements'),
+                title: Text(l10n.achievementsTitle),
                 bottom: TabBar(
-                  tabs: const [
-                    Tab(text: 'Badges'),
-                    Tab(text: 'Recovery'),
+                  tabs: [
+                    Tab(text: l10n.tabBadges),
+                    Tab(text: l10n.tabRecovery),
                   ],
                   indicatorColor: AppColors.brand,
                   labelColor: AppColors.brand,
@@ -91,6 +93,7 @@ class _ProgressHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -108,7 +111,7 @@ class _ProgressHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$unlocked of $total unlocked',
+                  l10n.badgesUnlockedOf(unlocked, total),
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
@@ -117,7 +120,7 @@ class _ProgressHeader extends StatelessWidget {
                 if (totalEarns > unlocked) ...[
                   const SizedBox(height: 2),
                   Text(
-                    '$totalEarns earned in total',
+                    l10n.badgesEarnedTotal(totalEarns),
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: Colors.white70),
                   ),
@@ -151,7 +154,9 @@ class _AchievementTile extends StatelessWidget {
     final theme = Theme.of(context);
     final a = status.achievement;
     final unlocked = status.unlocked;
-    final dateFormat = DateFormat.yMMMd();
+    final l10n = AppLocalizations.of(context);
+    final dateFormat =
+        DateFormat.yMMMd(Localizations.localeOf(context).toString());
 
     return AppCard(
       child: Opacity(
@@ -201,7 +206,7 @@ class _AchievementTile extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            '×${status.earnedCount}',
+                            l10n.badgeTimesChip(status.earnedCount),
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: AppColors.brand,
                               fontWeight: FontWeight.w800,
@@ -220,7 +225,7 @@ class _AchievementTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Day ${a.dayThreshold}',
+                    l10n.badgeDayThreshold(a.dayThreshold),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: AppColors.brand,
                       fontWeight: FontWeight.w700,
@@ -230,9 +235,12 @@ class _AchievementTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       status.isRepeated
-                          ? 'First ${dateFormat.format(status.firstEarnedOn!)}'
-                              ' · last ${dateFormat.format(status.lastEarnedOn!)}'
-                          : 'Earned ${dateFormat.format(status.firstEarnedOn!)}',
+                          ? l10n.badgeFirstAndLast(
+                              dateFormat.format(status.firstEarnedOn!),
+                              dateFormat.format(status.lastEarnedOn!),
+                            )
+                          : l10n.badgeEarnedOn(
+                              dateFormat.format(status.firstEarnedOn!)),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -287,7 +295,7 @@ class _RecoveryEmptyState extends StatelessWidget {
                 size: 40, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(height: 12),
             Text(
-              "Custom modes don't have a recovery timeline.",
+              AppLocalizations.of(context).recoveryNoTimelineForMode,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
