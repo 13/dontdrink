@@ -77,7 +77,7 @@ class StatisticsScreen extends StatelessWidget {
                     _OverviewCard(
                       monthly: monthly,
                       longestStreak: stats.longestStreak,
-                      freePct: stats.cleanDayPercentage,
+                      cleanDayPercentage: stats.cleanDayPercentage,
                       totalLogged: stats.totalLoggedDays,
                       cleanDayLabel: mode.cleanDayLabel,
                     ),
@@ -97,14 +97,14 @@ class _OverviewCard extends StatelessWidget {
   const _OverviewCard({
     required this.monthly,
     required this.longestStreak,
-    required this.freePct,
+    required this.cleanDayPercentage,
     required this.totalLogged,
     required this.cleanDayLabel,
   });
 
   final List<MonthlyTotals> monthly;
   final int longestStreak;
-  final double freePct;
+  final double cleanDayPercentage;
   final int totalLogged;
   final String cleanDayLabel;
 
@@ -120,7 +120,7 @@ class _OverviewCard extends StatelessWidget {
           _row(context, 'Longest streak', '$longestStreak days'),
           const Divider(height: 24),
           _row(context, '$cleanDayLabel rate',
-              '${freePct.toStringAsFixed(0)}%'),
+              '${cleanDayPercentage.toStringAsFixed(0)}%'),
           const Divider(height: 24),
           _row(context, 'Total days logged', '$totalLogged'),
           if (bestMonth != null && bestMonth.cleanDays > 0) ...[

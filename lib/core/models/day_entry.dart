@@ -59,8 +59,9 @@ class DayEntry {
   /// Rebuild an entry from a database row. [mode] is required because a level
   /// integer only has meaning within its own mode.
   factory DayEntry.fromMap(Map<String, Object?> map, ModeDefinition mode) {
+    final rawModeId = map['mode_id'];
     return DayEntry(
-      modeId: map['mode_id'] as String? ?? mode.id,
+      modeId: rawModeId is String ? rawModeId : mode.id,
       date: DateOnly.parseKey(map['date_key'] as String),
       level: mode.levelForValue(map['level'] as int),
       note: map['note'] as String?,

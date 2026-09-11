@@ -39,7 +39,7 @@ class QuickStatsRow extends StatelessWidget {
         icon: Icons.event_available,
         color: AppColors.brand,
         value: '${stats.totalCleanDays}',
-        label: 'Total free days',
+        label: 'Total clean days',
       ),
     ];
 

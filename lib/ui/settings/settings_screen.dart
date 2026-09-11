@@ -244,8 +244,8 @@ class _DataSectionState extends State<_DataSection> {
                 'Imported $count ${count == 1 ? "entry" : "entries"}';
             _showSnack(
               skipped > 0
-                  ? '$base. $skipped skipped — some modes in this backup '
-                      'could not be restored.'
+                  ? '$base. $skipped entries were skipped because they '
+                      'could not be read.'
                   : '$base successfully.',
             );
           }

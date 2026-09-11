@@ -107,9 +107,8 @@ class ModeViewModel extends ChangeNotifier {
     } else {
       return;
     }
-    notifyListeners();
     await _repo.setEnabledModeIds(_enabledIds);
-    await refreshStreaks();
+    await refreshStreaks(); // ends in its own notifyListeners()
   }
 
   Future<ModeDefinition> createCustom(String name, String emoji) async {

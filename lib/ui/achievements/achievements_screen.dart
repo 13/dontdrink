@@ -206,9 +206,44 @@ class _RecoveryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasRecovery =
+        context.watch<TrackerViewModel>().mode.content.hasRecovery;
+
+    if (!hasRecovery) {
+      return const _RecoveryEmptyState();
+    }
+
     return const SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 24),
       child: RecoverySection(),
+    );
+  }
+}
+
+class _RecoveryEmptyState extends StatelessWidget {
+  const _RecoveryEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.timeline_outlined,
+                size: 40, color: theme.colorScheme.onSurfaceVariant),
+            const SizedBox(height: 12),
+            Text(
+              "Custom modes don't have a recovery timeline.",
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

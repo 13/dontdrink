@@ -110,6 +110,33 @@ void main() {
     expect(stored.single.note, 'legacy');
   });
 
+  test(
+      'a payload with no version key at all is treated as v1 — the '
+      'pre-release backup case', () async {
+    // Real pre-release backups never had a `version` key at all (it was
+    // added alongside multi-mode support), so this pins the fallback
+    // separately from the explicit `'version': 1` case above.
+    final result = await service.applyPayload(
+      {
+        'app': 'dont_drink',
+        'entries': [
+          {
+            'date_key': '2026-06-01',
+            'level': 0,
+            'note': null,
+            'updated_at': 1750000000000,
+          },
+        ],
+      },
+      entries: entries,
+      modes: modes,
+    );
+
+    expect((result as ImportSuccess).count, 1);
+    final stored = await entries.getAll(kDontDrinkMode);
+    expect(stored.single.modeId, 'dont_drink');
+  });
+
   test('a version 2 payload restores several modes', () async {
     final result = await service.applyPayload(
       {
@@ -257,10 +284,10 @@ void main() {
   });
 
   test(
-      'an entry with a non-int level does not throw out of applyPayload',
+      'a malformed entry row is skipped and the rows after it still import',
       () async {
-    // Uncaught exceptions inside applyPayload would fail this test even
-    // without an explicit try/catch, since it is awaited directly.
+    // The bad row (non-int level) sits between two good ones, so this also
+    // pins that a malformed row does not abort the rest of the file.
     final result = await service.applyPayload(
       {
         'version': 2,
@@ -270,7 +297,21 @@ void main() {
           {
             'mode_id': 'dont_drink',
             'date_key': '2026-06-01',
+            'level': 0,
+            'note': null,
+            'updated_at': 1750000000000,
+          },
+          {
+            'mode_id': 'dont_drink',
+            'date_key': '2026-06-02',
             'level': 'not-a-number',
+            'note': null,
+            'updated_at': 1750000000000,
+          },
+          {
+            'mode_id': 'dont_drink',
+            'date_key': '2026-06-03',
+            'level': 0,
             'note': null,
             'updated_at': 1750000000000,
           },
@@ -279,7 +320,10 @@ void main() {
       entries: entries,
       modes: modes,
     );
-    expect(result, anyOf(isA<ImportError>(), isA<ImportSuccess>()));
+
+    expect((result as ImportSuccess).count, 2);
+    expect(result.skipped, 1);
+    expect((await entries.getAll(kDontDrinkMode)).length, 2);
   });
 
   test(

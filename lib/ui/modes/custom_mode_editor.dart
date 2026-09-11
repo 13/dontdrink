@@ -63,6 +63,15 @@ class _CustomModeEditorState extends State<CustomModeEditor> {
         await vm.updateCustom(widget.existing!.id, name, _emoji);
       }
       if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not save this mode: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }

@@ -158,6 +158,15 @@ class _ModeTileState extends State<_ModeTile> {
       if (confirmed == true) {
         await vm.deleteCustom(mode.id);
       }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not delete this mode: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }

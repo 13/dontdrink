@@ -184,8 +184,15 @@ class ExportImportService {
           skipped++;
           continue; // unknown mode — skip, don't fail
         }
-        await entries.upsert(DayEntry.fromMap(map, mode));
-        count++;
+        try {
+          await entries.upsert(DayEntry.fromMap(map, mode));
+          count++;
+        } catch (_) {
+          // A malformed row (wrong type for date_key/level/updated_at) —
+          // skip it and keep processing the rest of the file, same as every
+          // other kind of bad row above.
+          skipped++;
+        }
       }
     } catch (e) {
       return ImportError('Import failed after $count entries: $e');
