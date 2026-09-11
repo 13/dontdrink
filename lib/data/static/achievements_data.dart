@@ -6,31 +6,31 @@ import 'package:dont_drink/core/models/achievement.dart';
 /// a confetti celebration when they unlock.
 const List<Achievement> kAchievements = [
   Achievement(
-    id: 'day_1',
+    id: 'dont_drink.day_1',
     dayThreshold: 1,
     title: 'Better Liver Begins',
     description: 'Your body already starts recovering from alcohol.',
   ),
   Achievement(
-    id: 'day_3',
+    id: 'dont_drink.day_3',
     dayThreshold: 3,
     title: 'Better Hydration',
     description: 'Your skin and hair can begin retaining moisture better.',
   ),
   Achievement(
-    id: 'day_7',
+    id: 'dont_drink.day_7',
     dayThreshold: 7,
     title: 'Better Sleep',
     description: 'Sleep quality often improves after a week alcohol-free.',
   ),
   Achievement(
-    id: 'day_14',
+    id: 'dont_drink.day_14',
     dayThreshold: 14,
     title: 'More Energy',
     description: 'Many people report improved energy and concentration.',
   ),
   Achievement(
-    id: 'day_30',
+    id: 'dont_drink.day_30',
     dayThreshold: 30,
     title: 'One Month Strong',
     description: 'Significant improvements in sleep, mood, and recovery.',
@@ -38,13 +38,13 @@ const List<Achievement> kAchievements = [
     isLegendary: true,
   ),
   Achievement(
-    id: 'day_60',
+    id: 'dont_drink.day_60',
     dayThreshold: 60,
     title: 'Mental Clarity',
     description: 'Cognitive performance may improve noticeably.',
   ),
   Achievement(
-    id: 'day_90',
+    id: 'dont_drink.day_90',
     dayThreshold: 90,
     title: 'New Lifestyle',
     description: 'Habits become easier to maintain after 90 days.',
@@ -52,7 +52,7 @@ const List<Achievement> kAchievements = [
     isLegendary: true,
   ),
   Achievement(
-    id: 'day_180',
+    id: 'dont_drink.day_180',
     dayThreshold: 180,
     title: 'Half-Year Champion',
     description: 'Six months of choosing yourself. Remarkable consistency.',
@@ -60,7 +60,7 @@ const List<Achievement> kAchievements = [
     isLegendary: true,
   ),
   Achievement(
-    id: 'day_365',
+    id: 'dont_drink.day_365',
     dayThreshold: 365,
     title: 'One Year Alcohol-Free',
     description: 'A legendary achievement. One full year of better days.',
