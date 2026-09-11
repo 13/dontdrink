@@ -3,7 +3,7 @@ import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:flutter/material.dart';
 
 /// A color-coded month calendar. Each cell is tinted by that day's
-/// [DrinkLevel]; future days are disabled.
+/// [TrackedLevel]; future days are disabled.
 class MonthGrid extends StatelessWidget {
   const MonthGrid({
     super.key,

@@ -20,7 +20,7 @@ class _MotivationScreenState extends State<MotivationScreen> {
     [AppColors.brand, AppColors.brandDark],
     [AppColors.green, Color(0xFF2E7D32)],
     [Color(0xFF5C6BC0), Color(0xFF3949AB)],
-    [AppColors.orange, Color(0xFFE65100)],
+    [Color(0xFFFF9800), Color(0xFFE65100)],
     [Color(0xFF26A69A), Color(0xFF00695C)],
   ];
 

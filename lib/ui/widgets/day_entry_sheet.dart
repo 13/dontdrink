@@ -1,4 +1,4 @@
-import 'package:dont_drink/core/models/drink_level.dart';
+import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/ui/widgets/achievement_unlock_dialog.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 /// Bottom sheet for logging or editing a single day's drink status.
 ///
-/// Presents the five [DrinkLevel] options; tapping one saves instantly and
+/// Presents the active mode's levels; tapping one saves instantly and
 /// (when a new achievement is crossed) shows the unlock celebration.
 class DayEntrySheet extends StatelessWidget {
   const DayEntrySheet({super.key, required this.date});
@@ -33,6 +33,7 @@ class DayEntrySheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final vm = context.watch<TrackerViewModel>();
+    final mode = vm.mode;
     final normalized = DateOnly.normalize(date);
     final existing = vm.entryFor(normalized);
     final isToday = DateOnly.isSameDay(normalized, DateTime.now());
@@ -57,7 +58,7 @@ class DayEntrySheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            for (final level in DrinkLevel.values)
+            for (final level in mode.levels)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: _LevelOption(
@@ -88,7 +89,7 @@ class DayEntrySheet extends StatelessWidget {
   }
 
   Future<void> _save(
-      BuildContext context, DateTime date, DrinkLevel level) async {
+      BuildContext context, DateTime date, TrackedLevel level) async {
     final vm = context.read<TrackerViewModel>();
     await vm.logDay(date, level);
     final unlocks = vm.pendingUnlocks;
@@ -110,7 +111,7 @@ class _LevelOption extends StatelessWidget {
     required this.onTap,
   });
 
-  final DrinkLevel level;
+  final TrackedLevel level;
   final bool selected;
   final VoidCallback onTap;
 

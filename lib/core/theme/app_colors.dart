@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// Centralized palette. The five status colors are shared with [DrinkLevel];
-/// these constants exist for use outside of an enum context (gradients, charts).
+/// Centralized palette for app chrome. Per-day status colors live on each
+/// mode's [TrackedLevel]s, not here.
 class AppColors {
   AppColors._();
 
-  // Status colors (mirror DrinkLevel).
+  /// Used by the streak gradient and "good news" accents.
   static const Color green = Color(0xFF4CAF50);
-  static const Color yellow = Color(0xFFFFC107);
-  static const Color orange = Color(0xFFFF9800);
-  static const Color red = Color(0xFFF44336);
-  static const Color black = Color(0xFF000000);
 
   // Brand accent — a calm teal/green that reads as "healthy".
   static const Color brand = Color(0xFF2E9E83);

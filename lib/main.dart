@@ -1,6 +1,7 @@
 import 'package:dont_drink/app.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/settings_repository.dart';
+import 'package:dont_drink/data/static/modes/mode_registry.dart';
 import 'package:dont_drink/services/notification_service.dart';
 import 'package:dont_drink/viewmodels/settings_viewmodel.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
@@ -13,7 +14,8 @@ Future<void> main() async {
   // Notifications init is best-effort; the app works fully without them.
   await NotificationService.instance.init();
 
-  final trackerViewModel = TrackerViewModel(repository: EntryRepository());
+  final trackerViewModel =
+      TrackerViewModel(repository: EntryRepository(), mode: kDefaultMode);
   final settingsViewModel =
       SettingsViewModel(repository: SettingsRepository());
 

@@ -35,7 +35,10 @@ class StatisticsScreen extends StatelessWidget {
                   QuickStatsRow(stats: stats),
                   const SizedBox(height: 24),
                   const SectionHeader('This Month'),
-                  MonthSummaryCard(counts: vm.monthCounts(today)),
+                  MonthSummaryCard(
+                    counts: vm.monthCounts(today),
+                    levels: vm.mode.levels,
+                  ),
                   const SizedBox(height: 24),
                   if (!hasData)
                     const AppCard(
@@ -62,7 +65,10 @@ class StatisticsScreen extends StatelessWidget {
                     AppCard(
                       child: SizedBox(
                         height: 220,
-                        child: DistributionPie(counts: stats.levelCounts),
+                        child: DistributionPie(
+                          counts: stats.levelCounts,
+                          levels: vm.mode.levels,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -70,7 +76,7 @@ class StatisticsScreen extends StatelessWidget {
                     _OverviewCard(
                       monthly: monthly,
                       longestStreak: stats.longestStreak,
-                      freePct: stats.alcoholFreePercentage,
+                      freePct: stats.cleanDayPercentage,
                       totalLogged: stats.totalLoggedDays,
                     ),
                     const SizedBox(height: 24),
@@ -102,8 +108,7 @@ class _OverviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bestMonth = monthly.isEmpty
         ? null
-        : monthly.reduce(
-            (a, b) => a.alcoholFreeDays >= b.alcoholFreeDays ? a : b);
+        : monthly.reduce((a, b) => a.cleanDays >= b.cleanDays ? a : b);
 
     return AppCard(
       child: Column(
@@ -114,12 +119,12 @@ class _OverviewCard extends StatelessWidget {
               '${freePct.toStringAsFixed(0)}%'),
           const Divider(height: 24),
           _row(context, 'Total days logged', '$totalLogged'),
-          if (bestMonth != null && bestMonth.alcoholFreeDays > 0) ...[
+          if (bestMonth != null && bestMonth.cleanDays > 0) ...[
             const Divider(height: 24),
             _row(
               context,
               'Best month',
-              '${_monthName(bestMonth.month.month)} (${bestMonth.alcoholFreeDays} free)',
+              '${_monthName(bestMonth.month.month)} (${bestMonth.cleanDays} free)',
             ),
           ],
         ],

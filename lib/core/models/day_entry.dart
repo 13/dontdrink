@@ -1,4 +1,5 @@
-import 'package:dont_drink/core/models/drink_level.dart';
+import 'package:dont_drink/core/models/mode_definition.dart';
+import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 
 /// A single logged day. Exactly one entry can exist per calendar date per mode.
@@ -18,7 +19,7 @@ class DayEntry {
   final DateTime date;
 
   /// The status logged for [date].
-  final DrinkLevel level;
+  final TrackedLevel level;
 
   /// Optional free-text note.
   final String? note;
@@ -32,7 +33,7 @@ class DayEntry {
   DayEntry copyWith({
     String? modeId,
     DateTime? date,
-    DrinkLevel? level,
+    TrackedLevel? level,
     String? note,
     DateTime? updatedAt,
   }) {
@@ -55,11 +56,13 @@ class DayEntry {
     };
   }
 
-  factory DayEntry.fromMap(Map<String, Object?> map) {
+  /// Rebuild an entry from a database row. [mode] is required because a level
+  /// integer only has meaning within its own mode.
+  factory DayEntry.fromMap(Map<String, Object?> map, ModeDefinition mode) {
     return DayEntry(
-      modeId: map['mode_id'] as String? ?? 'dont_drink',
+      modeId: map['mode_id'] as String? ?? mode.id,
       date: DateOnly.parseKey(map['date_key'] as String),
-      level: DrinkLevel.fromValue(map['level'] as int),
+      level: mode.levelForValue(map['level'] as int),
       note: map['note'] as String?,
       updatedAt: map['updated_at'] == null
           ? null

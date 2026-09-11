@@ -1,4 +1,5 @@
-import 'package:dont_drink/core/models/drink_level.dart';
+import 'package:dont_drink/core/models/mode_definition.dart';
+import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/ui/calendar/widgets/month_grid.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
@@ -42,11 +43,11 @@ class CalendarScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const _Legend(),
+                  _Legend(levels: vm.mode.levels),
                   const SizedBox(height: 24),
                   SectionHeader(
                       '${DateFormat('MMMM').format(month)} Statistics'),
-                  _MonthStats(counts: counts),
+                  _MonthStats(counts: counts, mode: vm.mode),
                 ],
               ),
             ),
@@ -100,7 +101,9 @@ class _MonthHeader extends StatelessWidget {
 }
 
 class _Legend extends StatelessWidget {
-  const _Legend();
+  const _Legend({required this.levels});
+
+  final List<TrackedLevel> levels;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +113,7 @@ class _Legend extends StatelessWidget {
       runSpacing: 8,
       alignment: WrapAlignment.center,
       children: [
-        for (final level in DrinkLevel.values)
+        for (final level in levels)
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -133,16 +136,20 @@ class _Legend extends StatelessWidget {
 }
 
 class _MonthStats extends StatelessWidget {
-  const _MonthStats({required this.counts});
+  const _MonthStats({
+    required this.counts,
+    required this.mode,
+  });
 
-  final Map<DrinkLevel, int> counts;
+  final Map<TrackedLevel, int> counts;
+  final ModeDefinition mode;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final total = counts.values.fold(0, (a, b) => a + b);
-    final free = counts[DrinkLevel.none] ?? 0;
-    final pct = total == 0 ? 0 : (free / total * 100).round();
+    final clean = counts[mode.cleanLevel] ?? 0;
+    final pct = total == 0 ? 0 : (clean / total * 100).round();
 
     return AppCard(
       child: Column(
@@ -151,12 +158,12 @@ class _MonthStats extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _Stat(value: '$total', label: 'Logged'),
-              _Stat(value: '$free', label: 'Alcohol-free'),
-              _Stat(value: '$pct%', label: 'Free rate'),
+              _Stat(value: '$clean', label: mode.cleanDayLabel),
+              _Stat(value: '$pct%', label: 'Clean rate'),
             ],
           ),
           const Divider(height: 28),
-          for (final level in DrinkLevel.values)
+          for (final level in mode.levels)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(

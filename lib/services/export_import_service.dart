@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dont_drink/core/models/day_entry.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
+import 'package:dont_drink/data/static/modes/mode_registry.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -116,7 +117,8 @@ class ExportImportService {
     try {
       for (final raw in rawEntries) {
         if (raw is! Map<String, dynamic>) continue;
-        final entry = DayEntry.fromMap(Map<String, Object?>.from(raw));
+        final entry =
+            DayEntry.fromMap(Map<String, Object?>.from(raw), kDefaultMode);
         await repository.upsert(entry);
         count++;
       }

@@ -1,20 +1,23 @@
-import 'package:dont_drink/core/models/drink_level.dart';
+import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-/// Pie chart of logged days by drink level, with a side legend.
+/// Pie chart of logged days by level, with a side legend.
 class DistributionPie extends StatelessWidget {
-  const DistributionPie({super.key, required this.counts});
+  const DistributionPie({
+    super.key,
+    required this.counts,
+    required this.levels,
+  });
 
-  final Map<DrinkLevel, int> counts;
+  final Map<TrackedLevel, int> counts;
+  final List<TrackedLevel> levels;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final total = counts.values.fold(0, (a, b) => a + b);
-    final present = DrinkLevel.values
-        .where((l) => (counts[l] ?? 0) > 0)
-        .toList();
+    final present = levels.where((l) => (counts[l] ?? 0) > 0).toList();
 
     if (total == 0) {
       return const Center(child: Text('No data yet'));

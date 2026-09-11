@@ -1,8 +1,8 @@
 import 'package:dont_drink/core/models/day_entry.dart';
-import 'package:dont_drink/core/models/drink_level.dart';
 import 'package:dont_drink/data/database/app_database.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
+import 'package:dont_drink/data/static/modes/dont_drink_mode.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -86,12 +86,12 @@ void main() {
     await entries.upsert(DayEntry(
       modeId: mode.id,
       date: DateTime(2026, 1, 1),
-      level: DrinkLevel.none,
+      level: kDontDrinkLevels[0],
     ));
     await entries.upsert(DayEntry(
       modeId: 'dont_drink',
       date: DateTime(2026, 1, 1),
-      level: DrinkLevel.none,
+      level: kDontDrinkLevels[0],
     ));
 
     await repo.deleteCustom(mode.id);

@@ -102,8 +102,8 @@ class _AchievementUnlockDialogState extends State<AchievementUnlockDialog>
           gravity: 0.25,
           colors: const [
             AppColors.green,
-            AppColors.yellow,
-            AppColors.orange,
+            Color(0xFFFFC107),
+            Color(0xFFFF9800),
             AppColors.brand,
           ],
         ),

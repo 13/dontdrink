@@ -19,7 +19,7 @@ class MonthlyBarChart extends StatelessWidget {
     final theme = Theme.of(context);
     final maxY = data.fold<int>(
       0,
-      (m, t) => t.alcoholFreeDays > m ? t.alcoholFreeDays : m,
+      (m, t) => t.cleanDays > m ? t.cleanDays : m,
     );
     final top = (maxY < 5 ? 5 : maxY).toDouble();
 
@@ -76,7 +76,7 @@ class MonthlyBarChart extends StatelessWidget {
               x: i,
               barRods: [
                 BarChartRodData(
-                  toY: data[i].alcoholFreeDays.toDouble(),
+                  toY: data[i].cleanDays.toDouble(),
                   width: 18,
                   borderRadius: BorderRadius.circular(6),
                   gradient: const LinearGradient(

@@ -1,13 +1,18 @@
-import 'package:dont_drink/core/models/drink_level.dart';
+import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:flutter/material.dart';
 
-/// Breakdown of the current month's logged days by drink level, with a
+/// Breakdown of the current month's logged days by level, with a
 /// proportional bar across the top.
 class MonthSummaryCard extends StatelessWidget {
-  const MonthSummaryCard({super.key, required this.counts});
+  const MonthSummaryCard({
+    super.key,
+    required this.counts,
+    required this.levels,
+  });
 
-  final Map<DrinkLevel, int> counts;
+  final Map<TrackedLevel, int> counts;
+  final List<TrackedLevel> levels;
 
   int get _total => counts.values.fold(0, (a, b) => a + b);
 
@@ -37,7 +42,7 @@ class MonthSummaryCard extends StatelessWidget {
                 height: 14,
                 child: Row(
                   children: [
-                    for (final level in DrinkLevel.values)
+                    for (final level in levels)
                       if ((counts[level] ?? 0) > 0)
                         Expanded(
                           flex: counts[level]!,
@@ -49,7 +54,7 @@ class MonthSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
           ],
-          for (final level in DrinkLevel.values)
+          for (final level in levels)
             _LevelRow(level: level, count: counts[level] ?? 0),
         ],
       ),
@@ -60,7 +65,7 @@ class MonthSummaryCard extends StatelessWidget {
 class _LevelRow extends StatelessWidget {
   const _LevelRow({required this.level, required this.count});
 
-  final DrinkLevel level;
+  final TrackedLevel level;
   final int count;
 
   @override

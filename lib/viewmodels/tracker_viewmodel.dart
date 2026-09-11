@@ -1,6 +1,7 @@
 import 'package:dont_drink/core/models/achievement.dart';
 import 'package:dont_drink/core/models/day_entry.dart';
-import 'package:dont_drink/core/models/drink_level.dart';
+import 'package:dont_drink/core/models/mode_definition.dart';
+import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/services/achievement_service.dart';
@@ -15,15 +16,21 @@ import 'package:flutter/foundation.dart';
 class TrackerViewModel extends ChangeNotifier {
   TrackerViewModel({
     required EntryRepository repository,
+    required ModeDefinition mode,
     StatsService stats = const StatsService(),
     AchievementService achievements = const AchievementService(),
   })  : _repo = repository,
+        _mode = mode,
         _stats = stats,
         _achievements = achievements;
 
   final EntryRepository _repo;
+  final ModeDefinition _mode;
   final StatsService _stats;
   final AchievementService _achievements;
+
+  /// The tracking mode this view model is scoped to.
+  ModeDefinition get mode => _mode;
 
   bool _loading = true;
   bool get isLoading => _loading;
@@ -46,7 +53,7 @@ class TrackerViewModel extends ChangeNotifier {
   Future<void> load() async {
     _loading = true;
     notifyListeners();
-    final all = await _repo.getAll('dont_drink');
+    final all = await _repo.getAll(_mode);
     _entries
       ..clear()
       ..addEntries(all.map((e) => MapEntry(e.dateKey, e)));
@@ -62,7 +69,7 @@ class TrackerViewModel extends ChangeNotifier {
       _allEntries..sort((a, b) => a.date.compareTo(b.date));
 
   void _recompute() {
-    _statsCache = _stats.compute(_allEntries);
+    _statsCache = _stats.compute(_allEntries, _mode);
   }
 
   /// Entry for [date], or null if unlogged.
@@ -81,16 +88,16 @@ class TrackerViewModel extends ChangeNotifier {
   }
 
   /// Per-level counts for a month.
-  Map<DrinkLevel, int> monthCounts(DateTime month) =>
-      _stats.monthLevelCounts(entriesForMonth(month));
+  Map<TrackedLevel, int> monthCounts(DateTime month) =>
+      _stats.monthLevelCounts(entriesForMonth(month), _mode);
 
   /// Log (or update) the status for [date]. Detects newly unlocked
   /// achievements by comparing the longest streak before and after.
-  Future<void> logDay(DateTime date, DrinkLevel level, {String? note}) async {
+  Future<void> logDay(DateTime date, TrackedLevel level, {String? note}) async {
     final previousLongest = _statsCache.longestStreak;
 
     final entry = DayEntry(
-        modeId: 'dont_drink',
+        modeId: _mode.id,
         date: DateOnly.normalize(date),
         level: level,
         note: note);
@@ -107,7 +114,7 @@ class TrackerViewModel extends ChangeNotifier {
 
   /// Remove the entry for [date].
   Future<void> clearDay(DateTime date) async {
-    await _repo.delete('dont_drink', date);
+    await _repo.delete(_mode.id, date);
     _entries.remove(DateOnly.keyFor(date));
     _recompute();
     notifyListeners();

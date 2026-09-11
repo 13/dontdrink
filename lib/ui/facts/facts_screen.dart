@@ -79,7 +79,7 @@ class _FactOfDayCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
           colors: fact.isHarm
-              ? [AppColors.red, Color(0xFFC62828)]
+              ? [Color(0xFFF44336), Color(0xFFC62828)]
               : [AppColors.green, AppColors.brand],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -127,7 +127,7 @@ class _FactTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = fact.isHarm ? AppColors.red : AppColors.green;
+    final color = fact.isHarm ? const Color(0xFFF44336) : AppColors.green;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: AppCard(

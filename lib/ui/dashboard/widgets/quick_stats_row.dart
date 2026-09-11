@@ -15,25 +15,25 @@ class QuickStatsRow extends StatelessWidget {
       _StatData(
         icon: Icons.percent,
         color: AppColors.green,
-        value: '${stats.alcoholFreePercentage.toStringAsFixed(0)}%',
+        value: '${stats.cleanDayPercentage.toStringAsFixed(0)}%',
         label: 'Alcohol-free',
       ),
       _StatData(
         icon: Icons.local_fire_department,
-        color: AppColors.orange,
+        color: const Color(0xFFFF9800),
         value: '${stats.currentStreak}',
         label: 'Current streak',
       ),
       _StatData(
         icon: Icons.emoji_events,
-        color: AppColors.yellow,
+        color: const Color(0xFFFFC107),
         value: '${stats.longestStreak}',
         label: 'Longest streak',
       ),
       _StatData(
         icon: Icons.event_available,
         color: AppColors.brand,
-        value: '${stats.totalAlcoholFreeDays}',
+        value: '${stats.totalCleanDays}',
         label: 'Total free days',
       ),
     ];

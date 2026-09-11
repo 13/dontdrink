@@ -22,14 +22,14 @@ class MoreScreen extends StatelessWidget {
       ),
       _MoreItem(
         icon: Icons.lightbulb_outline,
-        color: AppColors.orange,
+        color: const Color(0xFFFF9800),
         title: 'Facts',
         subtitle: 'Harms of alcohol & benefits of quitting',
         builder: (_) => const FactsScreen(),
       ),
       _MoreItem(
         icon: Icons.favorite_outline,
-        color: AppColors.red,
+        color: const Color(0xFFF44336),
         title: 'Motivation',
         subtitle: 'A boost when you need it',
         builder: (_) => const MotivationScreen(),
