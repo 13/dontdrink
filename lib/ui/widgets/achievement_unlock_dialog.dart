@@ -1,25 +1,26 @@
 import 'dart:math' as math;
 
 import 'package:confetti/confetti.dart';
-import 'package:dont_drink/core/models/achievement.dart';
 import 'package:dont_drink/core/theme/app_colors.dart';
+import 'package:dont_drink/services/achievement_service.dart';
 import 'package:flutter/material.dart';
 
-/// Celebration dialog shown when one or more achievements unlock.
+/// Celebration dialog shown when one or more achievements are earned.
 ///
-/// Legendary milestones (30/90/180/365 days) fire confetti.
+/// Badges are repeatable, so an earn carries its running total and the dialog
+/// says which time this was. Legendary milestones (30/90/180/365 days) fire
+/// confetti on every earn, not only the first.
 class AchievementUnlockDialog extends StatefulWidget {
-  const AchievementUnlockDialog({super.key, required this.achievements});
+  const AchievementUnlockDialog({super.key, required this.earns});
 
-  final List<Achievement> achievements;
+  final List<AchievementEarn> earns;
 
-  static Future<void> show(
-      BuildContext context, List<Achievement> achievements) {
-    if (achievements.isEmpty) return Future.value();
+  static Future<void> show(BuildContext context, List<AchievementEarn> earns) {
+    if (earns.isEmpty) return Future.value();
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
-      builder: (_) => AchievementUnlockDialog(achievements: achievements),
+      builder: (_) => AchievementUnlockDialog(earns: earns),
     );
   }
 
@@ -33,7 +34,10 @@ class _AchievementUnlockDialogState extends State<AchievementUnlockDialog>
   late final ConfettiController _confetti;
   late final AnimationController _scale;
 
-  bool get _isLegendary => widget.achievements.any((a) => a.isLegendary);
+  bool get _isLegendary => widget.earns.any((e) => e.achievement.isLegendary);
+
+  /// True when every badge in this batch had been earned before.
+  bool get _allRepeats => widget.earns.every((e) => e.isRepeat);
 
   @override
   void initState() {
@@ -70,7 +74,7 @@ class _AchievementUnlockDialogState extends State<AchievementUnlockDialog>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Achievement Unlocked!',
+                    _allRepeats ? 'Earned Again!' : 'Achievement Unlocked!',
                     style: theme.textTheme.labelLarge?.copyWith(
                       color: AppColors.brand,
                       letterSpacing: 1,
@@ -78,7 +82,7 @@ class _AchievementUnlockDialogState extends State<AchievementUnlockDialog>
                     ),
                   ),
                   const SizedBox(height: 16),
-                  for (final a in widget.achievements) _Badge(achievement: a),
+                  for (final earn in widget.earns) _Badge(earn: earn),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
@@ -113,13 +117,14 @@ class _AchievementUnlockDialogState extends State<AchievementUnlockDialog>
 }
 
 class _Badge extends StatelessWidget {
-  const _Badge({required this.achievement});
+  const _Badge({required this.earn});
 
-  final Achievement achievement;
+  final AchievementEarn earn;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final achievement = earn.achievement;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -140,8 +145,41 @@ class _Badge extends StatelessWidget {
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
+          if (earn.isRepeat) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.brand.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${_ordinal(earn.count)} time',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: AppColors.brand,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+}
+
+/// 1 -> 1st, 2 -> 2nd, 23 -> 23rd. The teens are all "th".
+String _ordinal(int n) {
+  if (n % 100 >= 11 && n % 100 <= 13) return '${n}th';
+  switch (n % 10) {
+    case 1:
+      return '${n}st';
+    case 2:
+      return '${n}nd';
+    case 3:
+      return '${n}rd';
+    default:
+      return '${n}th';
   }
 }

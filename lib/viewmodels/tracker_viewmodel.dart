@@ -45,7 +45,7 @@ class TrackerViewModel extends ChangeNotifier {
     }
     _mode = mode;
     _visibleMonth = DateOnly.firstOfMonth(DateTime.now());
-    _pendingUnlocks = const [];
+    _pendingEarns = const [];
     await load();
   }
 
@@ -58,10 +58,15 @@ class TrackerViewModel extends ChangeNotifier {
   TrackerStats _statsCache = TrackerStats.empty;
   TrackerStats get stats => _statsCache;
 
-  /// Achievements newly unlocked by the last [logDay] call. The UI reads and
-  /// then clears this to drive unlock animations.
-  List<Achievement> _pendingUnlocks = const [];
-  List<Achievement> get pendingUnlocks => _pendingUnlocks;
+  /// Every clean run in this mode's history, oldest first. Achievements are
+  /// counted per run, so this is the basis for badge state.
+  List<StreakRun> _runs = const [];
+  List<StreakRun> get cleanRuns => _runs;
+
+  /// Achievements newly earned by the last [logDay] call, each with its new
+  /// running total. The UI reads and then clears this to drive the celebration.
+  List<AchievementEarn> _pendingEarns = const [];
+  List<AchievementEarn> get pendingEarns => _pendingEarns;
 
   /// The month currently displayed by the calendar.
   DateTime _visibleMonth = DateOnly.firstOfMonth(DateTime.now());
@@ -86,8 +91,16 @@ class TrackerViewModel extends ChangeNotifier {
       _allEntries..sort((a, b) => a.date.compareTo(b.date));
 
   void _recompute() {
-    _statsCache = _stats.compute(_allEntries, _mode);
+    final entries = _allEntries;
+    _statsCache = _stats.compute(entries, _mode);
+    _runs = _stats.cleanRuns(entries);
   }
+
+  /// Current earn count per achievement id.
+  Map<String, int> _earnCounts() => _achievements.earnCounts(
+        achievements: _mode.content.achievements,
+        runs: _runs,
+      );
 
   /// Entry for [date], or null if unlogged.
   DayEntry? entryFor(DateTime date) => _entries[DateOnly.keyFor(date)];
@@ -108,10 +121,10 @@ class TrackerViewModel extends ChangeNotifier {
   Map<TrackedLevel, int> monthCounts(DateTime month) =>
       _stats.monthLevelCounts(entriesForMonth(month), _mode);
 
-  /// Log (or update) the status for [date]. Detects newly unlocked
-  /// achievements by comparing the longest streak before and after.
+  /// Log (or update) the status for [date]. Detects newly earned achievements
+  /// by comparing each badge's earn count before and after.
   Future<void> logDay(DateTime date, TrackedLevel level, {String? note}) async {
-    final previousLongest = _statsCache.longestStreak;
+    final previousCounts = _earnCounts();
 
     final entry = DayEntry(
         modeId: _mode.id,
@@ -122,10 +135,10 @@ class TrackerViewModel extends ChangeNotifier {
     _entries[entry.dateKey] = entry;
     _recompute();
 
-    _pendingUnlocks = _achievements.newlyUnlocked(
+    _pendingEarns = _achievements.newlyEarned(
       achievements: _mode.content.achievements,
-      previousLongest: previousLongest,
-      newLongest: _statsCache.longestStreak,
+      previousCounts: previousCounts,
+      currentCounts: _earnCounts(),
     );
     notifyListeners();
     onDataChanged?.call();
@@ -140,8 +153,8 @@ class TrackerViewModel extends ChangeNotifier {
     onDataChanged?.call();
   }
 
-  void clearPendingUnlocks() {
-    _pendingUnlocks = const [];
+  void clearPendingEarns() {
+    _pendingEarns = const [];
   }
 
   // --- Calendar navigation -------------------------------------------------
@@ -165,10 +178,16 @@ class TrackerViewModel extends ChangeNotifier {
 
   List<AchievementStatus> get achievements => _achievements.evaluate(
         achievements: _mode.content.achievements,
-        longestStreak: _statsCache.longestStreak,
+        runs: _runs,
       );
 
-  /// The next achievement still to unlock, for the dashboard progress hint.
+  /// Total badges earned in this mode, repeats included.
+  int get totalEarns =>
+      achievements.fold(0, (sum, s) => sum + s.earnedCount);
+
+  /// The next achievement the current run is working toward, for the dashboard
+  /// progress hint. Based on the current streak, not the personal best: after
+  /// a relapse the goal is the first milestone again.
   Achievement? get nextAchievement => _achievements.nextLocked(
-      _mode.content.achievements, _statsCache.longestStreak);
+      _mode.content.achievements, _statsCache.currentStreak);
 }

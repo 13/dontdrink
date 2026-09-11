@@ -4,6 +4,7 @@ import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/recovery_section.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class AchievementsScreen extends StatelessWidget {
@@ -58,7 +59,11 @@ class _BadgesTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
-        _ProgressHeader(unlocked: unlockedCount, total: statuses.length),
+        _ProgressHeader(
+          unlocked: unlockedCount,
+          total: statuses.length,
+          totalEarns: vm.totalEarns,
+        ),
         const SizedBox(height: 16),
         for (final status in statuses)
           Padding(
@@ -71,10 +76,17 @@ class _BadgesTab extends StatelessWidget {
 }
 
 class _ProgressHeader extends StatelessWidget {
-  const _ProgressHeader({required this.unlocked, required this.total});
+  const _ProgressHeader({
+    required this.unlocked,
+    required this.total,
+    required this.totalEarns,
+  });
 
   final int unlocked;
   final int total;
+
+  /// Badges earned overall, counting every repeat.
+  final int totalEarns;
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +114,14 @@ class _ProgressHeader extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
+                if (totalEarns > unlocked) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    '$totalEarns earned in total',
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: Colors.white70),
+                  ),
+                ],
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
@@ -131,6 +151,7 @@ class _AchievementTile extends StatelessWidget {
     final theme = Theme.of(context);
     final a = status.achievement;
     final unlocked = status.unlocked;
+    final dateFormat = DateFormat.yMMMd();
 
     return AppCard(
       child: Opacity(
@@ -170,6 +191,24 @@ class _AchievementTile extends StatelessWidget {
                         const SizedBox(width: 6),
                         const Text('⭐', style: TextStyle(fontSize: 14)),
                       ],
+                      if (status.isRepeated) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.brand.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '×${status.earnedCount}',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: AppColors.brand,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 2),
@@ -187,6 +226,18 @@ class _AchievementTile extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  if (status.firstEarnedOn != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      status.isRepeated
+                          ? 'First ${dateFormat.format(status.firstEarnedOn!)}'
+                              ' · last ${dateFormat.format(status.lastEarnedOn!)}'
+                          : 'Earned ${dateFormat.format(status.firstEarnedOn!)}',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

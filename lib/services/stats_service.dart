@@ -3,6 +3,35 @@ import 'package:dont_drink/core/models/mode_definition.dart';
 import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 
+/// One unbroken run of clean days.
+///
+/// Runs are what makes an achievement repeatable: a badge is earned once per
+/// run that reaches its threshold, so relapsing and climbing back earns it
+/// again rather than leaving the first unlock as the only record.
+class StreakRun {
+  const StreakRun({
+    required this.start,
+    required this.end,
+    required this.length,
+  });
+
+  /// First clean day of the run.
+  final DateTime start;
+
+  /// Last clean day of the run.
+  final DateTime end;
+
+  /// Number of days in the run.
+  final int length;
+
+  /// The day this run reached [days] clean days, or null if it never got
+  /// that far.
+  DateTime? dayReaching(int days) {
+    if (days <= 0 || length < days) return null;
+    return DateOnly.normalize(start.add(Duration(days: days - 1)));
+  }
+}
+
 /// Aggregate statistics computed from a set of [DayEntry] rows, all belonging
 /// to a single mode.
 class TrackerStats {
@@ -84,28 +113,54 @@ class StatsService {
     return streak;
   }
 
-  /// Longest clean streak across all history.
-  int longestStreak(List<DayEntry> entries) {
-    if (entries.isEmpty) return 0;
+  /// Every unbroken run of clean days in [entries], oldest first.
+  ///
+  /// A run ends at a non-clean day *or* at a gap in the log: two clean days
+  /// with an unlogged day between them are two runs, matching how
+  /// [currentStreak] stops counting at the first missing day.
+  List<StreakRun> cleanRuns(List<DayEntry> entries) {
+    if (entries.isEmpty) return const [];
     // Entries from the repo are sorted ascending, but don't rely on it.
     final sorted = [...entries]..sort((a, b) => a.date.compareTo(b.date));
 
-    int best = 0;
-    int run = 0;
+    final runs = <StreakRun>[];
+    DateTime? runStart;
     DateTime? prev;
+    int run = 0;
+
+    void closeRun() {
+      if (run > 0) {
+        runs.add(StreakRun(start: runStart!, end: prev!, length: run));
+      }
+      run = 0;
+      runStart = null;
+    }
+
     for (final entry in sorted) {
+      final date = DateOnly.normalize(entry.date);
       if (!entry.level.isClean) {
-        run = 0;
-        prev = entry.date;
+        closeRun();
+        prev = date;
         continue;
       }
-      if (prev != null && DateOnly.daysBetween(prev, entry.date) == 1) {
+      if (run > 0 && DateOnly.daysBetween(prev!, date) == 1) {
         run += 1;
       } else {
+        closeRun();
         run = 1;
+        runStart = date;
       }
-      if (run > best) best = run;
-      prev = entry.date;
+      prev = date;
+    }
+    closeRun();
+    return runs;
+  }
+
+  /// Longest clean streak across all history.
+  int longestStreak(List<DayEntry> entries) {
+    int best = 0;
+    for (final run in cleanRuns(entries)) {
+      if (run.length > best) best = run.length;
     }
     return best;
   }

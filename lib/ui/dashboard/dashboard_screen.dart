@@ -60,7 +60,11 @@ class DashboardScreen extends StatelessWidget {
                     const SectionHeader('Next Achievement'),
                     NextAchievementCard(
                       achievement: vm.nextAchievement!,
-                      longestStreak: vm.stats.longestStreak,
+                      currentStreak: vm.stats.currentStreak,
+                      earnedCount: vm.achievements
+                          .firstWhere(
+                              (s) => s.achievement.id == vm.nextAchievement!.id)
+                          .earnedCount,
                     ),
                   ],
                 ],

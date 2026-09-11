@@ -92,14 +92,14 @@ class DayEntrySheet extends StatelessWidget {
       BuildContext context, DateTime date, TrackedLevel level) async {
     final vm = context.read<TrackerViewModel>();
     await vm.logDay(date, level);
-    final unlocks = vm.pendingUnlocks;
-    vm.clearPendingUnlocks();
+    final earns = vm.pendingEarns;
+    vm.clearPendingEarns();
 
     if (!context.mounted) return;
     Navigator.of(context).pop();
 
-    if (unlocks.isNotEmpty) {
-      await AchievementUnlockDialog.show(context, unlocks);
+    if (earns.isNotEmpty) {
+      await AchievementUnlockDialog.show(context, earns);
     }
   }
 }

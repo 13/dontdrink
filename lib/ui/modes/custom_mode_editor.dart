@@ -20,12 +20,7 @@ class CustomModeEditor extends StatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (_) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: CustomModeEditor(existing: existing),
-      ),
+      builder: (_) => CustomModeEditor(existing: existing),
     );
   }
 
@@ -82,9 +77,16 @@ class _CustomModeEditorState extends State<CustomModeEditor> {
     final theme = Theme.of(context);
     final isNew = widget.existing == null;
 
+    // The keyboard insets have to be read from a context *inside* the sheet
+    // route: read from the caller's context they are captured once, while the
+    // keyboard is still closed, and the autofocused field ends up behind it.
+    // The scroll view keeps the icon chips and the save button reachable when
+    // the keyboard leaves little room.
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(20, 4, 20, 24 + keyboardInset),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

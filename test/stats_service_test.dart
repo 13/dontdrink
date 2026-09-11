@@ -17,6 +17,75 @@ void main() {
   const service = StatsService();
   final now = DateTime(2026, 6, 3);
 
+  group('cleanRuns', () {
+    test('returns one run per unbroken stretch of clean days', () {
+      final entries = [
+        _entry(DateTime(2026, 6, 1), _none),
+        _entry(DateTime(2026, 6, 2), _none),
+        _entry(DateTime(2026, 6, 3), _heavy),
+        _entry(DateTime(2026, 6, 4), _none),
+        _entry(DateTime(2026, 6, 5), _none),
+        _entry(DateTime(2026, 6, 6), _none),
+      ];
+      final runs = service.cleanRuns(entries);
+      expect(runs.map((r) => r.length), [2, 3]);
+      expect(runs.first.start, DateTime(2026, 6, 1));
+      expect(runs.first.end, DateTime(2026, 6, 2));
+      expect(runs.last.start, DateTime(2026, 6, 4));
+      expect(runs.last.end, DateTime(2026, 6, 6));
+    });
+
+    test('a gap in the log splits a run, like currentStreak', () {
+      final entries = [
+        _entry(DateTime(2026, 6, 1), _none),
+        _entry(DateTime(2026, 6, 2), _none),
+        // 6-3 unlogged
+        _entry(DateTime(2026, 6, 4), _none),
+      ];
+      expect(service.cleanRuns(entries).map((r) => r.length), [2, 1]);
+    });
+
+    test('sorts unordered input before walking it', () {
+      final entries = [
+        _entry(DateTime(2026, 6, 3), _none),
+        _entry(DateTime(2026, 6, 1), _none),
+        _entry(DateTime(2026, 6, 2), _none),
+      ];
+      expect(service.cleanRuns(entries).single.length, 3);
+    });
+
+    test('a light day still breaks the run', () {
+      final entries = [
+        _entry(DateTime(2026, 6, 1), _none),
+        _entry(DateTime(2026, 6, 2), _light),
+        _entry(DateTime(2026, 6, 3), _none),
+      ];
+      expect(service.cleanRuns(entries).map((r) => r.length), [1, 1]);
+    });
+
+    test('history of only non-clean days has no runs', () {
+      final entries = [
+        _entry(DateTime(2026, 6, 1), _heavy),
+        _entry(DateTime(2026, 6, 2), _heavy),
+      ];
+      expect(service.cleanRuns(entries), isEmpty);
+      expect(service.cleanRuns(const []), isEmpty);
+    });
+
+    test('dayReaching gives the day the run crossed a threshold', () {
+      final run = service
+          .cleanRuns([
+            _entry(DateTime(2026, 6, 1), _none),
+            _entry(DateTime(2026, 6, 2), _none),
+            _entry(DateTime(2026, 6, 3), _none),
+          ])
+          .single;
+      expect(run.dayReaching(1), DateTime(2026, 6, 1));
+      expect(run.dayReaching(3), DateTime(2026, 6, 3));
+      expect(run.dayReaching(4), isNull);
+    });
+  });
+
   group('currentStreak', () {
     test('counts consecutive alcohol-free days ending today', () {
       final entries = [

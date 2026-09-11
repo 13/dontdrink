@@ -89,4 +89,73 @@ void main() {
     expect(vm.entryFor(today), isNotNull,
         reason: 'a same-id switchMode must not reload from the repository');
   });
+
+  test(
+      'a badge is earned again after a relapse, and the earn carries the '
+      'running count', () async {
+    final vm = TrackerViewModel(repository: repo, mode: kDontDrinkMode);
+    await vm.load();
+
+    final clean = kDontDrinkLevels[0];
+    final heavy = kDontDrinkLevels[3];
+    final start = DateTime(2026, 1, 1);
+
+    // First run of three clean days earns the day-1 and day-3 badges.
+    for (var i = 0; i < 3; i++) {
+      await vm.logDay(start.add(Duration(days: i)), clean);
+    }
+    expect(
+      vm.pendingEarns.map((e) => e.achievement.id),
+      contains('dont_drink.day_3'),
+    );
+    expect(vm.pendingEarns.single.count, 1);
+    vm.clearPendingEarns();
+
+    // Relapse, then a second three-day run.
+    await vm.logDay(start.add(const Duration(days: 3)), heavy);
+    expect(vm.pendingEarns, isEmpty);
+    for (var i = 4; i < 7; i++) {
+      await vm.logDay(start.add(Duration(days: i)), clean);
+    }
+
+    final again = vm.pendingEarns
+        .firstWhere((e) => e.achievement.id == 'dont_drink.day_3');
+    expect(again.count, 2, reason: 'the day-3 badge was earned a second time');
+    expect(again.isRepeat, isTrue);
+
+    final day3 = vm.achievements
+        .firstWhere((s) => s.achievement.id == 'dont_drink.day_3');
+    expect(day3.earnedCount, 2);
+    expect(day3.firstEarnedOn, DateTime(2026, 1, 3));
+    expect(day3.lastEarnedOn, DateTime(2026, 1, 7));
+    expect(vm.totalEarns, greaterThan(2));
+  });
+
+  test('back-filling a forgotten day completes an older run and earns it',
+      () async {
+    final vm = TrackerViewModel(repository: repo, mode: kDontDrinkMode);
+    await vm.load();
+
+    final clean = kDontDrinkLevels[0];
+    // Two clean days with a hole between them: two one-day runs, so the
+    // day-3 badge is not earned yet.
+    await vm.logDay(DateTime(2026, 2, 1), clean);
+    await vm.logDay(DateTime(2026, 2, 3), clean);
+    vm.clearPendingEarns();
+    expect(
+      vm.achievements
+          .firstWhere((s) => s.achievement.id == 'dont_drink.day_3')
+          .earnedCount,
+      0,
+    );
+
+    // Filling the hole joins them into a three-day run. The *current* streak
+    // never moved, so only a count comparison catches this earn.
+    await vm.logDay(DateTime(2026, 2, 2), clean);
+
+    expect(
+      vm.pendingEarns.map((e) => e.achievement.id),
+      contains('dont_drink.day_3'),
+    );
+  });
 }
