@@ -1,5 +1,6 @@
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/services/export_import_service.dart';
+import 'package:dont_drink/ui/settings/widgets/modes_section.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/settings_viewmodel.dart';
@@ -21,6 +22,9 @@ class SettingsScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
+            const SectionHeader('Modes'),
+            const ModesSection(),
+            const SizedBox(height: 24),
             const SectionHeader('Appearance'),
             AppCard(
               padding: const EdgeInsets.symmetric(vertical: 6),
