@@ -25,12 +25,29 @@ class TrackerViewModel extends ChangeNotifier {
         _achievements = achievements;
 
   final EntryRepository _repo;
-  final ModeDefinition _mode;
+  ModeDefinition _mode;
   final StatsService _stats;
   final AchievementService _achievements;
 
   /// The tracking mode this view model is scoped to.
   ModeDefinition get mode => _mode;
+
+  /// Called after any change to this mode's entries, so [ModeViewModel] can
+  /// refresh its cached per-mode streaks.
+  VoidCallback? onDataChanged;
+
+  /// Point this view model at a different mode and reload its history.
+  Future<void> switchMode(ModeDefinition mode) async {
+    if (mode.id == _mode.id) {
+      _mode = mode; // a rename of the same mode
+      notifyListeners();
+      return;
+    }
+    _mode = mode;
+    _visibleMonth = DateOnly.firstOfMonth(DateTime.now());
+    _pendingUnlocks = const [];
+    await load();
+  }
 
   bool _loading = true;
   bool get isLoading => _loading;
@@ -110,6 +127,7 @@ class TrackerViewModel extends ChangeNotifier {
       newLongest: _statsCache.longestStreak,
     );
     notifyListeners();
+    onDataChanged?.call();
   }
 
   /// Remove the entry for [date].
@@ -118,6 +136,7 @@ class TrackerViewModel extends ChangeNotifier {
     _entries.remove(DateOnly.keyFor(date));
     _recompute();
     notifyListeners();
+    onDataChanged?.call();
   }
 
   void clearPendingUnlocks() {
