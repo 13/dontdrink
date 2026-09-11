@@ -271,7 +271,6 @@ class _AboutCardState extends State<_AboutCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return AppCard(
       child: Column(
