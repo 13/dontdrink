@@ -52,3 +52,8 @@ android/local.properties
 # Claude Code worktrees and scratch state
 .claude/worktrees/
 .superpowers/
+
+# Android signing (local keystore credentials — never commit)
+android/key.properties
+*.jks
+*.keystore

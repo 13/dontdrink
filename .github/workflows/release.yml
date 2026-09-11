@@ -55,6 +55,31 @@ jobs:
             echo "ndk.dir=$ANDROID_SDK_ROOT/ndk/28.2.13676358"
           } > android/local.properties
 
+      # ── Signing ────────────────────────────────────────────────────────────
+      # A published APK must carry the release certificate: the in-app updater
+      # installs over the running build, and a different cert fails with
+      # INSTALL_FAILED_UPDATE_INCOMPATIBLE. Fail loudly rather than silently
+      # shipping a debug-signed release.
+      - name: Write signing keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASS }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "::error::ANDROID_KEYSTORE_B64 is not set; refusing to publish an unsigned release." >&2
+            exit 1
+          fi
+          umask 077
+          echo "$KEYSTORE_B64" | base64 -d > android/upload.jks
+          {
+            echo "storeFile=$GITHUB_WORKSPACE/android/upload.jks"
+            echo "storePassword=$KEYSTORE_PASS"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=${KEY_PASS:-$KEYSTORE_PASS}"
+          } > android/key.properties
+
       # ── Dependencies ───────────────────────────────────────────────────────
       - name: Get dependencies
         run: flutter pub get
@@ -77,6 +102,14 @@ jobs:
             --build-name="${{ steps.version.outputs.version }}" \
             --build-number="${{ github.run_number }}"
 
+      # ── Signature check ────────────────────────────────────────────────────
+      # Prove the APK carries the release cert before it is published.
+      - name: Verify APK signature
+        run: |
+          APKSIGNER=$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --print-certs \
+            build/app/outputs/flutter-apk/app-release.apk
+
       # ── Rename artifact ────────────────────────────────────────────────────
       - name: Rename APK
         run: |
@@ -91,3 +124,8 @@ jobs:
           files: "build/app/outputs/flutter-apk/dont-drink-${{ steps.version.outputs.tag }}.apk"
           generate_release_notes: true
           fail_on_unmatched_files: true
+
+      # ── Cleanup ────────────────────────────────────────────────────────────
+      - name: Remove signing material
+        if: always()
+        run: rm -f android/upload.jks android/key.properties
