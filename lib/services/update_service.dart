@@ -61,6 +61,7 @@ class UpdateService {
       throw const UpdateException(
           'The connection to GitHub was interrupted. Please try again.');
     } on TimeoutException {
+      client.close(force: true);
       throw const UpdateException(
           'The update check timed out. Please try again.');
     } finally {
@@ -166,10 +167,16 @@ class UpdateService {
 
       // An APK is a ZIP. A captive portal or CDN error page served with status 200
       // would otherwise reach the installer as "problem parsing the package".
-      final header = await file.openRead(0, 4).first;
-      final looksLikeZip = header.length >= 4 &&
-          header[0] == 0x50 && header[1] == 0x4B &&
-          header[2] == 0x03 && header[3] == 0x04;
+      // A zero-byte body reads as an empty stream, and openRead(...).first throws
+      // on that before any length guard can run — so check the size first.
+      final length = await file.length();
+      var looksLikeZip = false;
+      if (length >= 4) {
+        final header = await file.openRead(0, 4).first;
+        looksLikeZip = header.length >= 4 &&
+            header[0] == 0x50 && header[1] == 0x4B &&
+            header[2] == 0x03 && header[3] == 0x04;
+      }
       if (!looksLikeZip) {
         await file.delete();
         throw const UpdateException(
