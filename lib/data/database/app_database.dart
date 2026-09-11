@@ -8,10 +8,14 @@ class AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   static const String _dbName = 'dont_drink.db';
-  static const int _dbVersion = 1;
+  static const int _dbVersion = 2;
 
-  /// Table holding one row per logged calendar day.
+  /// Table holding one row per logged calendar day, per mode.
   static const String tableEntries = 'day_entries';
+
+  /// Table holding user-created custom modes. Built-in modes are const in
+  /// code and never appear here.
+  static const String tableModes = 'modes';
 
   Database? _db;
 
@@ -21,24 +25,73 @@ class AppDatabase {
 
   Future<Database> _open() async {
     final dir = await getDatabasesPath();
-    final path = p.join(dir, _dbName);
-    return openDatabase(
+    return openAt(p.join(dir, _dbName));
+  }
+
+  /// Open (and migrate) the database at [path]. Exposed so tests can drive the
+  /// real schema and migration against a temporary file.
+  static Future<Database> openAt(String path) {
+    return databaseFactory.openDatabase(
       path,
-      version: _dbVersion,
-      onCreate: _onCreate,
+      options: OpenDatabaseOptions(
+        version: _dbVersion,
+        onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
+      ),
     );
   }
 
-  Future<void> _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE $tableEntries (
-        date_key   TEXT PRIMARY KEY,
+  static Future<void> _onCreate(Database db, int version) async {
+    await db.execute(_createEntriesSql(tableEntries));
+    await db.execute(_createModesSql);
+  }
+
+  static Future<void> _onUpgrade(
+      Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _migrateToV2(db);
+    }
+  }
+
+  /// v1 → v2: every existing row belongs to Don't Drink, and the primary key
+  /// becomes (mode_id, date_key).
+  ///
+  /// SQLite cannot add a primary key with ALTER TABLE, so the table is rebuilt.
+  /// The whole rebuild runs in one transaction: either the user ends up on v2
+  /// with all their data, or nothing changes.
+  static Future<void> _migrateToV2(Database db) async {
+    await db.transaction((txn) async {
+      await txn.execute(_createEntriesSql('${tableEntries}_new'));
+      await txn.execute('''
+        INSERT INTO ${tableEntries}_new (mode_id, date_key, level, note, updated_at)
+        SELECT 'dont_drink', date_key, level, note, updated_at FROM $tableEntries
+      ''');
+      await txn.execute('DROP TABLE $tableEntries');
+      await txn.execute(
+          'ALTER TABLE ${tableEntries}_new RENAME TO $tableEntries');
+      await txn.execute(_createModesSql);
+    });
+  }
+
+  static String _createEntriesSql(String table) => '''
+      CREATE TABLE $table (
+        mode_id    TEXT NOT NULL,
+        date_key   TEXT NOT NULL,
         level      INTEGER NOT NULL,
         note       TEXT,
-        updated_at INTEGER NOT NULL
+        updated_at INTEGER NOT NULL,
+        PRIMARY KEY (mode_id, date_key)
       )
-    ''');
-  }
+    ''';
+
+  static const String _createModesSql = '''
+      CREATE TABLE $tableModes (
+        id         TEXT PRIMARY KEY,
+        name       TEXT NOT NULL,
+        emoji      TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      )
+    ''';
 
   /// Test/maintenance helper: closes the underlying connection.
   Future<void> close() async {

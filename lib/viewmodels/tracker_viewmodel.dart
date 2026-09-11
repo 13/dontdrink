@@ -46,7 +46,7 @@ class TrackerViewModel extends ChangeNotifier {
   Future<void> load() async {
     _loading = true;
     notifyListeners();
-    final all = await _repo.getAll();
+    final all = await _repo.getAll('dont_drink');
     _entries
       ..clear()
       ..addEntries(all.map((e) => MapEntry(e.dateKey, e)));
@@ -89,7 +89,11 @@ class TrackerViewModel extends ChangeNotifier {
   Future<void> logDay(DateTime date, DrinkLevel level, {String? note}) async {
     final previousLongest = _statsCache.longestStreak;
 
-    final entry = DayEntry(date: DateOnly.normalize(date), level: level, note: note);
+    final entry = DayEntry(
+        modeId: 'dont_drink',
+        date: DateOnly.normalize(date),
+        level: level,
+        note: note);
     await _repo.upsert(entry);
     _entries[entry.dateKey] = entry;
     _recompute();
@@ -103,7 +107,7 @@ class TrackerViewModel extends ChangeNotifier {
 
   /// Remove the entry for [date].
   Future<void> clearDay(DateTime date) async {
-    await _repo.delete(date);
+    await _repo.delete('dont_drink', date);
     _entries.remove(DateOnly.keyFor(date));
     _recompute();
     notifyListeners();

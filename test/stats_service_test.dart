@@ -4,7 +4,7 @@ import 'package:dont_drink/services/stats_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 DayEntry _entry(DateTime date, DrinkLevel level) =>
-    DayEntry(date: date, level: level);
+    DayEntry(modeId: 'dont_drink', date: date, level: level);
 
 void main() {
   const service = StatsService();
