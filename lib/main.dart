@@ -11,11 +11,18 @@ import 'package:dont_drink/viewmodels/settings_viewmodel.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:dont_drink/viewmodels/update_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inter is bundled in assets/fonts/, so google_fonts must never reach out to
+  // fonts.gstatic.com. Without this the INTERNET permission the updater needs
+  // would silently enable a second network destination, contradicting what the
+  // About card tells the user.
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   // Notifications init is best-effort; the app works fully without them, so
   // a failure here (e.g. tz.initializeTimeZones() or the plugin's

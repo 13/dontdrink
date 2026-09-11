@@ -219,3 +219,7 @@ Your tracking data never leaves the device. The only outbound requests are to
 | `google_fonts` | Inter typeface |
 | `path` | Database path construction |
 | `open_filex` | Hands a downloaded APK to Android's package installer |
+
+The Inter typeface is bundled in `assets/fonts/` under the SIL Open Font
+License (see `assets/fonts/Inter-LICENSE.txt`), so the app renders its own
+typography without contacting Google's font servers.
