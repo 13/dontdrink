@@ -1,4 +1,7 @@
+import 'package:dont_drink/core/models/day_entry.dart';
+import 'package:dont_drink/core/models/drink_level.dart';
 import 'package:dont_drink/data/database/app_database.dart';
+import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,11 +18,12 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     // AppDatabase.instance is a process-wide singleton shared by every test
-    // in this file, so custom modes created by one test would otherwise
-    // leak into the next. Clear the table each test cares about instead of
-    // constructing a second AppDatabase.
+    // in this file, so custom modes (and, now, day_entries rows) created by
+    // one test would otherwise leak into the next. Clear the tables each
+    // test cares about instead of constructing a second AppDatabase.
     final db = await AppDatabase.instance.database;
     await db.delete(AppDatabase.tableModes);
+    await db.delete(AppDatabase.tableEntries);
   });
 
   test('a fresh install enables and activates Don\'t Drink', () async {
@@ -73,6 +77,55 @@ void main() {
     expect(await repo.enabledModeIds(), ['dont_drink']);
   });
 
+  test('deleteCustom deletes the mode\'s day_entries but leaves other modes\' entries alone',
+      () async {
+    final repo = ModeRepository();
+    final entries = EntryRepository();
+    final mode = await repo.createCustom(name: 'Temp', emoji: '🎯');
+
+    await entries.upsert(DayEntry(
+      modeId: mode.id,
+      date: DateTime(2026, 1, 1),
+      level: DrinkLevel.none,
+    ));
+    await entries.upsert(DayEntry(
+      modeId: 'dont_drink',
+      date: DateTime(2026, 1, 1),
+      level: DrinkLevel.none,
+    ));
+
+    await repo.deleteCustom(mode.id);
+
+    final db = await AppDatabase.instance.database;
+    final deletedModeRows = await db.query(
+      AppDatabase.tableEntries,
+      where: 'mode_id = ?',
+      whereArgs: [mode.id],
+    );
+    expect(deletedModeRows, isEmpty);
+
+    final survivingRows = await db.query(
+      AppDatabase.tableEntries,
+      where: 'mode_id = ?',
+      whereArgs: ['dont_drink'],
+    );
+    expect(survivingRows, hasLength(1));
+  });
+
+  test('deleteCustom reassigns the active mode when the active mode is deleted',
+      () async {
+    final repo = ModeRepository();
+    final mode = await repo.createCustom(name: 'Temp', emoji: '🎯');
+    await repo.setEnabledModeIds(['dont_drink', mode.id]);
+    await repo.setActiveModeId(mode.id);
+
+    await repo.deleteCustom(mode.id);
+
+    final active = await repo.activeModeId();
+    expect(active, isNot(mode.id));
+    expect(await repo.enabledModeIds(), contains(active));
+  });
+
   test('resolveActiveMode falls back when the stored id is gone', () async {
     final repo = ModeRepository();
     await repo.setActiveModeId('custom_deleted');
@@ -85,5 +138,15 @@ void main() {
     await repo.setActiveModeId('no_contact');
     expect(await repo.enabledModeIds(), ['dont_drink', 'no_contact']);
     expect((await repo.resolveActiveMode()).id, 'no_contact');
+  });
+
+  test('resolveActiveMode returns a matching active custom mode', () async {
+    final repo = ModeRepository();
+    final mode = await repo.createCustom(name: 'No Sugar', emoji: '🍭');
+    await repo.setActiveModeId(mode.id);
+
+    final resolved = await repo.resolveActiveMode();
+    expect(resolved.id, mode.id);
+    expect(resolved.name, 'No Sugar');
   });
 }
