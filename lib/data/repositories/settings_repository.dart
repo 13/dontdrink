@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Persists lightweight user preferences (theme, notifications) in
-/// [SharedPreferences]. No personal data, no account.
+/// Persists lightweight user preferences (theme, notifications, updater
+/// state) in [SharedPreferences]. No personal data, no account.
 class SettingsRepository {
   static const _kThemeMode = 'theme_mode';
   static const _kNotifEnabled = 'notif_enabled';
   static const _kNotifHour = 'notif_hour';
   static const _kNotifMinute = 'notif_minute';
+  static const _kLastUpdateCheck = 'last_update_check';
+  static const _kSkippedVersion = 'skipped_version';
 
   SharedPreferences? _prefs;
 
@@ -51,5 +53,37 @@ class SettingsRepository {
     final prefs = await _p;
     await prefs.setInt(_kNotifHour, time.hour);
     await prefs.setInt(_kNotifMinute, time.minute);
+  }
+
+  // ── Updater ──────────────────────────────────────────────────────────────
+
+  /// When the app last asked GitHub for a release, or null if never.
+  /// Drives the once-per-24h throttle on the silent launch check.
+  Future<DateTime?> getLastUpdateCheck() async {
+    final prefs = await _p;
+    final millis = prefs.getInt(_kLastUpdateCheck);
+    return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
+  }
+
+  Future<void> setLastUpdateCheck(DateTime when) async {
+    final prefs = await _p;
+    await prefs.setInt(_kLastUpdateCheck, when.millisecondsSinceEpoch);
+  }
+
+  /// A version the user dismissed with "Later". Silent checks stay quiet for
+  /// this version but still surface anything newer.
+  Future<String?> getSkippedVersion() async {
+    final prefs = await _p;
+    return prefs.getString(_kSkippedVersion);
+  }
+
+  Future<void> setSkippedVersion(String version) async {
+    final prefs = await _p;
+    await prefs.setString(_kSkippedVersion, version);
+  }
+
+  Future<void> clearSkippedVersion() async {
+    final prefs = await _p;
+    await prefs.remove(_kSkippedVersion);
   }
 }
