@@ -6,6 +6,14 @@ the person who wrote it. Newest first.
 The GitHub release notes are generated from commit subjects; this file is the
 curated version, and it is what an in-app "what's new" should read from.
 
+## 1.5.2 — 2026-09-13
+
+### Fixed
+- In the month picker, the month you are currently viewing showed as a filled
+  button with its label clipped away to a few pixels — worse the larger your
+  text size. Every month now uses the same button, and the row height follows
+  your text setting.
+
 ## 1.5.1 — 2026-09-13
 
 ### Fixed
