@@ -902,6 +902,19 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get welcomeTitle => 'Fang dort an, wo du bist';
+
+  @override
+  String get welcomeBody =>
+      'Tippe auf einen Tag, um ihn einzutragen. Saubere Tage bauen eine Serie auf, und Abzeichen verdienst du jedes Mal neu, wenn du sie erreichst — ein Rückfall kostet die Serie, nie die Abzeichen.';
+
+  @override
+  String get welcomePrivacy => 'Alles bleibt auf diesem Gerät.';
+
+  @override
+  String get openCalendar => 'Kalender öffnen';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink konnte nicht starten';
 
   @override

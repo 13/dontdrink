@@ -889,6 +889,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get welcomeTitle => 'Start where you are';
+
+  @override
+  String get welcomeBody =>
+      'Tap a day to log it. Clean days build a streak, and badges are earned again every time you reach them — a relapse costs the streak, never the badges.';
+
+  @override
+  String get welcomePrivacy => 'Everything stays on this device.';
+
+  @override
+  String get openCalendar => 'Open the calendar';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink couldn\'t start';
 
   @override

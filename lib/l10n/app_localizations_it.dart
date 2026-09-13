@@ -897,6 +897,19 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String get welcomeTitle => 'Comincia da dove sei';
+
+  @override
+  String get welcomeBody =>
+      'Tocca un giorno per registrarlo. I giorni puliti costruiscono una serie, e i distintivi si ottengono di nuovo ogni volta che li raggiungi — una ricaduta costa la serie, mai i distintivi.';
+
+  @override
+  String get welcomePrivacy => 'Tutto resta su questo dispositivo.';
+
+  @override
+  String get openCalendar => 'Apri il calendario';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink non è riuscita ad avviarsi';
 
   @override

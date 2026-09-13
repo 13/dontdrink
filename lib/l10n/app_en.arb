@@ -330,6 +330,11 @@
   "a11yBadgeLocked": "{title}, not earned yet",
   "@a11yBadgeLocked": {"placeholders": {"title": {"type": "String"}}},
 
+  "welcomeTitle": "Start where you are",
+  "welcomeBody": "Tap a day to log it. Clean days build a streak, and badges are earned again every time you reach them — a relapse costs the streak, never the badges.",
+  "welcomePrivacy": "Everything stays on this device.",
+  "openCalendar": "Open the calendar",
+
   "startupFailedTitle": "Don't Drink couldn't start",
   "startupFailedBody": "Your data is safe and has not been changed. Please report this error."
 }

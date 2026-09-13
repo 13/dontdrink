@@ -2,6 +2,7 @@ import 'package:dont_drink/data/static/modes/dont_drink_mode.dart';
 import 'package:dont_drink/services/share_image_service.dart';
 import 'package:dont_drink/ui/achievements/achievements_screen.dart';
 import 'package:dont_drink/ui/calendar/calendar_screen.dart';
+import 'package:dont_drink/ui/dashboard/dashboard_screen.dart';
 import 'package:dont_drink/ui/statistics/widgets/distribution_pie.dart';
 import 'package:dont_drink/ui/widgets/badge_share_dialog.dart';
 import 'package:dont_drink/ui/widgets/month_picker_dialog.dart';
@@ -192,6 +193,25 @@ void main() {
       );
     });
   });
+
+  group('first run', () {
+    testWidgets('an empty mode is told what to do, and told once',
+        (tester) async {
+      await tester.pumpWidget(harness.wrap(const DashboardScreen()));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Start where you are'), findsOneWidget);
+      expect(find.textContaining('stays on this device'), findsOneWidget);
+
+      // Logging anything retires it, with no flag to persist and nothing to
+      // dismiss.
+      await harness.tracker.logDay(DateTime.now(), kDontDrinkLevels[0]);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Start where you are'), findsNothing);
+    });
+  });
+
 }
 
 /// The label the month header renders, in the test's default locale.

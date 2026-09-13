@@ -1432,6 +1432,30 @@ abstract class AppLocalizations {
   /// **'{title}, not earned yet'**
   String a11yBadgeLocked(String title);
 
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start where you are'**
+  String get welcomeTitle;
+
+  /// No description provided for @welcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a day to log it. Clean days build a streak, and badges are earned again every time you reach them — a relapse costs the streak, never the badges.'**
+  String get welcomeBody;
+
+  /// No description provided for @welcomePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything stays on this device.'**
+  String get welcomePrivacy;
+
+  /// No description provided for @openCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the calendar'**
+  String get openCalendar;
+
   /// No description provided for @startupFailedTitle.
   ///
   /// In en, this message translates to:

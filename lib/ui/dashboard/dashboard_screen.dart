@@ -1,6 +1,7 @@
 import 'package:dont_drink/core/theme/app_colors.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/l10n/app_localizations.dart';
+import 'package:dont_drink/ui/calendar/calendar_screen.dart';
 import 'package:dont_drink/ui/calendar/widgets/month_grid.dart';
 import 'package:dont_drink/ui/dashboard/widgets/next_achievement_card.dart';
 import 'package:dont_drink/ui/dashboard/widgets/streak_hero.dart';
@@ -43,6 +44,10 @@ class DashboardScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
               sliver: SliverList.list(
                 children: [
+                  if (vm.allEntries.isEmpty) ...[
+                    const _WelcomeCard(),
+                    const SizedBox(height: 16),
+                  ],
                   StreakHero(
                     currentStreak: vm.stats.currentStreak,
                     longestStreak: vm.stats.longestStreak,
@@ -163,6 +168,18 @@ class _MonthCalendarSection extends StatelessWidget {
               onPressed: isCurrentMonth ? null : vm.nextMonth,
               icon: const Icon(Icons.chevron_right),
             ),
+            // The dashboard shows the month; the calendar screen shows the
+            // same month with its legend and totals. Rather than grow this
+            // section into a second calendar, point at the one that exists.
+            IconButton(
+              tooltip: AppLocalizations.of(context).openCalendar,
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const CalendarScreen(),
+                ),
+              ),
+              icon: const Icon(Icons.open_in_full, size: 18),
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -174,6 +191,58 @@ class _MonthCalendarSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Shown on the dashboard until the first day is logged.
+///
+/// It disappears on its own the moment there is any history, so there is no
+/// "seen" flag to persist, nothing to dismiss, and no state that can strand
+/// someone with a welcome card they cannot get rid of.
+class _WelcomeCard extends StatelessWidget {
+  const _WelcomeCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.welcomeTitle,
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.welcomeBody,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Icon(Icons.lock_outline,
+                  size: 14, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  l10n.welcomePrivacy,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
