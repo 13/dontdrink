@@ -108,4 +108,86 @@ void main() {
 
     expect(find.text('Wie lief der Tag?'), findsOneWidget);
   });
+
+  testWidgets('a note is saved with the day and comes back when reopened',
+      (tester) async {
+    await tester.pumpWidget(harness.wrap(
+      Builder(
+        builder: (context) => Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              onPressed: () => DayEntrySheet.show(context, DateTime.now()),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    ));
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add a note'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Dinner with friends');
+    await tester.pump();
+
+    // Typing focuses the field, which scrolls the level options up out of
+    // view — the same thing that happens on a phone with the keyboard open.
+    await tester.ensureVisible(find.text(kDontDrinkLevels[0].label));
+    await tester.pumpAndSettle();
+
+    // The note rides along with the level that is tapped.
+    await tester.tap(find.text(kDontDrinkLevels[0].label));
+    await tester.pumpAndSettle();
+
+    expect(harness.tracker.entryFor(DateTime.now())?.note,
+        'Dinner with friends');
+
+    // Dismiss whatever dialog the log produced, then reopen the day.
+    await tester.tap(find.text('Keep going'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dinner with friends'), findsOneWidget,
+        reason: 'the field is prefilled with what was stored');
+  });
+
+  testWidgets('editing only the note saves without re-logging the day',
+      (tester) async {
+    final today = DateTime.now();
+    await harness.tracker.logDay(today, kDontDrinkLevels[3]);
+    harness.tracker.clearPendingEarns();
+
+    await tester.pumpWidget(harness.wrap(
+      Builder(
+        builder: (context) => Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              onPressed: () => DayEntrySheet.show(context, today),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add a note'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'Rough evening');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Save note'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save note'));
+    await tester.pumpAndSettle();
+
+    expect(harness.tracker.entryFor(today)?.note, 'Rough evening');
+    expect(harness.tracker.entryFor(today)?.level.value,
+        kDontDrinkLevels[3].value,
+        reason: 'the level is untouched');
+    expect(find.byType(DayFeedbackDialog), findsNothing,
+        reason: 'writing a note is not the same event as logging the day');
+  });
 }

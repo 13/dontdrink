@@ -2,6 +2,7 @@ import 'package:dont_drink/core/models/day_entry.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 /// A color-coded month calendar. Each cell is tinted by that day's
 /// [TrackedLevel]; future days are disabled.
@@ -112,7 +113,24 @@ class _DayCell extends StatelessWidget {
             ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4)
             : theme.colorScheme.onSurface);
 
-    return AnimatedContainer(
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final hasNote = entry?.note != null && entry!.note!.trim().isNotEmpty;
+    // Colour is the only thing this cell says visually, which says nothing at
+    // all to a screen reader. Spell it out instead: the date, what was logged,
+    // and whether there is a note behind it.
+    final status = isFuture
+        ? l10n.a11yDayFuture
+        : (entry?.level.shortLabel ?? l10n.a11yDayUnlogged);
+    final dateLabel = DateFormat.yMMMMd(locale).format(date);
+
+    return Semantics(
+      button: !isFuture,
+      label: hasNote
+          ? l10n.a11yDayCellWithNote(dateLabel, status)
+          : l10n.a11yDayCell(dateLabel, status),
+      excludeSemantics: true,
+      child: AnimatedContainer(
       duration: const Duration(milliseconds: 280),
       curve: Curves.easeOut,
       decoration: BoxDecoration(
@@ -127,16 +145,37 @@ class _DayCell extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: isFuture ? null : () => onTap(date),
-          child: Center(
-            child: Text(
-              '${date.day}',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: fg,
-                fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
+          child: Stack(
+            children: [
+              Center(
+                child: Text(
+                  '${date.day}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: fg,
+                    fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
+                  ),
+                ),
               ),
-            ),
+              // A day carrying a note gets a dot, so the note is findable
+              // later without opening every day to look. The note itself is
+              // never drawn here: this grid is what gets shared as an image.
+              if (entry?.note != null && entry!.note!.trim().isNotEmpty)
+                Positioned(
+                  right: 4,
+                  bottom: 4,
+                  child: Container(
+                    width: 5,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: fg.withValues(alpha: 0.65),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
+      ),
       ),
     );
   }

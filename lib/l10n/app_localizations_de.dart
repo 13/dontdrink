@@ -846,6 +846,62 @@ class AppLocalizationsDe extends AppLocalizations {
   String get badgeLockedShare => 'Verdiene dieses Abzeichen, um es zu teilen.';
 
   @override
+  String get sheetNoteLabel => 'Notiz (optional)';
+
+  @override
+  String get sheetNoteHint => 'Was war los, wie hat es sich angefühlt…';
+
+  @override
+  String get sheetSaveNote => 'Notiz speichern';
+
+  @override
+  String get sheetNoteSaved => 'Notiz gespeichert';
+
+  @override
+  String statsMonthOf(String month) {
+    return '$month';
+  }
+
+  @override
+  String get sheetAddNote => 'Notiz hinzufügen';
+
+  @override
+  String a11yDayCell(String date, String status) {
+    return '$date, $status';
+  }
+
+  @override
+  String a11yDayCellWithNote(String date, String status) {
+    return '$date, $status, mit Notiz';
+  }
+
+  @override
+  String get a11yDayUnlogged => 'nicht eingetragen';
+
+  @override
+  String get a11yDayFuture => 'in der Zukunft';
+
+  @override
+  String a11ySliceSelected(String label, int count) {
+    return '$label, $count Tage, ausgewählt';
+  }
+
+  @override
+  String a11ySlice(String label, int count) {
+    return '$label, $count Tage';
+  }
+
+  @override
+  String a11yBadgeEarned(String title, int count) {
+    return '$title, $count-mal verdient, zum Teilen tippen';
+  }
+
+  @override
+  String a11yBadgeLocked(String title) {
+    return '$title, noch nicht verdient';
+  }
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink konnte nicht starten';
 
   @override

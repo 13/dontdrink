@@ -237,6 +237,23 @@
   "shareBadge": "Condividi questo distintivo",
   "badgeLockedShare": "Ottieni questo distintivo per condividerlo.",
 
+  "sheetNoteLabel": "Nota (facoltativa)",
+  "sheetNoteHint": "Cos'è successo, come ti sei sentito…",
+  "sheetSaveNote": "Salva la nota",
+  "sheetNoteSaved": "Nota salvata",
+  "statsMonthOf": "{month}",
+
+  "sheetAddNote": "Aggiungi una nota",
+
+  "a11yDayCell": "{date}, {status}",
+  "a11yDayCellWithNote": "{date}, {status}, con nota",
+  "a11yDayUnlogged": "non registrato",
+  "a11yDayFuture": "nel futuro",
+  "a11ySliceSelected": "{label}, {count} giorni, selezionato",
+  "a11ySlice": "{label}, {count} giorni",
+  "a11yBadgeEarned": "{title}, ottenuto {count} volte, tocca per condividere",
+  "a11yBadgeLocked": "{title}, non ancora ottenuto",
+
   "startupFailedTitle": "Don't Drink non è riuscita ad avviarsi",
   "startupFailedBody": "I tuoi dati sono al sicuro e non sono stati modificati. Segnala questo errore."
 }

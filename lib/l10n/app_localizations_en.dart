@@ -833,6 +833,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String get badgeLockedShare => 'Earn this badge to share it.';
 
   @override
+  String get sheetNoteLabel => 'Note (optional)';
+
+  @override
+  String get sheetNoteHint => 'What happened, how it felt…';
+
+  @override
+  String get sheetSaveNote => 'Save note';
+
+  @override
+  String get sheetNoteSaved => 'Note saved';
+
+  @override
+  String statsMonthOf(String month) {
+    return '$month';
+  }
+
+  @override
+  String get sheetAddNote => 'Add a note';
+
+  @override
+  String a11yDayCell(String date, String status) {
+    return '$date, $status';
+  }
+
+  @override
+  String a11yDayCellWithNote(String date, String status) {
+    return '$date, $status, has a note';
+  }
+
+  @override
+  String get a11yDayUnlogged => 'not logged';
+
+  @override
+  String get a11yDayFuture => 'in the future';
+
+  @override
+  String a11ySliceSelected(String label, int count) {
+    return '$label, $count days, selected';
+  }
+
+  @override
+  String a11ySlice(String label, int count) {
+    return '$label, $count days';
+  }
+
+  @override
+  String a11yBadgeEarned(String title, int count) {
+    return '$title, earned $count times, tap to share';
+  }
+
+  @override
+  String a11yBadgeLocked(String title) {
+    return '$title, not earned yet';
+  }
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink couldn\'t start';
 
   @override

@@ -38,9 +38,23 @@ class StatisticsScreen extends StatelessWidget {
                   SectionHeader(l10n.statsQuickStats),
                   QuickStatsRow(stats: stats, cleanDayLabel: mode.cleanDayLabel),
                   const SizedBox(height: 24),
-                  SectionHeader(l10n.statsThisMonth),
+                  // The month the dashboard and calendar are showing, not
+                  // whatever month it is today: stepping back to August and
+                  // finding September's numbers here was simply wrong.
+                  SectionHeader(
+                    DateOnly.isSameDay(
+                      DateOnly.firstOfMonth(vm.visibleMonth),
+                      DateOnly.firstOfMonth(today),
+                    )
+                        ? l10n.statsThisMonth
+                        : l10n.statsMonthOf(
+                            DateFormat('MMMM y',
+                                    Localizations.localeOf(context).toString())
+                                .format(vm.visibleMonth),
+                          ),
+                  ),
                   MonthSummaryCard(
-                    counts: vm.monthCounts(today),
+                    counts: vm.monthCounts(vm.visibleMonth),
                     levels: vm.mode.levels,
                   ),
                   const SizedBox(height: 24),

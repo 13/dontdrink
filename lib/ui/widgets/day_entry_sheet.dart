@@ -30,7 +30,7 @@ class _LogOutcome {
 ///
 /// Presents the active mode's levels; tapping one saves instantly and
 /// (when a new achievement is crossed) shows the unlock celebration.
-class DayEntrySheet extends StatelessWidget {
+class DayEntrySheet extends StatefulWidget {
   const DayEntrySheet({super.key, required this.date});
 
   final DateTime date;
@@ -69,12 +69,54 @@ class DayEntrySheet extends StatelessWidget {
   }
 
   @override
+  State<DayEntrySheet> createState() => _DayEntrySheetState();
+}
+
+class _DayEntrySheetState extends State<DayEntrySheet> {
+  late final TextEditingController _note;
+
+  /// The note as it is stored, so the save button can tell whether the field
+  /// has actually been edited.
+  String _savedNote = '';
+
+  /// Notes are folded away until asked for. Logging a day is a one-tap job and
+  /// has to stay one: an always-visible field pushed the level options off a
+  /// short screen, which made the common path worse for the rare one.
+  bool _noteOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = context
+        .read<TrackerViewModel>()
+        .entryFor(DateOnly.normalize(widget.date));
+    _savedNote = existing?.note ?? '';
+    _note = TextEditingController(text: _savedNote);
+    // A day that already carries a note opens with it in view; hiding it
+    // behind a button would mean a note you cannot see you wrote.
+    _noteOpen = _savedNote.isNotEmpty;
+  }
+
+  @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
+
+  String? get _noteOrNull {
+    final text = _note.text.trim();
+    return text.isEmpty ? null : text;
+  }
+
+  bool get _noteChanged => _note.text.trim() != _savedNote.trim();
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final vm = context.watch<TrackerViewModel>();
     final mode = vm.mode;
-    final normalized = DateOnly.normalize(date);
+    final normalized = DateOnly.normalize(widget.date);
     final existing = vm.entryFor(normalized);
     final isToday = DateOnly.isSameDay(normalized, DateTime.now());
 
@@ -113,6 +155,43 @@ class DayEntrySheet extends StatelessWidget {
                   onTap: () => _save(context, normalized, level),
                 ),
               ),
+            const SizedBox(height: 6),
+            if (!_noteOpen)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => setState(() => _noteOpen = true),
+                  icon: const Icon(Icons.edit_note),
+                  label: Text(l10n.sheetAddNote),
+                ),
+              ),
+            if (_noteOpen)
+            TextField(
+              controller: _note,
+              minLines: 1,
+              maxLines: 3,
+              maxLength: 280,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
+                labelText: l10n.sheetNoteLabel,
+                hintText: l10n.sheetNoteHint,
+                border: const OutlineInputBorder(),
+              ),
+              // Rebuild so the save action appears the moment the text differs
+              // from what is stored.
+              onChanged: (_) => setState(() {}),
+            ),
+            if (_noteOpen && existing != null && _noteChanged) ...[
+              const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.tonalIcon(
+                  onPressed: () => _saveNoteOnly(normalized, existing.level),
+                  icon: const Icon(Icons.edit_note),
+                  label: Text(l10n.sheetSaveNote),
+                ),
+              ),
+            ],
             if (existing != null) ...[
               const SizedBox(height: 4),
               Center(
@@ -134,11 +213,27 @@ class DayEntrySheet extends StatelessWidget {
     );
   }
 
+  /// Save a note against the level already logged, without re-logging the day.
+  ///
+  /// Deliberately does not close the sheet or fire the cheer: editing a note
+  /// is not the same event as logging the day, and reacting to it as though it
+  /// were would be strange the day after a relapse.
+  Future<void> _saveNoteOnly(DateTime date, TrackedLevel level) async {
+    final vm = context.read<TrackerViewModel>();
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    await vm.logDay(date, level, note: _noteOrNull);
+    vm.clearPendingEarns();
+    if (!mounted) return;
+    setState(() => _savedNote = _note.text.trim());
+    messenger.showSnackBar(SnackBar(content: Text(l10n.sheetNoteSaved)));
+  }
+
   Future<void> _save(
       BuildContext context, DateTime date, TrackedLevel level) async {
     final vm = context.read<TrackerViewModel>();
     final navigator = Navigator.of(context);
-    final changed = await vm.logDay(date, level);
+    final changed = await vm.logDay(date, level, note: _noteOrNull);
     final earns = vm.pendingEarns;
     vm.clearPendingEarns();
 

@@ -191,7 +191,18 @@ class _LegendRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return InkWell(
+    final l10n = AppLocalizations.of(context);
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      // The chart itself is a picture to a screen reader; the legend is what
+      // actually carries the numbers, so it is the part that must speak.
+      label: selected
+          ? l10n.a11ySliceSelected(level.shortLabel, count)
+          : l10n.a11ySlice(level.shortLabel, count),
+      excludeSemantics: true,
+      child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Padding(
@@ -225,6 +236,7 @@ class _LegendRow extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

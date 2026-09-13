@@ -237,6 +237,23 @@
   "shareBadge": "Dieses Abzeichen teilen",
   "badgeLockedShare": "Verdiene dieses Abzeichen, um es zu teilen.",
 
+  "sheetNoteLabel": "Notiz (optional)",
+  "sheetNoteHint": "Was war los, wie hat es sich angefühlt…",
+  "sheetSaveNote": "Notiz speichern",
+  "sheetNoteSaved": "Notiz gespeichert",
+  "statsMonthOf": "{month}",
+
+  "sheetAddNote": "Notiz hinzufügen",
+
+  "a11yDayCell": "{date}, {status}",
+  "a11yDayCellWithNote": "{date}, {status}, mit Notiz",
+  "a11yDayUnlogged": "nicht eingetragen",
+  "a11yDayFuture": "in der Zukunft",
+  "a11ySliceSelected": "{label}, {count} Tage, ausgewählt",
+  "a11ySlice": "{label}, {count} Tage",
+  "a11yBadgeEarned": "{title}, {count}-mal verdient, zum Teilen tippen",
+  "a11yBadgeLocked": "{title}, noch nicht verdient",
+
   "startupFailedTitle": "Don't Drink konnte nicht starten",
   "startupFailedBody": "Deine Daten sind sicher und unverändert. Bitte melde diesen Fehler."
 }

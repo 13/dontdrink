@@ -841,6 +841,62 @@ class AppLocalizationsIt extends AppLocalizations {
   String get badgeLockedShare => 'Ottieni questo distintivo per condividerlo.';
 
   @override
+  String get sheetNoteLabel => 'Nota (facoltativa)';
+
+  @override
+  String get sheetNoteHint => 'Cos\'è successo, come ti sei sentito…';
+
+  @override
+  String get sheetSaveNote => 'Salva la nota';
+
+  @override
+  String get sheetNoteSaved => 'Nota salvata';
+
+  @override
+  String statsMonthOf(String month) {
+    return '$month';
+  }
+
+  @override
+  String get sheetAddNote => 'Aggiungi una nota';
+
+  @override
+  String a11yDayCell(String date, String status) {
+    return '$date, $status';
+  }
+
+  @override
+  String a11yDayCellWithNote(String date, String status) {
+    return '$date, $status, con nota';
+  }
+
+  @override
+  String get a11yDayUnlogged => 'non registrato';
+
+  @override
+  String get a11yDayFuture => 'nel futuro';
+
+  @override
+  String a11ySliceSelected(String label, int count) {
+    return '$label, $count giorni, selezionato';
+  }
+
+  @override
+  String a11ySlice(String label, int count) {
+    return '$label, $count giorni';
+  }
+
+  @override
+  String a11yBadgeEarned(String title, int count) {
+    return '$title, ottenuto $count volte, tocca per condividere';
+  }
+
+  @override
+  String a11yBadgeLocked(String title) {
+    return '$title, non ancora ottenuto';
+  }
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink non è riuscita ad avviarsi';
 
   @override

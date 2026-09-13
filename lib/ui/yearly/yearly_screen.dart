@@ -223,19 +223,34 @@ class _Cell extends StatelessWidget {
         : theme.colorScheme.surfaceContainerHighest
             .withValues(alpha: isFuture ? 0.35 : 1);
 
+    final l10n = AppLocalizations.of(context);
+    final status = isFuture
+        ? l10n.a11yDayFuture
+        : (entry?.level.shortLabel ?? l10n.a11yDayUnlogged);
+    final dateLabel = DateFormat.yMMMMd(
+      Localizations.localeOf(context).toString(),
+    ).format(date!);
+    final hasNote = entry?.note != null && entry!.note!.trim().isNotEmpty;
+
     return Padding(
       padding: EdgeInsets.only(right: spacing),
-      child: GestureDetector(
-        onTap: (isFuture || onTap == null) ? null : () => onTap!(date!),
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-            border: DateOnly.isSameDay(date!, today)
-                ? Border.all(color: theme.colorScheme.onSurface, width: 1)
-                : null,
+      child: Semantics(
+        button: !isFuture && onTap != null,
+        label: hasNote
+            ? l10n.a11yDayCellWithNote(dateLabel, status)
+            : l10n.a11yDayCell(dateLabel, status),
+        child: GestureDetector(
+          onTap: (isFuture || onTap == null) ? null : () => onTap!(date!),
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+              border: DateOnly.isSameDay(date!, today)
+                  ? Border.all(color: theme.colorScheme.onSurface, width: 1)
+                  : null,
+            ),
           ),
         ),
       ),

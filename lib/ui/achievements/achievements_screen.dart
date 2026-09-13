@@ -259,16 +259,27 @@ class _AchievementTile extends StatelessWidget {
 
     // Only an earned badge can be shared: a card for something you have not
     // done would be a strange thing to hand someone.
-    if (!unlocked) return card;
+    if (!unlocked) {
+      return Semantics(
+        label: l10n.a11yBadgeLocked(a.title),
+        excludeSemantics: true,
+        child: card,
+      );
+    }
 
-    return InkWell(
+    return Semantics(
+      button: true,
+      label: l10n.a11yBadgeEarned(a.title, status.earnedCount),
+      excludeSemantics: true,
+      child: InkWell(
       onTap: () => BadgeShareDialog.show(
         context,
         status: status,
         modeName: context.read<TrackerViewModel>().mode.name,
       ),
       borderRadius: BorderRadius.circular(20),
-      child: card,
+        child: card,
+      ),
     );
   }
 }

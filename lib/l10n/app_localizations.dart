@@ -1348,6 +1348,90 @@ abstract class AppLocalizations {
   /// **'Earn this badge to share it.'**
   String get badgeLockedShare;
 
+  /// No description provided for @sheetNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get sheetNoteLabel;
+
+  /// No description provided for @sheetNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened, how it felt…'**
+  String get sheetNoteHint;
+
+  /// No description provided for @sheetSaveNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Save note'**
+  String get sheetSaveNote;
+
+  /// No description provided for @sheetNoteSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Note saved'**
+  String get sheetNoteSaved;
+
+  /// Section heading when the statistics are not about the current month
+  ///
+  /// In en, this message translates to:
+  /// **'{month}'**
+  String statsMonthOf(String month);
+
+  /// No description provided for @sheetAddNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get sheetAddNote;
+
+  /// No description provided for @a11yDayCell.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}, {status}'**
+  String a11yDayCell(String date, String status);
+
+  /// No description provided for @a11yDayCellWithNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}, {status}, has a note'**
+  String a11yDayCellWithNote(String date, String status);
+
+  /// No description provided for @a11yDayUnlogged.
+  ///
+  /// In en, this message translates to:
+  /// **'not logged'**
+  String get a11yDayUnlogged;
+
+  /// No description provided for @a11yDayFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'in the future'**
+  String get a11yDayFuture;
+
+  /// No description provided for @a11ySliceSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, {count} days, selected'**
+  String a11ySliceSelected(String label, int count);
+
+  /// No description provided for @a11ySlice.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, {count} days'**
+  String a11ySlice(String label, int count);
+
+  /// No description provided for @a11yBadgeEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, earned {count} times, tap to share'**
+  String a11yBadgeEarned(String title, int count);
+
+  /// No description provided for @a11yBadgeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, not earned yet'**
+  String a11yBadgeLocked(String title);
+
   /// No description provided for @startupFailedTitle.
   ///
   /// In en, this message translates to:

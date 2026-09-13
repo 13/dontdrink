@@ -306,6 +306,30 @@
   "shareBadge": "Share this badge",
   "badgeLockedShare": "Earn this badge to share it.",
 
+  "sheetNoteLabel": "Note (optional)",
+  "sheetNoteHint": "What happened, how it felt…",
+  "sheetSaveNote": "Save note",
+  "sheetNoteSaved": "Note saved",
+  "statsMonthOf": "{month}",
+  "@statsMonthOf": {"description": "Section heading when the statistics are not about the current month", "placeholders": {"month": {"type": "String"}}},
+
+  "sheetAddNote": "Add a note",
+
+  "a11yDayCell": "{date}, {status}",
+  "@a11yDayCell": {"placeholders": {"date": {"type": "String"}, "status": {"type": "String"}}},
+  "a11yDayCellWithNote": "{date}, {status}, has a note",
+  "@a11yDayCellWithNote": {"placeholders": {"date": {"type": "String"}, "status": {"type": "String"}}},
+  "a11yDayUnlogged": "not logged",
+  "a11yDayFuture": "in the future",
+  "a11ySliceSelected": "{label}, {count} days, selected",
+  "@a11ySliceSelected": {"placeholders": {"label": {"type": "String"}, "count": {"type": "int"}}},
+  "a11ySlice": "{label}, {count} days",
+  "@a11ySlice": {"placeholders": {"label": {"type": "String"}, "count": {"type": "int"}}},
+  "a11yBadgeEarned": "{title}, earned {count} times, tap to share",
+  "@a11yBadgeEarned": {"placeholders": {"title": {"type": "String"}, "count": {"type": "int"}}},
+  "a11yBadgeLocked": "{title}, not earned yet",
+  "@a11yBadgeLocked": {"placeholders": {"title": {"type": "String"}}},
+
   "startupFailedTitle": "Don't Drink couldn't start",
   "startupFailedBody": "Your data is safe and has not been changed. Please report this error."
 }
