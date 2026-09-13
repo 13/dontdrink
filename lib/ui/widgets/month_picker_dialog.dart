@@ -66,6 +66,14 @@ class _MonthPickerDialogState extends State<MonthPickerDialog> {
     return base - MonthPickerDialog._extraYearsBack;
   }
 
+  /// How much room the row needs relative to the default text size. Never
+  /// less than 1: a smaller setting does not buy back space the button's own
+  /// minimum height still takes.
+  static double _textScale(BuildContext context) {
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    return scale < 1 ? 1 : scale;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -101,12 +109,18 @@ class _MonthPickerDialogState extends State<MonthPickerDialog> {
       contentPadding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
       content: SizedBox(
         width: 320,
-        child: GridView.count(
-          crossAxisCount: 3,
+        child: GridView(
           shrinkWrap: true,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childAspectRatio: 2.1,
+          // A fixed row height, not one derived from the cell width. With
+          // childAspectRatio the row was 48.2pt while the button inside it is
+          // 48.3pt tall, so the selected month's label was clipped to a sliver
+          // — and any larger text scale clipped it away entirely.
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            mainAxisExtent: 52 * _textScale(context),
+          ),
           children: [
             for (var month = 1; month <= 12; month++)
               _MonthButton(
@@ -150,25 +164,31 @@ class _MonthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final onPressed =
-        enabled ? () => Navigator.of(context).pop(month) : null;
+    final onPressed = enabled ? () => Navigator.of(context).pop(month) : null;
 
-    if (selected) {
-      return FilledButton(onPressed: onPressed, child: Text(label));
-    }
+    // One widget for both states, differing only in colour. Swapping a
+    // TextButton for a FilledButton also swapped their default metrics, which
+    // is how the selected month ended up taller than the row holding it.
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
+        backgroundColor: selected ? AppColors.brand : null,
         // Dimmed, not disabled: a month with nothing in it is exactly the one
         // you might open to fill it in.
-        foregroundColor: hasData
-            ? AppColors.brand
-            : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+        foregroundColor: selected
+            ? Colors.white
+            : (hasData
+                ? AppColors.brand
+                : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7)),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         textStyle: TextStyle(
-          fontWeight: hasData ? FontWeight.w700 : FontWeight.w400,
+          fontWeight:
+              selected || hasData ? FontWeight.w700 : FontWeight.w400,
         ),
       ),
-      child: Text(label),
+      child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
     );
   }
 }

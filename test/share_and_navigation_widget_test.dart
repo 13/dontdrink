@@ -8,6 +8,7 @@ import 'package:dont_drink/ui/widgets/badge_share_dialog.dart';
 import 'package:dont_drink/ui/widgets/month_picker_dialog.dart';
 import 'package:dont_drink/ui/yearly/yearly_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/widget_harness.dart';
@@ -84,8 +85,17 @@ void main() {
 
       expect(disabled, 12 - now.month,
           reason: 'only months still in the future may be unreachable');
-      expect(find.byType(FilledButton), findsOneWidget,
-          reason: 'the month being shown is marked as selected');
+      // Selection is a filled background on the same widget every other month
+      // uses, not a different button type with different metrics.
+      final current = tester.widget<TextButton>(find.ancestor(
+        of: find.text(DateFormat('MMM').format(now)),
+        matching: find.byType(TextButton),
+      ));
+      expect(
+        current.style?.backgroundColor?.resolve(const {}),
+        isNotNull,
+        reason: 'the month being shown is marked as selected',
+      );
     });
 
     testWidgets('the year arrows reach back before the first entry',
@@ -107,6 +117,41 @@ void main() {
 
       expect(find.text('${now.year - 1}'), findsOneWidget,
           reason: 'last year is reachable on a fresh install');
+    });
+
+    testWidgets('the selected month is readable, at any text size',
+        (tester) async {
+      // It was not: the row height came from the cell width, leaving 48.2pt
+      // for a 48.3pt button, and the selected month's label was clipped to a
+      // sliver — worse at a larger text scale, which is how it shipped.
+      for (final scale in [1.0, 1.3, 1.8]) {
+        await tester.pumpWidget(harness.wrap(
+          MediaQuery(
+            data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+            child: Scaffold(
+              body: MonthPickerDialog(
+                initialMonth: DateTime(2026, 9),
+                monthsWithData: {DateTime(2026, 9)},
+                firstMonth: DateTime(2026, 1),
+              ),
+            ),
+          ),
+        ));
+        await tester.pumpAndSettle();
+
+        final label = tester.getRect(find.text('Sep'));
+        final button = tester.getRect(find.ancestor(
+          of: find.text('Sep'),
+          matching: find.byType(TextButton),
+        ));
+
+        expect(label.height, greaterThan(8 * scale),
+            reason: 'at scale $scale the label is more than a sliver');
+        expect(button.top, lessThanOrEqualTo(label.top),
+            reason: 'at scale $scale the label sits inside its button');
+        expect(button.bottom, greaterThanOrEqualTo(label.bottom),
+            reason: 'at scale $scale the label is not clipped off the bottom');
+      }
     });
 
     testWidgets('a future month cannot be chosen', (tester) async {
