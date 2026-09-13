@@ -6,6 +6,42 @@ the person who wrote it. Newest first.
 The GitHub release notes are generated from commit subjects; this file is the
 curated version, and it is what an in-app "what's new" should read from.
 
+## 1.5.0 — 2026-09-13
+
+### Added
+- Notes. Any logged day can carry one — what happened, how it felt — folded
+  behind "Add a note" so logging stays a single tap. Days with a note are
+  marked in the calendar, and a **Notes** screen lists everything you have
+  written, newest first. Notes are in your backups and never in a shared image.
+- A **yearly view** under More: every day of a year as one cell, so a year
+  reads as a pattern rather than a list.
+- Sharing. A month, a year or an earned badge can be sent as an image. The
+  picture carries the grid and the period only — no counts, no rates, never a
+  note — and a badge card shows exactly what will be shared before it leaves
+  the device.
+- Tapping the month name jumps straight to another month, with months that hold
+  entries picked out.
+- Tapping a slice of the distribution donut shows that level's day count.
+- A short welcome card on a fresh install, which retires itself as soon as you
+  log anything.
+
+### Changed
+- A tracked day rolls over at 4 AM instead of midnight, so logging a night out
+  at 1 AM records the night that just happened rather than the day that started
+  an hour ago.
+- The statistics screen follows the month you are looking at. It always showed
+  the current month, so stepping back to August and opening Stats still showed
+  September.
+- Shared images render in a fixed light palette, so a picture taken in dark
+  mode is readable wherever it is sent.
+- The calendar, the yearly heatmap, the donut and the badges are now described
+  for screen readers; before this they communicated entirely through colour.
+
+### Fixed
+- The log sheet could clip its bottom option on a short screen or at a large
+  text size.
+- Logging a day no longer re-reads the whole history of every enabled mode.
+
 ## 1.4.0 — 2026-09-13
 
 ### Added
