@@ -4,6 +4,7 @@ import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/static/modes/dont_drink_mode.dart';
 import 'package:dont_drink/data/static/modes/dont_smoke_mode.dart';
+import 'package:dont_drink/l10n/content/content_strings.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -173,5 +174,27 @@ void main() {
     expect(await vm.logDay(day, heavy), isTrue, reason: 'a different level');
     expect(await vm.logDay(day, heavy, note: 'rough one'), isTrue,
         reason: 'the note changed');
+  });
+
+  test('switching language re-translates the cached badge list', () async {
+    final vm = TrackerViewModel(repository: repo, mode: kDontDrinkMode);
+    // Startup order: history is loaded first, the language is applied after.
+    await vm.load();
+    await vm.logDay(DateTime(2026, 6, 1), kDontDrinkLevels[0]);
+    vm.clearPendingEarns();
+
+    expect(vm.achievements.first.achievement.title, 'Better Liver Begins');
+
+    vm.setContentStrings(ContentStrings.german);
+
+    expect(
+      vm.achievements.first.achievement.title,
+      'Die Leber atmet auf',
+      reason: 'the badge list is cached and has to be rebuilt with the mode',
+    );
+    expect(vm.achievements.first.achievement.id, 'dont_drink.day_1',
+        reason: 'ids are protocol, not copy');
+    expect(vm.mode.cleanDayLabel, 'Alkoholfrei');
+    expect(vm.nextAchievement?.title, isNot('Better Hydration'));
   });
 }

@@ -55,20 +55,20 @@ Future<void> main() async {
     final settingsViewModel =
         SettingsViewModel(repository: settingsRepository);
 
-    // Load persisted data before the first frame so the UI starts in its
-    // real state rather than flashing empty values.
-    await Future.wait([
-      trackerViewModel.load(),
-      settingsViewModel.load(),
-    ]);
+    // Settings first, because the stored language decides which language the
+    // tracker's content is built in. This used to run alongside the tracker's
+    // own load and set the language afterwards, which left everything derived
+    // from the mode — the badge list among it — built in English.
+    await settingsViewModel.load();
 
-    // Resolve the starting language before anything loads, so mode content is
-    // built in the right language for the first frame instead of appearing in
-    // English and being swapped a frame later.
     final startupStrings = ContentStrings.of(
       settingsViewModel.locale ?? _systemLocale(),
     );
     trackerViewModel.setContentStrings(startupStrings);
+
+    // Then the history, before the first frame, so the UI starts in its real
+    // state rather than flashing empty values.
+    await trackerViewModel.load();
 
     final modeViewModel = ModeViewModel(
       repository: modeRepository,

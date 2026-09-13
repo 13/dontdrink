@@ -54,15 +54,22 @@ class TrackerViewModel extends ChangeNotifier {
     if (strings.languageCode == _strings.languageCode) return;
     _strings = strings;
     _mode = _rawMode.localized(strings);
+    // The badge list is derived and cached, and the cache was built from the
+    // previous language. Startup sets the language *after* load(), so without
+    // this the achievements tab showed English titles under a German
+    // interface for the whole session.
+    _recompute();
     notifyListeners();
   }
 
   /// Point this view model at a different mode and reload its history.
   Future<void> switchMode(ModeDefinition mode) async {
     if (mode.id == _mode.id) {
-      // A rename of the same mode.
+      // A rename of the same mode. Recompute for the same reason: everything
+      // derived from the mode is cached.
       _rawMode = mode;
       _mode = mode.localized(_strings);
+      _recompute();
       notifyListeners();
       return;
     }
