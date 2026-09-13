@@ -17,8 +17,9 @@ class MonthLabelButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = DateFormat('MMMM y', Localizations.localeOf(context).toString())
-        .format(month);
+    final label =
+        DateFormat.yMMMM(Localizations.localeOf(context).toString())
+            .format(month);
 
     return TextButton(
       onPressed: () => _pick(context),

@@ -48,7 +48,7 @@ class StatisticsScreen extends StatelessWidget {
                     )
                         ? l10n.statsThisMonth
                         : l10n.statsMonthOf(
-                            DateFormat('MMMM y',
+                            DateFormat.yMMMM(
                                     Localizations.localeOf(context).toString())
                                 .format(vm.visibleMonth),
                           ),
@@ -175,6 +175,6 @@ class _OverviewCard extends StatelessWidget {
 
   /// Short month name in the active language.
   static String _monthName(BuildContext context, DateTime month) =>
-      DateFormat('MMM', Localizations.localeOf(context).toString())
+      DateFormat.MMM(Localizations.localeOf(context).toString())
           .format(month);
 }

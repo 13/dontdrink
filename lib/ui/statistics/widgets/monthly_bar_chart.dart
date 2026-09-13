@@ -16,7 +16,7 @@ class MonthlyBarChart extends StatelessWidget {
     // Short month names come from the active locale rather than a hardcoded
     // English list.
     final monthLabel =
-        DateFormat('MMM', Localizations.localeOf(context).toString());
+        DateFormat.MMM(Localizations.localeOf(context).toString());
     final maxY = data.fold<int>(
       0,
       (m, t) => t.cleanDays > m ? t.cleanDays : m,

@@ -138,8 +138,12 @@ class _DayEntrySheetState extends State<DayEntrySheet> {
             ),
             const SizedBox(height: 4),
             Text(
-              DateFormat('EEEE, MMMM d, y',
-                      Localizations.localeOf(context).toString())
+              // yMMMMEEEEd, not a hand-written 'EEEE, MMMM d, y': a pattern
+              // spells out English field order, so German came out as
+              // "Sonntag, September 13, 2026" — translated words in an
+              // English sentence. The named constructor lets the locale
+              // decide the order and the punctuation.
+              DateFormat.yMMMMEEEEd(Localizations.localeOf(context).toString())
                   .format(normalized),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

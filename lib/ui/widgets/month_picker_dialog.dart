@@ -79,7 +79,7 @@ class _MonthPickerDialogState extends State<MonthPickerDialog> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toString();
-    final monthName = DateFormat('MMM', locale);
+    final monthName = DateFormat.MMM(locale);
     final now = DateOnly.firstOfMonth(DateTime.now());
 
     return AlertDialog(

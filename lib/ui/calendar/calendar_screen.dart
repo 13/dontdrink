@@ -81,8 +81,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               // Builder picks up the fixed share palette, so
                               // the caption is legible in the picture too.
                               Text(
-                                DateFormat(
-                                        'MMMM y',
+                                DateFormat.yMMMM(
                                         Localizations.localeOf(context)
                                             .toString())
                                     .format(month),
@@ -106,7 +105,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   const SizedBox(height: 24),
                   SectionHeader(
                     AppLocalizations.of(context).calendarMonthStatistics(
-                      DateFormat('MMMM', Localizations.localeOf(context).toString())
+                      DateFormat.MMMM(
+                              Localizations.localeOf(context).toString())
                           .format(month),
                     ),
                   ),

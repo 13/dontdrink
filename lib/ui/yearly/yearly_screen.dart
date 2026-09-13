@@ -137,7 +137,7 @@ class YearHeatmap extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
-    final monthLabel = DateFormat('MMM', locale);
+    final monthLabel = DateFormat.MMM(locale);
     final today = DateOnly.today();
 
     return LayoutBuilder(
