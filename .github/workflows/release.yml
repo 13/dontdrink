@@ -37,10 +37,24 @@ jobs:
             "ndk;28.2.13676358"
 
       # ── Flutter ────────────────────────────────────────────────────────────
+      # The version comes from .fvmrc, which is what the dev machine runs
+      # through fvm. Pinning it separately here meant the gate and the shipped
+      # APK were built by a compiler nobody develops on, and a local build kept
+      # trying to rewrite gradle.properties and the lockfile to match itself.
+      - name: Read the pinned Flutter version
+        id: flutter_version
+        run: |
+          VERSION=$(python3 -c "import json;print(json.load(open('.fvmrc'))['flutter'])")
+          if [ -z "$VERSION" ] || [ "$VERSION" = "stable" ]; then
+            echo "::error::.fvmrc must pin an exact Flutter version, not '$VERSION'." >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.2'
+          flutter-version: ${{ steps.flutter_version.outputs.version }}
           channel: stable
           cache: true
 

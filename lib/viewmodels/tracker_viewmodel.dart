@@ -111,13 +111,24 @@ class TrackerViewModel extends ChangeNotifier {
   List<DayEntry> get _allEntries => _entries.values.toList();
 
   /// All entries sorted oldest-first — used by the statistics charts.
-  List<DayEntry> get allEntries =>
-      _allEntries..sort((a, b) => a.date.compareTo(b.date));
+  ///
+  /// Computed once per change rather than per read: this is called from
+  /// `build`, and so are [achievements] and [totalEarns] below.
+  List<DayEntry> get allEntries => List.unmodifiable(_sortedEntries);
+
+  List<DayEntry> _sortedEntries = const [];
 
   void _recompute() {
     final entries = _allEntries;
     _statsCache = _stats.compute(entries, _mode);
     _runs = _stats.cleanRuns(entries);
+    _sortedEntries = [...entries]..sort((a, b) => a.date.compareTo(b.date));
+    _achievementCache = _achievements.evaluate(
+      achievements: _mode.content.achievements,
+      runs: _runs,
+    );
+    _totalEarns =
+        _achievementCache.fold(0, (sum, status) => sum + status.earnedCount);
   }
 
   /// Current earn count per achievement id.
@@ -212,14 +223,17 @@ class TrackerViewModel extends ChangeNotifier {
 
   // --- Derived helpers for the UI -----------------------------------------
 
-  List<AchievementStatus> get achievements => _achievements.evaluate(
-        achievements: _mode.content.achievements,
-        runs: _runs,
-      );
+  List<AchievementStatus> _achievementCache = const [];
+  int _totalEarns = 0;
+
+  /// Badge state for the active mode. Recomputed on change, not on read: the
+  /// dashboard and the badges tab both reach for this inside `build`, and
+  /// evaluating it walks every streak run for every achievement.
+  List<AchievementStatus> get achievements =>
+      List.unmodifiable(_achievementCache);
 
   /// Total badges earned in this mode, repeats included.
-  int get totalEarns =>
-      achievements.fold(0, (sum, s) => sum + s.earnedCount);
+  int get totalEarns => _totalEarns;
 
   /// The next achievement the current run is working toward, for the dashboard
   /// progress hint. Based on the current streak, not the personal best: after

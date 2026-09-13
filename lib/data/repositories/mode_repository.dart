@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dont_drink/core/models/mode_definition.dart';
 import 'package:dont_drink/data/database/app_database.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
@@ -28,6 +30,19 @@ class ModeRepository {
 
   // ── Custom modes ─────────────────────────────────────────────────────────
 
+  /// A fresh id for a custom mode.
+  ///
+  /// Random rather than the creation timestamp it used to be: an id is the
+  /// key entries are filed under, and two devices creating a mode in the same
+  /// millisecond would file different habits under one id. That costs nothing
+  /// to avoid now and would be a data migration to fix once modes sync.
+  static String newCustomModeId() {
+    final random = Random.secure();
+    final bytes = [for (var i = 0; i < 8; i++) random.nextInt(256)];
+    final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+    return 'custom_$hex';
+  }
+
   Future<List<ModeDefinition>> customModes() async {
     final db = await _appDb.database;
     final rows = await db.query(AppDatabase.tableModes, orderBy: 'created_at ASC');
@@ -52,7 +67,7 @@ class ModeRepository {
   }) async {
     final db = await _appDb.database;
     final now = DateTime.now().millisecondsSinceEpoch;
-    final id = 'custom_$now';
+    final id = newCustomModeId();
     await db.insert(
       AppDatabase.tableModes,
       {'id': id, 'name': name, 'emoji': emoji, 'created_at': now},

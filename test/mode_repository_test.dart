@@ -163,4 +163,19 @@ void main() {
     expect(resolved.id, mode.id);
     expect(resolved.name, 'No Sugar');
   });
+
+  test('custom mode ids are random, not the creation timestamp', () async {
+    // Two modes created inside the same millisecond used to collide, which
+    // matters the moment two devices file entries under the same id.
+    final ids = <String>{};
+    for (var i = 0; i < 20; i++) {
+      ids.add(ModeRepository.newCustomModeId());
+    }
+    expect(ids.length, 20, reason: 'ids must not repeat');
+    for (final id in ids) {
+      expect(id, startsWith('custom_'));
+      expect(id.length, 'custom_'.length + 16);
+      expect(RegExp(r'^custom_[0-9a-f]{16}$').hasMatch(id), isTrue);
+    }
+  });
 }
