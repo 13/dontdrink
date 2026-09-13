@@ -6,6 +6,20 @@ the person who wrote it. Newest first.
 The GitHub release notes are generated from commit subjects; this file is the
 curated version, and it is what an in-app "what's new" should read from.
 
+## 1.5.3 — 2026-09-13
+
+### Fixed
+- Export can now put a backup on the device. It used to open the share sheet,
+  which on many phones offers no file manager at all, so the backup had
+  nowhere to go. Export opens the system save dialog; sharing a backup to
+  another app is its own row.
+- Badge titles and descriptions stayed English under a German or Italian
+  interface. Everything else on the screen was translated, which made the app
+  disagree with itself.
+- Dates read as English sentences with translated words — "Sonntag, September
+  13, 2026" instead of "Sonntag, 13. September 2026". Each language now writes
+  dates its own way.
+
 ## 1.5.2 — 2026-09-13
 
 ### Fixed
