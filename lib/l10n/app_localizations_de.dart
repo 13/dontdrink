@@ -696,6 +696,75 @@ class AppLocalizationsDe extends AppLocalizations {
       'Mindestens ein Modus muss eingeschaltet bleiben.';
 
   @override
+  String cheerTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tag $count geschafft',
+      one: 'Tag 1 geschafft',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cheerBody0 => 'Eingetragen. Mehr war heute nicht nötig.';
+
+  @override
+  String get cheerBody1 => 'Noch einer auf dem Konto.';
+
+  @override
+  String get cheerBody2 =>
+      'Genau so sieht Fortschritt aus, ganz unspektakulär.';
+
+  @override
+  String get cheerBody3 => 'Dranbleiben zählt, auch an gewöhnlichen Tagen.';
+
+  @override
+  String get cheerBody4 => 'Du hast dir heute Wort gehalten.';
+
+  @override
+  String get cheerClose => 'Fertig';
+
+  @override
+  String get comfortTitle => 'Heute ist eingetragen';
+
+  @override
+  String get comfortBody0 =>
+      'Es ist passiert, und du hast es trotzdem notiert. Das kostet etwas.';
+
+  @override
+  String get comfortBody1 => 'Ein Tag ist ein Datenpunkt, kein Urteil.';
+
+  @override
+  String get comfortBody2 =>
+      'Ehrlich zu dir selbst zu sein ist der Teil, der weiter wirkt.';
+
+  @override
+  String get comfortBody3 => 'Morgen ist ein eigener Tag. Er fängt sauber an.';
+
+  @override
+  String get comfortBody4 =>
+      'Nichts davon löscht die Tage, die du schon durchgehalten hast.';
+
+  @override
+  String comfortKept(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Deine $count Abzeichen und deine beste Serie bleiben dir.',
+      one: 'Dein 1 Abzeichen und deine beste Serie bleiben dir.',
+      zero: 'Deine beste Serie bleibt bestehen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get comfortBoost => 'Ich brauch was Aufbauendes';
+
+  @override
+  String get comfortClose => 'Schließen';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink konnte nicht starten';
 
   @override

@@ -684,6 +684,74 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modesRuleKeepOne => 'At least one mode has to stay on.';
 
   @override
+  String cheerTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Day $count down',
+      one: 'Day 1 down',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cheerBody0 => 'Logged. That is the whole job today.';
+
+  @override
+  String get cheerBody1 => 'Another one on the board.';
+
+  @override
+  String get cheerBody2 => 'Quietly, this is what progress looks like.';
+
+  @override
+  String get cheerBody3 => 'Showing up counts, even on the ordinary days.';
+
+  @override
+  String get cheerBody4 => 'You kept your word to yourself today.';
+
+  @override
+  String get cheerClose => 'Done';
+
+  @override
+  String get comfortTitle => 'Today is logged';
+
+  @override
+  String get comfortBody0 =>
+      'It happened, and you wrote it down anyway. That takes something.';
+
+  @override
+  String get comfortBody1 => 'One day is a data point, not a verdict.';
+
+  @override
+  String get comfortBody2 =>
+      'Being honest with yourself is the part that keeps working.';
+
+  @override
+  String get comfortBody3 => 'Tomorrow is a separate day. It starts clean.';
+
+  @override
+  String get comfortBody4 =>
+      'Nothing about this erases the days you already held.';
+
+  @override
+  String comfortKept(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Your $count badges and your best streak are still yours.',
+      one: 'Your 1 badge and your best streak are still yours.',
+      zero: 'Your best streak still stands.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get comfortBoost => 'Need a boost';
+
+  @override
+  String get comfortClose => 'Close';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink couldn\'t start';
 
   @override

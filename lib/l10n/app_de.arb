@@ -196,6 +196,23 @@
   "modesRuleSwitchFirst": "Wechsle zu einem anderen Modus, bevor du diesen ausschaltest.",
   "modesRuleKeepOne": "Mindestens ein Modus muss eingeschaltet bleiben.",
 
+  "cheerTitle": "{count, plural, =1{Tag 1 geschafft} other{Tag {count} geschafft}}",
+  "cheerBody0": "Eingetragen. Mehr war heute nicht nötig.",
+  "cheerBody1": "Noch einer auf dem Konto.",
+  "cheerBody2": "Genau so sieht Fortschritt aus, ganz unspektakulär.",
+  "cheerBody3": "Dranbleiben zählt, auch an gewöhnlichen Tagen.",
+  "cheerBody4": "Du hast dir heute Wort gehalten.",
+  "cheerClose": "Fertig",
+  "comfortTitle": "Heute ist eingetragen",
+  "comfortBody0": "Es ist passiert, und du hast es trotzdem notiert. Das kostet etwas.",
+  "comfortBody1": "Ein Tag ist ein Datenpunkt, kein Urteil.",
+  "comfortBody2": "Ehrlich zu dir selbst zu sein ist der Teil, der weiter wirkt.",
+  "comfortBody3": "Morgen ist ein eigener Tag. Er fängt sauber an.",
+  "comfortBody4": "Nichts davon löscht die Tage, die du schon durchgehalten hast.",
+  "comfortKept": "{count, plural, =0{Deine beste Serie bleibt bestehen.} =1{Dein 1 Abzeichen und deine beste Serie bleiben dir.} other{Deine {count} Abzeichen und deine beste Serie bleiben dir.}}",
+  "comfortBoost": "Ich brauch was Aufbauendes",
+  "comfortClose": "Schließen",
+
   "startupFailedTitle": "Don't Drink konnte nicht starten",
   "startupFailedBody": "Deine Daten sind sicher und unverändert. Bitte melde diesen Fehler."
 }

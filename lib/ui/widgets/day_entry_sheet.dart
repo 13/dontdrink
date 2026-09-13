@@ -1,7 +1,9 @@
 import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/l10n/app_localizations.dart';
+import 'package:dont_drink/services/day_feedback.dart';
 import 'package:dont_drink/ui/widgets/achievement_unlock_dialog.dart';
+import 'package:dont_drink/ui/widgets/day_feedback_dialog.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -95,15 +97,39 @@ class DayEntrySheet extends StatelessWidget {
   Future<void> _save(
       BuildContext context, DateTime date, TrackedLevel level) async {
     final vm = context.read<TrackerViewModel>();
-    await vm.logDay(date, level);
+    // Held across the pop: `context` belongs to the sheet, whose route is
+    // about to be torn down, and the dialog has to outlive it. The navigator's
+    // own context sits above the route and under Localizations, so it is
+    // still good for showDialog afterwards.
+    final navigator = Navigator.of(context);
+    final changed = await vm.logDay(date, level);
     final earns = vm.pendingEarns;
     vm.clearPendingEarns();
 
-    if (!context.mounted) return;
-    Navigator.of(context).pop();
+    final feedback = feedbackFor(
+      isToday: DateOnly.isSameDay(date, DateTime.now()),
+      isClean: level.isClean,
+      earnedBadge: earns.isNotEmpty,
+      changed: changed,
+    );
+    final streak = vm.stats.currentStreak;
+    final badges = vm.totalEarns;
+
+    // `navigator.mounted`, not `context.mounted`: the sheet's context is not
+    // what the dialog below is shown from.
+    if (!navigator.mounted) return;
+    navigator.pop();
 
     if (earns.isNotEmpty) {
-      await AchievementUnlockDialog.show(context, earns);
+      await AchievementUnlockDialog.show(navigator.context, earns);
+    } else if (feedback != null) {
+      await DayFeedbackDialog.show(
+        navigator.context,
+        feedback: feedback,
+        streak: streak,
+        badgesEarned: badges,
+        variant: feedbackVariant(date, DayFeedbackDialog.variantCount),
+      );
     }
   }
 }

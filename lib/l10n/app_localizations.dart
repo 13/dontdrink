@@ -1126,6 +1126,102 @@ abstract class AppLocalizations {
   /// **'At least one mode has to stay on.'**
   String get modesRuleKeepOne;
 
+  /// Quiet acknowledgement headline; count is the current streak
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Day 1 down} other{Day {count} down}}'**
+  String cheerTitle(int count);
+
+  /// No description provided for @cheerBody0.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged. That is the whole job today.'**
+  String get cheerBody0;
+
+  /// No description provided for @cheerBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Another one on the board.'**
+  String get cheerBody1;
+
+  /// No description provided for @cheerBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Quietly, this is what progress looks like.'**
+  String get cheerBody2;
+
+  /// No description provided for @cheerBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing up counts, even on the ordinary days.'**
+  String get cheerBody3;
+
+  /// No description provided for @cheerBody4.
+  ///
+  /// In en, this message translates to:
+  /// **'You kept your word to yourself today.'**
+  String get cheerBody4;
+
+  /// No description provided for @cheerClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get cheerClose;
+
+  /// No description provided for @comfortTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today is logged'**
+  String get comfortTitle;
+
+  /// No description provided for @comfortBody0.
+  ///
+  /// In en, this message translates to:
+  /// **'It happened, and you wrote it down anyway. That takes something.'**
+  String get comfortBody0;
+
+  /// No description provided for @comfortBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'One day is a data point, not a verdict.'**
+  String get comfortBody1;
+
+  /// No description provided for @comfortBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Being honest with yourself is the part that keeps working.'**
+  String get comfortBody2;
+
+  /// No description provided for @comfortBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow is a separate day. It starts clean.'**
+  String get comfortBody3;
+
+  /// No description provided for @comfortBody4.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing about this erases the days you already held.'**
+  String get comfortBody4;
+
+  /// Reassurance that earned badges are never taken away
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Your best streak still stands.} =1{Your 1 badge and your best streak are still yours.} other{Your {count} badges and your best streak are still yours.}}'**
+  String comfortKept(int count);
+
+  /// No description provided for @comfortBoost.
+  ///
+  /// In en, this message translates to:
+  /// **'Need a boost'**
+  String get comfortBoost;
+
+  /// No description provided for @comfortClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get comfortClose;
+
   /// No description provided for @startupFailedTitle.
   ///
   /// In en, this message translates to:

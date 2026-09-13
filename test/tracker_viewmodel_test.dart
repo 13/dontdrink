@@ -158,4 +158,20 @@ void main() {
       contains('dont_drink.day_3'),
     );
   });
+
+  test('logDay reports whether the day actually changed', () async {
+    final vm = TrackerViewModel(repository: repo, mode: kDontDrinkMode);
+    await vm.load();
+
+    final clean = kDontDrinkLevels[0];
+    final heavy = kDontDrinkLevels[3];
+    final day = DateTime(2026, 4, 1);
+
+    expect(await vm.logDay(day, clean), isTrue, reason: 'a new entry');
+    expect(await vm.logDay(day, clean), isFalse,
+        reason: 're-tapping the level already saved changes nothing');
+    expect(await vm.logDay(day, heavy), isTrue, reason: 'a different level');
+    expect(await vm.logDay(day, heavy, note: 'rough one'), isTrue,
+        reason: 'the note changed');
+  });
 }

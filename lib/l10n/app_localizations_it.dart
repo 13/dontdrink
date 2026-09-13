@@ -691,6 +691,75 @@ class AppLocalizationsIt extends AppLocalizations {
   String get modesRuleKeepOne => 'Almeno una modalità deve restare attiva.';
 
   @override
+  String cheerTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Giorno $count fatto',
+      one: 'Giorno 1 fatto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cheerBody0 => 'Registrato. Oggi non serviva altro.';
+
+  @override
+  String get cheerBody1 => 'Un altro messo a segno.';
+
+  @override
+  String get cheerBody2 =>
+      'Il progresso ha esattamente questo aspetto, senza clamore.';
+
+  @override
+  String get cheerBody3 => 'Esserci conta, anche nei giorni ordinari.';
+
+  @override
+  String get cheerBody4 => 'Oggi hai mantenuto la parola data a te stesso.';
+
+  @override
+  String get cheerClose => 'Fatto';
+
+  @override
+  String get comfortTitle => 'Oggi è registrato';
+
+  @override
+  String get comfortBody0 =>
+      'È successo, e l\'hai comunque annotato. Non è poco.';
+
+  @override
+  String get comfortBody1 => 'Un giorno è un dato, non una sentenza.';
+
+  @override
+  String get comfortBody2 =>
+      'Essere onesto con te stesso è la parte che continua a funzionare.';
+
+  @override
+  String get comfortBody3 => 'Domani è un giorno a sé. Comincia pulito.';
+
+  @override
+  String get comfortBody4 =>
+      'Niente di tutto questo cancella i giorni che hai già tenuto.';
+
+  @override
+  String comfortKept(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'I tuoi $count distintivi e la tua serie record restano tuoi.',
+      one: 'Il tuo 1 distintivo e la tua serie record restano tuoi.',
+      zero: 'La tua serie record resta.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get comfortBoost => 'Ho bisogno di una spinta';
+
+  @override
+  String get comfortClose => 'Chiudi';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink non è riuscita ad avviarsi';
 
   @override

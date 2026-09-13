@@ -259,6 +259,25 @@
   "modesRuleSwitchFirst": "Switch to another mode before turning this one off.",
   "modesRuleKeepOne": "At least one mode has to stay on.",
 
+  "cheerTitle": "{count, plural, =1{Day 1 down} other{Day {count} down}}",
+  "@cheerTitle": {"description": "Quiet acknowledgement headline; count is the current streak", "placeholders": {"count": {"type": "int"}}},
+  "cheerBody0": "Logged. That is the whole job today.",
+  "cheerBody1": "Another one on the board.",
+  "cheerBody2": "Quietly, this is what progress looks like.",
+  "cheerBody3": "Showing up counts, even on the ordinary days.",
+  "cheerBody4": "You kept your word to yourself today.",
+  "cheerClose": "Done",
+  "comfortTitle": "Today is logged",
+  "comfortBody0": "It happened, and you wrote it down anyway. That takes something.",
+  "comfortBody1": "One day is a data point, not a verdict.",
+  "comfortBody2": "Being honest with yourself is the part that keeps working.",
+  "comfortBody3": "Tomorrow is a separate day. It starts clean.",
+  "comfortBody4": "Nothing about this erases the days you already held.",
+  "comfortKept": "{count, plural, =0{Your best streak still stands.} =1{Your 1 badge and your best streak are still yours.} other{Your {count} badges and your best streak are still yours.}}",
+  "@comfortKept": {"description": "Reassurance that earned badges are never taken away", "placeholders": {"count": {"type": "int"}}},
+  "comfortBoost": "Need a boost",
+  "comfortClose": "Close",
+
   "startupFailedTitle": "Don't Drink couldn't start",
   "startupFailedBody": "Your data is safe and has not been changed. Please report this error."
 }

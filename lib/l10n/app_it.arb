@@ -196,6 +196,23 @@
   "modesRuleSwitchFirst": "Passa a un'altra modalità prima di disattivare questa.",
   "modesRuleKeepOne": "Almeno una modalità deve restare attiva.",
 
+  "cheerTitle": "{count, plural, =1{Giorno 1 fatto} other{Giorno {count} fatto}}",
+  "cheerBody0": "Registrato. Oggi non serviva altro.",
+  "cheerBody1": "Un altro messo a segno.",
+  "cheerBody2": "Il progresso ha esattamente questo aspetto, senza clamore.",
+  "cheerBody3": "Esserci conta, anche nei giorni ordinari.",
+  "cheerBody4": "Oggi hai mantenuto la parola data a te stesso.",
+  "cheerClose": "Fatto",
+  "comfortTitle": "Oggi è registrato",
+  "comfortBody0": "È successo, e l'hai comunque annotato. Non è poco.",
+  "comfortBody1": "Un giorno è un dato, non una sentenza.",
+  "comfortBody2": "Essere onesto con te stesso è la parte che continua a funzionare.",
+  "comfortBody3": "Domani è un giorno a sé. Comincia pulito.",
+  "comfortBody4": "Niente di tutto questo cancella i giorni che hai già tenuto.",
+  "comfortKept": "{count, plural, =0{La tua serie record resta.} =1{Il tuo 1 distintivo e la tua serie record restano tuoi.} other{I tuoi {count} distintivi e la tua serie record restano tuoi.}}",
+  "comfortBoost": "Ho bisogno di una spinta",
+  "comfortClose": "Chiudi",
+
   "startupFailedTitle": "Don't Drink non è riuscita ad avviarsi",
   "startupFailedBody": "I tuoi dati sono al sicuro e non sono stati modificati. Segnala questo errore."
 }

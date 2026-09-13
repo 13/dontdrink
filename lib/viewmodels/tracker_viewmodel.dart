@@ -147,7 +147,12 @@ class TrackerViewModel extends ChangeNotifier {
 
   /// Log (or update) the status for [date]. Detects newly earned achievements
   /// by comparing each badge's earn count before and after.
-  Future<void> logDay(DateTime date, TrackedLevel level, {String? note}) async {
+  ///
+  /// Returns whether this actually changed anything — re-tapping the level
+  /// that is already saved writes the same row again, and the UI uses this to
+  /// stay quiet rather than react to a non-event.
+  Future<bool> logDay(DateTime date, TrackedLevel level,
+      {String? note}) async {
     final previousCounts = _earnCounts();
 
     final entry = DayEntry(
@@ -155,6 +160,12 @@ class TrackerViewModel extends ChangeNotifier {
         date: DateOnly.normalize(date),
         level: level,
         note: note);
+    final previous = _entries[entry.dateKey];
+    // Compare the persisted value, not the level object: the same level in
+    // another language is a different object with a different label.
+    final changed =
+        previous == null || previous.level.value != level.value ||
+            previous.note != note;
     await _repo.upsert(entry);
     _entries[entry.dateKey] = entry;
     _recompute();
@@ -166,6 +177,7 @@ class TrackerViewModel extends ChangeNotifier {
     );
     notifyListeners();
     onDataChanged?.call();
+    return changed;
   }
 
   /// Remove the entry for [date].
