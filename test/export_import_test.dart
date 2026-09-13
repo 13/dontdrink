@@ -414,4 +414,37 @@ void main() {
     expect(restoredCustomEntry.level.value, entryCustom.level.value);
     expect(restoredCustomEntry.note, 'slipped');
   });
+
+  test('a note survives an export and import round trip', () async {
+    const service = ExportImportService();
+    final entries = EntryRepository();
+    final modes = ModeRepository(entries: entries);
+    await entries.deleteAllForMode('dont_drink');
+
+    final day = DateTime(2026, 5, 17);
+    await entries.upsert(DayEntry(
+      modeId: 'dont_drink',
+      date: day,
+      level: kDontDrinkLevels[3],
+      note: 'Wedding — one too many, slept badly.',
+    ));
+
+    final payload = service.buildPayload(
+      modes: [kDontDrinkMode],
+      entriesByMode: {'dont_drink': await entries.getAll(kDontDrinkMode)},
+    );
+
+    // Wipe, then restore from the payload exactly as the importer would.
+    await entries.deleteAllForMode('dont_drink');
+    expect(await entries.getAll(kDontDrinkMode), isEmpty);
+
+    final result =
+        await service.applyPayload(payload, entries: entries, modes: modes);
+    expect(result, isA<ImportSuccess>());
+
+    final restored = await entries.getForDate(kDontDrinkMode, day);
+    expect(restored?.note, 'Wedding — one too many, slept badly.',
+        reason: 'free text is the one thing a user could not reconstruct');
+    expect(restored?.level.value, kDontDrinkLevels[3].value);
+  });
 }

@@ -98,6 +98,16 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      # ── Gate ───────────────────────────────────────────────────────────────
+      # A tag must not be able to ship code that does not pass. CI runs this on
+      # every push too; repeating it here costs a minute and closes the window
+      # where a tag is pushed without its commit having been checked.
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
       # ── Version from tag ───────────────────────────────────────────────────
       # Strip the leading "v" so pubspec-style semver is used as build-name
       # (e.g. tag v1.2.3 → build-name 1.2.3).

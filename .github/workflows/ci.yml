@@ -1,0 +1,56 @@
+# Runs on every push and pull request. The release workflow builds and
+# publishes; nothing there checked that the code works, so a red main could be
+# tagged and shipped and nothing would object.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      # Same source of truth as the release workflow and the dev machine:
+      # whatever .fvmrc pins. One Flutter version, everywhere.
+      - name: Read the pinned Flutter version
+        id: flutter_version
+        run: |
+          VERSION=$(python3 -c "import json;print(json.load(open('.fvmrc'))['flutter'])")
+          if [ -z "$VERSION" ] || [ "$VERSION" = "stable" ]; then
+            echo "::error::.fvmrc must pin an exact Flutter version, not '$VERSION'." >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.flutter_version.outputs.version }}
+          channel: stable
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # The generated localizations are committed, so a stale one would hide a
+      # broken .arb. Regenerate and fail if anything moved.
+      - name: Check the generated localizations are current
+        run: |
+          flutter gen-l10n
+          if ! git diff --quiet -- lib/l10n; then
+            echo "::error::lib/l10n is stale — run 'flutter gen-l10n' and commit the result." >&2
+            git --no-pager diff --stat -- lib/l10n
+            exit 1
+          fi
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
