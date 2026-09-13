@@ -131,4 +131,17 @@ void main() {
     expect(find.textContaining('stored privately on this device'),
         findsOneWidget);
   });
+
+  testWidgets('export and share are separate rows', (tester) async {
+    // Export used to mean "open the share sheet", which on many phones offers
+    // no file manager at all — so a backup could not be put on the device.
+    await tester.pumpWidget(screen());
+    await tester.pumpAndSettle();
+
+    await scrollTo(tester, find.text('Export data'));
+    expect(find.text('Choose where to save a JSON backup'), findsOneWidget);
+
+    await scrollTo(tester, find.text('Share backup'));
+    expect(find.text('Send the JSON to another app'), findsOneWidget);
+  });
 }

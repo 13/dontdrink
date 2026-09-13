@@ -165,7 +165,7 @@
   "settingsUpdates": "Updates",
   "settingsAbout": "About",
   "settingsExport": "Export data",
-  "settingsExportSubtitle": "Save a backup of all your logs as JSON",
+  "settingsExportSubtitle": "Choose where to save a JSON backup",
   "settingsImport": "Import data",
   "settingsImportSubtitle": "Restore logs from a backup file",
   "settingsExportFailed": "Export failed: {error}",
@@ -337,6 +337,10 @@
   "notesTitle": "Notes",
   "moreNotesSubtitle": "What you wrote on the days you logged",
   "notesEmpty": "No notes yet. Add one when you log a day and it will be here.",
+
+  "settingsShareBackup": "Share backup",
+  "settingsShareBackupSubtitle": "Send the JSON to another app",
+  "settingsExportSaved": "Backup saved",
 
   "startupFailedTitle": "Don't Drink couldn't start",
   "startupFailedBody": "Your data is safe and has not been changed. Please report this error."

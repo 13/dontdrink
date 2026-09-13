@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'dart:io';
 
 import 'package:dont_drink/core/models/day_entry.dart';
@@ -67,6 +68,49 @@ class ImportError extends ImportResult {
   final int count;
 }
 
+/// What an export attempt did.
+sealed class ExportResult {
+  const ExportResult();
+}
+
+/// Written to [path], which is wherever the user pointed the file picker.
+class ExportSaved extends ExportResult {
+  const ExportSaved(this.path);
+  final String path;
+}
+
+/// The user backed out of the picker. Not an error, and not worth a message.
+class ExportCancelled extends ExportResult {
+  const ExportCancelled();
+}
+
+class ExportFailed extends ExportResult {
+  const ExportFailed(this.detail);
+  final String detail;
+}
+
+/// Writes [bytes] wherever the user chooses, returning the path or null if
+/// they cancelled.
+///
+/// Injected so the export can be tested without a platform file picker, which
+/// has no host implementation.
+typedef BackupSaver = Future<String?> Function({
+  required String fileName,
+  required Uint8List bytes,
+});
+
+Future<String?> _saveWithPicker({
+  required String fileName,
+  required Uint8List bytes,
+}) {
+  return FilePicker.platform.saveFile(
+    fileName: fileName,
+    bytes: bytes,
+    type: FileType.custom,
+    allowedExtensions: const ['json'],
+  );
+}
+
 /// Handles JSON export and import of all [DayEntry] data, across every
 /// tracking mode.
 ///
@@ -112,6 +156,36 @@ class ExportImportService {
     };
   }
 
+  /// Write a backup to a location the user picks.
+  ///
+  /// Sharing a file only ever offered whatever apps accept a JSON intent,
+  /// which on many phones does not include a file manager — so "export" could
+  /// not actually put a backup on the device. This goes through the system's
+  /// save dialog instead, which is the thing that can.
+  Future<ExportResult> saveBackup({
+    required List<ModeDefinition> modes,
+    required Map<String, List<DayEntry>> entriesByMode,
+    BackupSaver saver = _saveWithPicker,
+  }) async {
+    final payload = buildPayload(modes: modes, entriesByMode: entriesByMode);
+    final json = const JsonEncoder.withIndent('  ').convert(payload);
+
+    try {
+      final path = await saver(
+        fileName: backupFileName(),
+        bytes: Uint8List.fromList(utf8.encode(json)),
+      );
+      if (path == null) return const ExportCancelled();
+      return ExportSaved(path);
+    } catch (e) {
+      return ExportFailed('$e');
+    }
+  }
+
+  /// The name a backup is offered under, dated so several can sit side by side.
+  String backupFileName() =>
+      'dont_drink_backup_${DateOnly.keyFor(DateTime.now())}.json';
+
   Future<void> export({
     required List<ModeDefinition> modes,
     required Map<String, List<DayEntry>> entriesByMode,
@@ -121,8 +195,7 @@ class ExportImportService {
 
     final json = const JsonEncoder.withIndent('  ').convert(payload);
     final dir = await getTemporaryDirectory();
-    final filename =
-        "dont_drink_backup_${DateOnly.keyFor(DateTime.now())}.json";
+    final filename = backupFileName();
     final file = File('${dir.path}/$filename');
     await file.writeAsString(json, encoding: utf8);
 

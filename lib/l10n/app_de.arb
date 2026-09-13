@@ -129,7 +129,7 @@
   "settingsUpdates": "Updates",
   "settingsAbout": "Über",
   "settingsExport": "Daten exportieren",
-  "settingsExportSubtitle": "Sicherung aller Einträge als JSON speichern",
+  "settingsExportSubtitle": "Wähle, wo die JSON-Sicherung gespeichert wird",
   "settingsImport": "Daten importieren",
   "settingsImportSubtitle": "Einträge aus einer Sicherung wiederherstellen",
   "settingsExportFailed": "Export fehlgeschlagen: {error}",
@@ -261,6 +261,10 @@
   "notesTitle": "Notizen",
   "moreNotesSubtitle": "Was du an eingetragenen Tagen notiert hast",
   "notesEmpty": "Noch keine Notizen. Schreib beim Eintragen eines Tages eine, dann steht sie hier.",
+
+  "settingsShareBackup": "Sicherung teilen",
+  "settingsShareBackupSubtitle": "Die JSON-Datei an eine andere App senden",
+  "settingsExportSaved": "Sicherung gespeichert",
 
   "startupFailedTitle": "Don't Drink konnte nicht starten",
   "startupFailedBody": "Deine Daten sind sicher und unverändert. Bitte melde diesen Fehler."

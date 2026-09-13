@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'dart:typed_data';
 import 'package:dont_drink/core/models/day_entry.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
@@ -446,5 +447,67 @@ void main() {
     expect(restored?.note, 'Wedding — one too many, slept badly.',
         reason: 'free text is the one thing a user could not reconstruct');
     expect(restored?.level.value, kDontDrinkLevels[3].value);
+  });
+
+  group('saveBackup', () {
+    test('writes the backup where the picker points, and says so', () async {
+      const service = ExportImportService();
+      final entries = EntryRepository();
+      await entries.deleteAllForMode('dont_drink');
+      await entries.upsert(DayEntry(
+        modeId: 'dont_drink',
+        date: DateTime(2026, 7, 4),
+        level: kDontDrinkLevels[0],
+        note: 'Keine Lust auf Kater',
+      ));
+
+      String? seenName;
+      Uint8List? seenBytes;
+      final result = await service.saveBackup(
+        modes: [kDontDrinkMode],
+        entriesByMode: {'dont_drink': await entries.getAll(kDontDrinkMode)},
+        saver: ({required String fileName, required Uint8List bytes}) async {
+          seenName = fileName;
+          seenBytes = bytes;
+          return '/storage/emulated/0/Download/$fileName';
+        },
+      );
+
+      expect(result, isA<ExportSaved>());
+      expect((result as ExportSaved).path, contains('Download'));
+      expect(seenName, matches(r'^dont_drink_backup_\d{4}-\d{2}-\d{2}\.json$'));
+
+      // What lands on disk has to be the real backup, not a stub.
+      final decoded =
+          jsonDecode(utf8.decode(seenBytes!)) as Map<String, dynamic>;
+      expect(decoded['app'], 'dont_drink');
+      expect(decoded['version'], 2);
+      expect((decoded['entries'] as List), hasLength(1));
+      expect((decoded['entries'] as List).first['note'],
+          'Keine Lust auf Kater');
+    });
+
+    test('backing out of the picker is not an error', () async {
+      const service = ExportImportService();
+      final result = await service.saveBackup(
+        modes: [kDontDrinkMode],
+        entriesByMode: const {'dont_drink': []},
+        saver: ({required String fileName, required Uint8List bytes}) async =>
+            null,
+      );
+      expect(result, isA<ExportCancelled>());
+    });
+
+    test('a failing save is reported rather than thrown', () async {
+      const service = ExportImportService();
+      final result = await service.saveBackup(
+        modes: [kDontDrinkMode],
+        entriesByMode: const {'dont_drink': []},
+        saver: ({required String fileName, required Uint8List bytes}) async =>
+            throw const FileSystemException('read-only volume'),
+      );
+      expect(result, isA<ExportFailed>());
+      expect((result as ExportFailed).detail, contains('read-only'));
+    });
   });
 }

@@ -769,7 +769,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsExportSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Save a backup of all your logs as JSON'**
+  /// **'Choose where to save a JSON backup'**
   String get settingsExportSubtitle;
 
   /// No description provided for @settingsImport.
@@ -1467,6 +1467,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No notes yet. Add one when you log a day and it will be here.'**
   String get notesEmpty;
+
+  /// No description provided for @settingsShareBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Share backup'**
+  String get settingsShareBackup;
+
+  /// No description provided for @settingsShareBackupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the JSON to another app'**
+  String get settingsShareBackupSubtitle;
+
+  /// No description provided for @settingsExportSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved'**
+  String get settingsExportSaved;
 
   /// No description provided for @startupFailedTitle.
   ///

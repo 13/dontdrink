@@ -428,7 +428,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsExport => 'Export data';
 
   @override
-  String get settingsExportSubtitle => 'Save a backup of all your logs as JSON';
+  String get settingsExportSubtitle => 'Choose where to save a JSON backup';
 
   @override
   String get settingsImport => 'Import data';
@@ -907,6 +907,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notesEmpty =>
       'No notes yet. Add one when you log a day and it will be here.';
+
+  @override
+  String get settingsShareBackup => 'Share backup';
+
+  @override
+  String get settingsShareBackupSubtitle => 'Send the JSON to another app';
+
+  @override
+  String get settingsExportSaved => 'Backup saved';
 
   @override
   String get startupFailedTitle => 'Don\'t Drink couldn\'t start';

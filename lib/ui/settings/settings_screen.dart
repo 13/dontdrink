@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:dont_drink/core/models/day_entry.dart';
+import 'package:dont_drink/core/models/mode_definition.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
 import 'package:dont_drink/services/export_import_service.dart';
@@ -235,6 +236,16 @@ class _DataSectionState extends State<_DataSection> {
           ),
           const Divider(height: 1, indent: 56),
           ListTile(
+            leading: const Icon(Icons.share_outlined),
+            title: Text(AppLocalizations.of(context).settingsShareBackup),
+            subtitle:
+                Text(AppLocalizations.of(context).settingsShareBackupSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            enabled: !_exporting && !_importing,
+            onTap: _share,
+          ),
+          const Divider(height: 1, indent: 56),
+          ListTile(
             leading: _importing
                 ? const SizedBox(
                     width: 24,
@@ -254,16 +265,51 @@ class _DataSectionState extends State<_DataSection> {
     );
   }
 
+  /// Everything currently stored, keyed by mode.
+  Future<(List<ModeDefinition>, Map<String, List<DayEntry>>)>
+      _collect() async {
+    final modes = context.read<ModeViewModel>().allAvailableModes;
+    final repo = EntryRepository();
+    return (
+      modes,
+      <String, List<DayEntry>>{
+        for (final mode in modes) mode.id: await repo.getAll(mode),
+      },
+    );
+  }
+
+  /// Write a backup wherever the user points the system save dialog.
   Future<void> _export() async {
     setState(() => _exporting = true);
     final l10n = AppLocalizations.of(context);
     try {
-      final modeVm = context.read<ModeViewModel>();
-      final repo = EntryRepository();
-      final modes = modeVm.allAvailableModes;
-      final byMode = <String, List<DayEntry>>{
-        for (final mode in modes) mode.id: await repo.getAll(mode),
-      };
+      final (modes, byMode) = await _collect();
+      final result =
+          await _service.saveBackup(modes: modes, entriesByMode: byMode);
+      if (!mounted) return;
+      switch (result) {
+        case ExportSaved():
+          _showSnack(l10n.settingsExportSaved);
+        case ExportCancelled():
+          break; // backed out of the picker — nothing to say
+        case ExportFailed(:final detail):
+          _showSnack(l10n.settingsExportFailed(detail), isError: true);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showSnack(l10n.settingsExportFailed('$e'), isError: true);
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
+  /// Hand the same backup to another app instead of the filesystem.
+  Future<void> _share() async {
+    setState(() => _exporting = true);
+    final l10n = AppLocalizations.of(context);
+    try {
+      final (modes, byMode) = await _collect();
       await _service.export(
         modes: modes,
         entriesByMode: byMode,

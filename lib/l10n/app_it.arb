@@ -129,7 +129,7 @@
   "settingsUpdates": "Aggiornamenti",
   "settingsAbout": "Informazioni",
   "settingsExport": "Esporta i dati",
-  "settingsExportSubtitle": "Salva un backup di tutte le registrazioni in JSON",
+  "settingsExportSubtitle": "Scegli dove salvare il backup JSON",
   "settingsImport": "Importa i dati",
   "settingsImportSubtitle": "Ripristina le registrazioni da un file di backup",
   "settingsExportFailed": "Esportazione non riuscita: {error}",
@@ -261,6 +261,10 @@
   "notesTitle": "Note",
   "moreNotesSubtitle": "Quello che hai scritto nei giorni registrati",
   "notesEmpty": "Ancora nessuna nota. Scrivine una quando registri un giorno e comparirà qui.",
+
+  "settingsShareBackup": "Condividi il backup",
+  "settingsShareBackupSubtitle": "Invia il file JSON a un'altra app",
+  "settingsExportSaved": "Backup salvato",
 
   "startupFailedTitle": "Don't Drink non è riuscita ad avviarsi",
   "startupFailedBody": "I tuoi dati sono al sicuro e non sono stati modificati. Segnala questo errore."

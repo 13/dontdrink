@@ -430,8 +430,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get settingsExport => 'Esporta i dati';
 
   @override
-  String get settingsExportSubtitle =>
-      'Salva un backup di tutte le registrazioni in JSON';
+  String get settingsExportSubtitle => 'Scegli dove salvare il backup JSON';
 
   @override
   String get settingsImport => 'Importa i dati';
@@ -916,6 +915,16 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get notesEmpty =>
       'Ancora nessuna nota. Scrivine una quando registri un giorno e comparirà qui.';
+
+  @override
+  String get settingsShareBackup => 'Condividi il backup';
+
+  @override
+  String get settingsShareBackupSubtitle =>
+      'Invia il file JSON a un\'altra app';
+
+  @override
+  String get settingsExportSaved => 'Backup salvato';
 
   @override
   String get startupFailedTitle => 'Don\'t Drink non è riuscita ad avviarsi';

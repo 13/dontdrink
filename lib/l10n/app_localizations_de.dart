@@ -432,7 +432,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsExportSubtitle =>
-      'Sicherung aller Einträge als JSON speichern';
+      'Wähle, wo die JSON-Sicherung gespeichert wird';
 
   @override
   String get settingsImport => 'Daten importieren';
@@ -920,6 +920,16 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get notesEmpty =>
       'Noch keine Notizen. Schreib beim Eintragen eines Tages eine, dann steht sie hier.';
+
+  @override
+  String get settingsShareBackup => 'Sicherung teilen';
+
+  @override
+  String get settingsShareBackupSubtitle =>
+      'Die JSON-Datei an eine andere App senden';
+
+  @override
+  String get settingsExportSaved => 'Sicherung gespeichert';
 
   @override
   String get startupFailedTitle => 'Don\'t Drink konnte nicht starten';
