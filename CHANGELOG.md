@@ -6,6 +6,19 @@ the person who wrote it. Newest first.
 The GitHub release notes are generated from commit subjects; this file is the
 curated version, and it is what an in-app "what's new" should read from.
 
+## 1.5.1 — 2026-09-13
+
+### Fixed
+- The month picker would only let you open months you had already logged in,
+  so on a fresh install eleven of the twelve buttons were greyed out and
+  back-filling last week — the reason to open it — was the one thing it
+  refused. Every past month is selectable now; ones without entries are simply
+  dimmed.
+
+### Changed
+- Removed the expand arrow beside the dashboard's month name. The month name
+  itself opens the picker, and the calendar lives under More.
+
 ## 1.5.0 — 2026-09-13
 
 ### Added
