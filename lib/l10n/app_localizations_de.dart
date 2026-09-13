@@ -823,6 +823,29 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get yearlyTitle => 'Jahr';
+
+  @override
+  String get moreYearlySubtitle => 'Das ganze Jahr auf einen Blick';
+
+  @override
+  String yearNoData(String year) {
+    return 'Für $year ist noch nichts eingetragen.';
+  }
+
+  @override
+  String get shareImage => 'Als Bild teilen';
+
+  @override
+  String get shareFailed => 'Das Bild konnte nicht geteilt werden.';
+
+  @override
+  String get shareBadge => 'Dieses Abzeichen teilen';
+
+  @override
+  String get badgeLockedShare => 'Verdiene dieses Abzeichen, um es zu teilen.';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink konnte nicht starten';
 
   @override

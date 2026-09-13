@@ -8,10 +8,10 @@ import 'package:dont_drink/ui/shell/home_shell.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/day_entry_sheet.dart';
 import 'package:dont_drink/ui/widgets/mode_switcher.dart';
+import 'package:dont_drink/ui/widgets/month_label_button.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -153,10 +153,8 @@ class _MonthCalendarSection extends StatelessWidget {
               icon: const Icon(Icons.chevron_left),
             ),
             Expanded(
-              child: Text(
-                DateFormat('MMMM y', Localizations.localeOf(context).toString())
-                    .format(month),
-                textAlign: TextAlign.center,
+              child: MonthLabelButton(
+                month: month,
                 style: theme.textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.w700),
               ),

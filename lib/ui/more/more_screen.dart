@@ -6,6 +6,7 @@ import 'package:dont_drink/ui/motivation/motivation_screen.dart';
 import 'package:dont_drink/ui/recovery/recovery_screen.dart';
 import 'package:dont_drink/ui/settings/settings_screen.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
+import 'package:dont_drink/ui/yearly/yearly_screen.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +36,13 @@ class MoreScreen extends StatelessWidget {
           subtitle: pack.factsSubtitle,
           builder: (_) => const FactsScreen(),
         ),
+      _MoreItem(
+        icon: Icons.grid_on,
+        color: const Color(0xFF26A69A),
+        title: l10n.yearlyTitle,
+        subtitle: l10n.moreYearlySubtitle,
+        builder: (_) => const YearlyScreen(),
+      ),
       _MoreItem(
         icon: Icons.calendar_month_outlined,
         color: const Color(0xFF7E57C2),

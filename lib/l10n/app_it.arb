@@ -229,6 +229,14 @@
   "updateErrorInstallerFailed": "Impossibile aprire l'installazione: {detail}",
   "updateErrorUnexpected": "Qualcosa è andato storto: {detail}",
 
+  "yearlyTitle": "Anno",
+  "moreYearlySubtitle": "Tutto l'anno in un colpo d'occhio",
+  "yearNoData": "Per il {year} non c'è ancora nulla.",
+  "shareImage": "Condividi come immagine",
+  "shareFailed": "Impossibile condividere l'immagine.",
+  "shareBadge": "Condividi questo distintivo",
+  "badgeLockedShare": "Ottieni questo distintivo per condividerlo.",
+
   "startupFailedTitle": "Don't Drink non è riuscita ad avviarsi",
   "startupFailedBody": "I tuoi dati sono al sicuro e non sono stati modificati. Segnala questo errore."
 }

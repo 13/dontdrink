@@ -818,6 +818,29 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
+  String get yearlyTitle => 'Anno';
+
+  @override
+  String get moreYearlySubtitle => 'Tutto l\'anno in un colpo d\'occhio';
+
+  @override
+  String yearNoData(String year) {
+    return 'Per il $year non c\'è ancora nulla.';
+  }
+
+  @override
+  String get shareImage => 'Condividi come immagine';
+
+  @override
+  String get shareFailed => 'Impossibile condividere l\'immagine.';
+
+  @override
+  String get shareBadge => 'Condividi questo distintivo';
+
+  @override
+  String get badgeLockedShare => 'Ottieni questo distintivo per condividerlo.';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink non è riuscita ad avviarsi';
 
   @override

@@ -2,6 +2,7 @@ import 'package:dont_drink/core/theme/app_colors.dart';
 import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/services/achievement_service.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
+import 'package:dont_drink/ui/widgets/badge_share_dialog.dart';
 import 'package:dont_drink/ui/widgets/recovery_section.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -158,7 +159,7 @@ class _AchievementTile extends StatelessWidget {
     final dateFormat =
         DateFormat.yMMMd(Localizations.localeOf(context).toString());
 
-    return AppCard(
+    final card = AppCard(
       child: Opacity(
         opacity: unlocked ? 1 : 0.55,
         child: Row(
@@ -254,6 +255,20 @@ class _AchievementTile extends StatelessWidget {
           ],
         ),
       ),
+    );
+
+    // Only an earned badge can be shared: a card for something you have not
+    // done would be a strange thing to hand someone.
+    if (!unlocked) return card;
+
+    return InkWell(
+      onTap: () => BadgeShareDialog.show(
+        context,
+        status: status,
+        modeName: context.read<TrackerViewModel>().mode.name,
+      ),
+      borderRadius: BorderRadius.circular(20),
+      child: card,
     );
   }
 }

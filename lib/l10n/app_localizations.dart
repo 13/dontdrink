@@ -1306,6 +1306,48 @@ abstract class AppLocalizations {
   /// **'Something went wrong: {detail}'**
   String updateErrorUnexpected(String detail);
 
+  /// No description provided for @yearlyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get yearlyTitle;
+
+  /// No description provided for @moreYearlySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day of the year at a glance'**
+  String get moreYearlySubtitle;
+
+  /// No description provided for @yearNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing logged in {year} yet.'**
+  String yearNoData(String year);
+
+  /// No description provided for @shareImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as image'**
+  String get shareImage;
+
+  /// No description provided for @shareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share that image.'**
+  String get shareFailed;
+
+  /// No description provided for @shareBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this badge'**
+  String get shareBadge;
+
+  /// No description provided for @badgeLockedShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn this badge to share it.'**
+  String get badgeLockedShare;
+
   /// No description provided for @startupFailedTitle.
   ///
   /// In en, this message translates to:

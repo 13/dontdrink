@@ -5,14 +5,26 @@ import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/calendar/widgets/month_grid.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/day_entry_sheet.dart';
+import 'package:dont_drink/ui/widgets/month_label_button.dart';
+import 'package:dont_drink/ui/widgets/share_image_button.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class CalendarScreen extends StatelessWidget {
+class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
+
+  @override
+  State<CalendarScreen> createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends State<CalendarScreen> {
+  /// Identifies the boundary the share button photographs. Held by the state
+  /// so it survives rebuilds — a key rebuilt each frame would point at a
+  /// boundary that no longer exists by the time the capture runs.
+  final _shareKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +38,15 @@ class CalendarScreen extends StatelessWidget {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-                floating: true,
-                title: Text(AppLocalizations.of(context).calendarTitle)),
+              floating: true,
+              title: Text(AppLocalizations.of(context).calendarTitle),
+              actions: [
+                ShareImageButton(
+                  boundaryKey: _shareKey,
+                  fileName: 'dont-drink-${DateFormat('yyyy-MM').format(month)}',
+                ),
+              ],
+            ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
               sliver: SliverList.list(
@@ -38,11 +57,39 @@ class CalendarScreen extends StatelessWidget {
                     onNext: vm.nextMonth,
                   ),
                   const SizedBox(height: 12),
-                  AppCard(
-                    child: MonthGrid(
-                      month: month,
-                      entries: entries,
-                      onDayTap: (date) => DayEntrySheet.show(context, date),
+                  // Only the month and its grid are captured: a shared image
+                  // shows the shape of the month, not the statistics under it
+                  // and never a note.
+                  RepaintBoundary(
+                    key: _shareKey,
+                    child: AppCard(
+                      child: Column(
+                        children: [
+                          MonthGrid(
+                            month: month,
+                            entries: entries,
+                            onDayTap: (date) =>
+                                DayEntrySheet.show(context, date),
+                          ),
+                          const SizedBox(height: 10),
+                          // A caption rather than a heading: the header above
+                          // already names the month on screen, but a shared
+                          // image has to carry its own period.
+                          Text(
+                            DateFormat('MMMM y',
+                                    Localizations.localeOf(context).toString())
+                                .format(month),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -90,9 +137,8 @@ class _MonthHeader extends StatelessWidget {
           icon: const Icon(Icons.chevron_left),
         ),
         Expanded(
-          child: Text(
-            DateFormat('MMMM y').format(month),
-            textAlign: TextAlign.center,
+          child: MonthLabelButton(
+            month: month,
             style: theme.textTheme.titleLarge
                 ?.copyWith(fontWeight: FontWeight.w700),
           ),

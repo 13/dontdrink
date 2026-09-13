@@ -297,6 +297,15 @@
   "updateErrorUnexpected": "Something went wrong: {detail}",
   "@updateErrorUnexpected": {"placeholders": {"detail": {"type": "String"}}},
 
+  "yearlyTitle": "Year",
+  "moreYearlySubtitle": "Every day of the year at a glance",
+  "yearNoData": "Nothing logged in {year} yet.",
+  "@yearNoData": {"placeholders": {"year": {"type": "String"}}},
+  "shareImage": "Share as image",
+  "shareFailed": "Could not share that image.",
+  "shareBadge": "Share this badge",
+  "badgeLockedShare": "Earn this badge to share it.",
+
   "startupFailedTitle": "Don't Drink couldn't start",
   "startupFailedBody": "Your data is safe and has not been changed. Please report this error."
 }

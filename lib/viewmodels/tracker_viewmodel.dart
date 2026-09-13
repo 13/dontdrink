@@ -152,6 +152,24 @@ class TrackerViewModel extends ChangeNotifier {
     };
   }
 
+  /// First-of-month dates that hold at least one entry, for the month picker.
+  Set<DateTime> get monthsWithData => {
+        for (final entry in _entries.values)
+          DateOnly.firstOfMonth(entry.date),
+      };
+
+  /// Oldest month worth offering: the first entry's, or this month on a fresh
+  /// install.
+  DateTime get firstLoggedMonth {
+    DateTime? earliest;
+    for (final entry in _entries.values) {
+      if (earliest == null || entry.date.isBefore(earliest)) {
+        earliest = entry.date;
+      }
+    }
+    return DateOnly.firstOfMonth(earliest ?? DateTime.now());
+  }
+
   /// Per-level counts for a month.
   Map<TrackedLevel, int> monthCounts(DateTime month) =>
       _stats.monthLevelCounts(entriesForMonth(month), _mode);

@@ -810,6 +810,29 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get yearlyTitle => 'Year';
+
+  @override
+  String get moreYearlySubtitle => 'Every day of the year at a glance';
+
+  @override
+  String yearNoData(String year) {
+    return 'Nothing logged in $year yet.';
+  }
+
+  @override
+  String get shareImage => 'Share as image';
+
+  @override
+  String get shareFailed => 'Could not share that image.';
+
+  @override
+  String get shareBadge => 'Share this badge';
+
+  @override
+  String get badgeLockedShare => 'Earn this badge to share it.';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink couldn\'t start';
 
   @override

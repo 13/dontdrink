@@ -229,6 +229,14 @@
   "updateErrorInstallerFailed": "Das Installationsprogramm ließ sich nicht öffnen: {detail}",
   "updateErrorUnexpected": "Etwas ist schiefgelaufen: {detail}",
 
+  "yearlyTitle": "Jahr",
+  "moreYearlySubtitle": "Das ganze Jahr auf einen Blick",
+  "yearNoData": "Für {year} ist noch nichts eingetragen.",
+  "shareImage": "Als Bild teilen",
+  "shareFailed": "Das Bild konnte nicht geteilt werden.",
+  "shareBadge": "Dieses Abzeichen teilen",
+  "badgeLockedShare": "Verdiene dieses Abzeichen, um es zu teilen.",
+
   "startupFailedTitle": "Don't Drink konnte nicht starten",
   "startupFailedBody": "Deine Daten sind sicher und unverändert. Bitte melde diesen Fehler."
 }
