@@ -3,6 +3,7 @@ import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/calendar/calendar_screen.dart';
 import 'package:dont_drink/ui/facts/facts_screen.dart';
 import 'package:dont_drink/ui/motivation/motivation_screen.dart';
+import 'package:dont_drink/ui/notes/notes_screen.dart';
 import 'package:dont_drink/ui/recovery/recovery_screen.dart';
 import 'package:dont_drink/ui/settings/settings_screen.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
@@ -36,6 +37,13 @@ class MoreScreen extends StatelessWidget {
           subtitle: pack.factsSubtitle,
           builder: (_) => const FactsScreen(),
         ),
+      _MoreItem(
+        icon: Icons.sticky_note_2_outlined,
+        color: const Color(0xFF8D6E63),
+        title: l10n.notesTitle,
+        subtitle: l10n.moreNotesSubtitle,
+        builder: (_) => const NotesScreen(),
+      ),
       _MoreItem(
         icon: Icons.grid_on,
         color: const Color(0xFF26A69A),

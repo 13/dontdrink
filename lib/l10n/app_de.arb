@@ -259,6 +259,10 @@
   "welcomePrivacy": "Alles bleibt auf diesem Gerät.",
   "openCalendar": "Kalender öffnen",
 
+  "notesTitle": "Notizen",
+  "moreNotesSubtitle": "Was du an eingetragenen Tagen notiert hast",
+  "notesEmpty": "Noch keine Notizen. Schreib beim Eintragen eines Tages eine, dann steht sie hier.",
+
   "startupFailedTitle": "Don't Drink konnte nicht starten",
   "startupFailedBody": "Deine Daten sind sicher und unverändert. Bitte melde diesen Fehler."
 }

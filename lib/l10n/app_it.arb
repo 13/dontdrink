@@ -259,6 +259,10 @@
   "welcomePrivacy": "Tutto resta su questo dispositivo.",
   "openCalendar": "Apri il calendario",
 
+  "notesTitle": "Note",
+  "moreNotesSubtitle": "Quello che hai scritto nei giorni registrati",
+  "notesEmpty": "Ancora nessuna nota. Scrivine una quando registri un giorno e comparirà qui.",
+
   "startupFailedTitle": "Don't Drink non è riuscita ad avviarsi",
   "startupFailedBody": "I tuoi dati sono al sicuro e non sono stati modificati. Segnala questo errore."
 }

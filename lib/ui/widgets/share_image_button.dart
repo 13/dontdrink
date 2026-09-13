@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 /// Share whatever sits inside the [RepaintBoundary] behind [boundaryKey].
 ///
 /// What is captured is what is on screen — there is no second, off-screen
-/// layout that could put something in the image the user never saw.
+/// layout that could put something in the image the user never saw. Wrap the
+/// captured subtree in [ShareablePalette] so the picture reads the same
+/// wherever it lands, rather than coming out near-black for anyone using the
+/// dark theme.
 class ShareImageButton extends StatefulWidget {
   const ShareImageButton({
     super.key,

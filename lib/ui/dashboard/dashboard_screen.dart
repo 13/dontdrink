@@ -26,7 +26,9 @@ class DashboardScreen extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final today = DateOnly.today();
+    // The day being lived, which before 04:00 is still yesterday — logging a
+    // night out at 01:00 means the night that just happened.
+    final today = DateOnly.trackingDay();
     final todayEntry = vm.entryFor(today);
 
     return Scaffold(

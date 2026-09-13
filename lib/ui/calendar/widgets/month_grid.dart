@@ -27,7 +27,12 @@ class MonthGrid extends StatelessWidget {
     final daysInMonth = DateOnly.daysInMonth(month);
     // Monday-first grid. Dart weekday: Mon=1..Sun=7.
     final leadingBlanks = first.weekday - 1;
-    final today = DateOnly.today();
+    // Two different days on purpose. The ring marks the day being lived
+    // (before 04:00 that is yesterday); what counts as the future is still
+    // the calendar day, so the real today never becomes unloggable just
+    // because it is 01:00.
+    final today = DateOnly.trackingDay();
+    final calendarToday = DateOnly.today();
 
     final l10n = AppLocalizations.of(context);
     final weekdayLabels = [
@@ -74,8 +79,8 @@ class MonthGrid extends StatelessWidget {
                     DateOnly.keyFor(DateTime(month.year, month.month, day))],
                 isToday: DateOnly.isSameDay(
                     DateTime(month.year, month.month, day), today),
-                isFuture:
-                    DateTime(month.year, month.month, day).isAfter(today),
+                isFuture: DateTime(month.year, month.month, day)
+                    .isAfter(calendarToday),
                 onTap: onDayTap,
               ),
           ],

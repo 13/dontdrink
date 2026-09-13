@@ -118,7 +118,7 @@ class _DayEntrySheetState extends State<DayEntrySheet> {
     final mode = vm.mode;
     final normalized = DateOnly.normalize(widget.date);
     final existing = vm.entryFor(normalized);
-    final isToday = DateOnly.isSameDay(normalized, DateTime.now());
+    final isToday = DateOnly.isTrackingToday(normalized);
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -240,7 +240,7 @@ class _DayEntrySheetState extends State<DayEntrySheet> {
     final outcome = _LogOutcome(
       earns: earns,
       feedback: feedbackFor(
-        isToday: DateOnly.isSameDay(date, DateTime.now()),
+        isToday: DateOnly.isTrackingToday(date),
         isClean: level.isClean,
         earnedBadge: earns.isNotEmpty,
         changed: changed,

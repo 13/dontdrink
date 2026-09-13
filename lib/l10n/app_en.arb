@@ -335,6 +335,10 @@
   "welcomePrivacy": "Everything stays on this device.",
   "openCalendar": "Open the calendar",
 
+  "notesTitle": "Notes",
+  "moreNotesSubtitle": "What you wrote on the days you logged",
+  "notesEmpty": "No notes yet. Add one when you log a day and it will be here.",
+
   "startupFailedTitle": "Don't Drink couldn't start",
   "startupFailedBody": "Your data is safe and has not been changed. Please report this error."
 }

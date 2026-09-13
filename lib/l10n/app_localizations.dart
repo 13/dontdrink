@@ -1456,6 +1456,24 @@ abstract class AppLocalizations {
   /// **'Open the calendar'**
   String get openCalendar;
 
+  /// No description provided for @notesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesTitle;
+
+  /// No description provided for @moreNotesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What you wrote on the days you logged'**
+  String get moreNotesSubtitle;
+
+  /// No description provided for @notesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes yet. Add one when you log a day and it will be here.'**
+  String get notesEmpty;
+
   /// No description provided for @startupFailedTitle.
   ///
   /// In en, this message translates to:

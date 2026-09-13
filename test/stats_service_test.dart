@@ -1,5 +1,6 @@
 import 'package:dont_drink/core/models/day_entry.dart';
 import 'package:dont_drink/core/models/tracked_level.dart';
+import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/data/static/modes/dont_drink_mode.dart';
 import 'package:dont_drink/services/stats_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -161,6 +162,26 @@ void main() {
       expect(months.length, 6);
       expect(months.last.cleanDays, 1);
       expect(months.last.otherDays, 1);
+    });
+  });
+
+  group('the tracked day', () {
+    test('a late-night streak is not broken by the calendar rolling over', () {
+      // 01:00 on 4 June, with entries up to 3 June. Measured against the
+      // calendar day this reads "today unlogged, count back from yesterday";
+      // measured against the tracked day, 3 June *is* today.
+      final entries = [
+        _entry(DateTime(2026, 6, 1), _none),
+        _entry(DateTime(2026, 6, 2), _none),
+        _entry(DateTime(2026, 6, 3), _none),
+      ];
+      expect(
+        service.currentStreak(entries, now: DateTime(2026, 6, 3)),
+        3,
+        reason: 'the explicit clock is taken at face value',
+      );
+      expect(DateOnly.trackingDay(DateTime(2026, 6, 4, 1)),
+          DateTime(2026, 6, 3));
     });
   });
 }

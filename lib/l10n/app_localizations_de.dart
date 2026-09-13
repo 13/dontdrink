@@ -915,6 +915,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get openCalendar => 'Kalender öffnen';
 
   @override
+  String get notesTitle => 'Notizen';
+
+  @override
+  String get moreNotesSubtitle => 'Was du an eingetragenen Tagen notiert hast';
+
+  @override
+  String get notesEmpty =>
+      'Noch keine Notizen. Schreib beim Eintragen eines Tages eine, dann steht sie hier.';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink konnte nicht starten';
 
   @override

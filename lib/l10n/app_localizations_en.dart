@@ -902,6 +902,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openCalendar => 'Open the calendar';
 
   @override
+  String get notesTitle => 'Notes';
+
+  @override
+  String get moreNotesSubtitle => 'What you wrote on the days you logged';
+
+  @override
+  String get notesEmpty =>
+      'No notes yet. Add one when you log a day and it will be here.';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink couldn\'t start';
 
   @override

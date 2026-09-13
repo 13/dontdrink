@@ -16,6 +16,30 @@ class DateOnly {
   /// Today at midnight local time.
   static DateTime today() => normalize(DateTime.now());
 
+  /// The hour a tracked day rolls over.
+  ///
+  /// Not midnight: someone logging a night out at 01:00 means the night that
+  /// just happened, not the day that started an hour ago. Four in the morning
+  /// is the usual convention for this, and it is late enough that an early
+  /// riser at 05:00 still gets the new day.
+  static const int dayStartHour = 4;
+
+  /// Which tracked day [now] belongs to.
+  ///
+  /// Between midnight and [dayStartHour] that is still yesterday.
+  static DateTime trackingDay([DateTime? now]) {
+    final at = now ?? DateTime.now();
+    final day = normalize(at);
+    return at.hour < dayStartHour
+        ? day.subtract(const Duration(days: 1))
+        : day;
+  }
+
+  /// True when [date] is the day the user is currently living, by the same
+  /// rule.
+  static bool isTrackingToday(DateTime date, [DateTime? now]) =>
+      isSameDay(date, trackingDay(now));
+
   /// The `yyyy-MM-dd` key used as the database primary key.
   static String keyFor(DateTime date) => _keyFormat.format(date);
 

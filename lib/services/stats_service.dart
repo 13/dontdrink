@@ -90,7 +90,14 @@ class StatsService {
   int currentStreak(List<DayEntry> entries, {DateTime? now}) {
     if (entries.isEmpty) return 0;
     final index = _index(entries);
-    final today = DateOnly.normalize(now ?? DateTime.now());
+    // With no explicit clock, "today" is the tracked day: at 01:00 the night
+    // that just happened is still yesterday's, and a streak measured against
+    // the calendar day would look broken for four hours every night. An
+    // explicit [now] is taken at face value — callers passing one are tests
+    // and they mean the day they name.
+    final today = now == null
+        ? DateOnly.trackingDay()
+        : DateOnly.normalize(now);
 
     // Decide where to start counting back from.
     DateTime cursor = today;

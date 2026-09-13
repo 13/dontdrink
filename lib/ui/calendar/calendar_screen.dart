@@ -7,6 +7,7 @@ import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/day_entry_sheet.dart';
 import 'package:dont_drink/ui/widgets/month_label_button.dart';
 import 'package:dont_drink/ui/widgets/share_image_button.dart';
+import 'package:dont_drink/ui/widgets/shareable_palette.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -62,33 +63,41 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   // and never a note.
                   RepaintBoundary(
                     key: _shareKey,
-                    child: AppCard(
-                      child: Column(
-                        children: [
-                          MonthGrid(
-                            month: month,
-                            entries: entries,
-                            onDayTap: (date) =>
-                                DayEntrySheet.show(context, date),
+                    child: ShareablePalette(
+                      child: AppCard(
+                        child: Builder(
+                          builder: (context) => Column(
+                            children: [
+                              MonthGrid(
+                                month: month,
+                                entries: entries,
+                                onDayTap: (date) =>
+                                    DayEntrySheet.show(context, date),
+                              ),
+                              const SizedBox(height: 10),
+                              // A caption rather than a heading: the header
+                              // above already names the month on screen, but a
+                              // shared image has to carry its own period. The
+                              // Builder picks up the fixed share palette, so
+                              // the caption is legible in the picture too.
+                              Text(
+                                DateFormat(
+                                        'MMMM y',
+                                        Localizations.localeOf(context)
+                                            .toString())
+                                    .format(month),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 10),
-                          // A caption rather than a heading: the header above
-                          // already names the month on screen, but a shared
-                          // image has to carry its own period.
-                          Text(
-                            DateFormat('MMMM y',
-                                    Localizations.localeOf(context).toString())
-                                .format(month),
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),

@@ -2,6 +2,7 @@ import 'package:dont_drink/core/theme/app_colors.dart';
 import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/services/achievement_service.dart';
 import 'package:dont_drink/ui/widgets/share_image_button.dart';
+import 'package:dont_drink/ui/widgets/shareable_palette.dart';
 import 'package:flutter/material.dart';
 
 /// Shows a badge as the card it will be shared as, with the share action on
@@ -54,7 +55,8 @@ class _BadgeShareDialogState extends State<BadgeShareDialog> {
         children: [
           RepaintBoundary(
             key: _shareKey,
-            child: Container(
+            child: ShareablePalette(
+              child: Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(28, 32, 28, 28),
               decoration: const BoxDecoration(
@@ -114,6 +116,7 @@ class _BadgeShareDialogState extends State<BadgeShareDialog> {
                         ?.copyWith(color: Colors.white70),
                   ),
                 ],
+              ),
               ),
             ),
           ),

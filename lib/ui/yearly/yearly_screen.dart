@@ -5,6 +5,7 @@ import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/day_entry_sheet.dart';
 import 'package:dont_drink/ui/widgets/share_image_button.dart';
+import 'package:dont_drink/ui/widgets/shareable_palette.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -83,12 +84,14 @@ class _YearlyScreenState extends State<YearlyScreen> {
             const SizedBox(height: 12),
             RepaintBoundary(
               key: _shareKey,
-              child: AppCard(
-                child: YearHeatmap(
-                  year: _year,
-                  entries: entries,
-                  mode: vm.mode,
-                  onDayTap: (date) => DayEntrySheet.show(context, date),
+              child: ShareablePalette(
+                child: AppCard(
+                  child: YearHeatmap(
+                    year: _year,
+                    entries: entries,
+                    mode: vm.mode,
+                    onDayTap: (date) => DayEntrySheet.show(context, date),
+                  ),
                 ),
               ),
             ),

@@ -43,13 +43,13 @@ Log exactly one status per day per mode by tapping any date. Don't Drink has fiv
 You can edit any past day. Future days are disabled.
 
 ### Streak Counter
-The dashboard shows your current alcohol-free streak and your all-time longest streak. If today hasn't been logged yet, the streak is measured through yesterday so the counter doesn't reset just from not opening the app.
+The dashboard shows your current alcohol-free streak and your all-time longest streak. If today hasn't been logged yet, the streak is measured through yesterday so the counter doesn't reset just from not opening the app. A tracked day rolls over at 4 AM rather than midnight, so logging a night out at 1 AM records the night that just happened.
 
 ### Color-Coded Calendar
-Browse any month's color-coded grid. Navigate backward month by month. Tap any day to log or edit it.
+Browse any month's color-coded grid. Step month by month, or tap the month name to jump straight to one — months holding entries are picked out in the picker. Tap any day to log or edit it. A **yearly view** shows every day of a year as one cell, so a year reads as a pattern rather than a list.
 
 ### Achievement System
-Nine streak milestones unlock automatically — based on your longest ever streak, so a relapse doesn't erase a badge. Legendary milestones fire a confetti celebration.
+Nine streak milestones, earned automatically — and **repeatable**. A badge is earned once per clean run that reaches its threshold, so reaching a week five separate times counts five times, shown as a ×5 with the first and last dates. A relapse costs the streak and never a badge. Legendary milestones fire a confetti celebration on every earn.
 
 | Day | Achievement |
 |---|---|
@@ -64,7 +64,7 @@ Nine streak milestones unlock automatically — based on your longest ever strea
 | 365 | One Year Alcohol-Free ⭐ |
 
 ### Statistics
-Bar chart of alcohol-free days over the last 6 months, a pie chart of drink-level distribution, and a headline overview (longest streak, free-day rate, best month).
+Bar chart of alcohol-free days over the last 6 months, a donut of drink-level distribution — tap a slice to see that level's day count — and a headline overview (longest streak, free-day rate, best month).
 
 ### Recovery Timeline
 A milestone timeline showing what the body gains hour-by-hour and month-by-month when alcohol-free — with your current streak highlighted as "reached."
@@ -74,6 +74,15 @@ A daily rotating fact card plus browsable lists of alcohol harms and benefits of
 
 ### Motivation
 Swipeable full-bleed motivation cards. Tap *Inspire me* to jump to a random one.
+
+### Notes
+Any logged day can carry a note — what happened, how it felt. Days with one are marked in the calendar, and a **Notes** screen lists everything you have written, newest first. Notes are included in backups and never in a shared image.
+
+### Sharing
+A month, a year or an earned badge can be shared as an image. The picture carries the grid and the period only — no counts, no rates, and never a note — and a badge card shows exactly what will be shared before it leaves the device.
+
+### Languages
+English, German and Italian, covering the interface and the content: achievement names, facts, the recovery timeline, motivations and the level scale. Follows the system language, with an override in Settings.
 
 ### Daily Reminder (optional)
 An on-device scheduled notification at a time you choose (default 8:00 PM). Can be toggled off at any time. Requires notification permission.
@@ -141,13 +150,19 @@ Pattern: **MVVM**. ViewModels extend `ChangeNotifier` and are provided via `prov
 
 | Tool | Version |
 |---|---|
-| Flutter (via fvm) | 3.41.2 stable |
-| Dart | 3.11.0 |
+| Flutter (via fvm) | pinned in `.fvmrc` (3.44.6 stable) |
+| Dart | ships with that Flutter |
 | Android SDK | at `~/Android/Sdk` |
 | Android NDK | 28.2 (installed in `~/Android/Sdk/ndk/`) |
 | Java | 17+ |
 
-Flutter is managed by [fvm](https://fvm.app). The project's `.fvm/` config pins the version automatically.
+Flutter is managed by [fvm](https://fvm.app), pinned in `.fvmrc`. CI and the
+release workflow read that same file, so the version that builds a release is
+the version you develop on — prefix commands with `fvm` (`fvm flutter test`).
+
+Release builds sign with the shared keystore via `android/key.properties`,
+which is gitignored; without it a release build falls back to the debug key so
+`flutter run --release` still works on a fresh checkout.
 
 > **Note — SDK path:** `android/local.properties` points at `~/Android/Sdk`. If Flutter rewrites it back to `/opt/android-sdk` during `pub get`, change `sdk.dir` back to `/home/ben/Android/Sdk`. The `/opt` SDK has no NDK and no accepted licenses.
 
@@ -178,9 +193,17 @@ flutter build apk --release
 flutter test
 ```
 
-Covers streak calculation, longest-streak detection, monthly aggregation, stats
-computation, mode definitions and invariants, the v1→v2 database migration,
-per-mode entry isolation, mode activation rules, and export/import across modes.
+Covers streak calculation and clean runs, repeatable achievements, monthly
+aggregation, the tracked-day rollover, mode definitions and invariants, the
+v1→v2 database migration, per-mode entry isolation, mode activation rules,
+export/import across modes including notes, translation parity for all three
+languages, and a set of widget tests — the log sheet and its dialogs, the mode
+editor's keyboard handling, the month picker, the donut, the yearly heatmap,
+badge sharing, Settings, and the accessibility labels.
+
+CI runs `flutter analyze` and `flutter test` on every push, and the release
+workflow runs them again before it builds, so a tag cannot ship code that does
+not pass.
 
 ### Static analysis
 
