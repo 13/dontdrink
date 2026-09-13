@@ -6,7 +6,7 @@ the person who wrote it. Newest first.
 The GitHub release notes are generated from commit subjects; this file is the
 curated version, and it is what an in-app "what's new" should read from.
 
-## Unreleased
+## 1.4.0 — 2026-09-13
 
 ### Added
 - Every logged day now gets a response, not only the ones that earn a badge. A
