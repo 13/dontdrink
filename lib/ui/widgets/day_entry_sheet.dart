@@ -1,6 +1,7 @@
 import 'package:dont_drink/core/models/tracked_level.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/l10n/app_localizations.dart';
+import 'package:dont_drink/services/achievement_service.dart';
 import 'package:dont_drink/services/day_feedback.dart';
 import 'package:dont_drink/ui/widgets/achievement_unlock_dialog.dart';
 import 'package:dont_drink/ui/widgets/day_feedback_dialog.dart';
@@ -8,6 +9,22 @@ import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+/// What a log produced, handed back to whoever opened the sheet so the
+/// reaction outlives the sheet's own route.
+class _LogOutcome {
+  const _LogOutcome({
+    required this.earns,
+    required this.feedback,
+    required this.streak,
+    required this.badgesEarned,
+  });
+
+  final List<AchievementEarn> earns;
+  final DayFeedback? feedback;
+  final int streak;
+  final int badgesEarned;
+}
 
 /// Bottom sheet for logging or editing a single day's drink status.
 ///
@@ -18,9 +35,14 @@ class DayEntrySheet extends StatelessWidget {
 
   final DateTime date;
 
-  /// Show the sheet for [date]. Returns after it is dismissed.
-  static Future<void> show(BuildContext context, DateTime date) {
-    return showModalBottomSheet<void>(
+  /// Show the sheet for [date]. Returns after it is dismissed, and after any
+  /// dialog the log deserved has been dismissed too.
+  ///
+  /// The sheet hands its outcome back rather than putting the dialog up
+  /// itself: its own context dies with its route, and the caller's outlives
+  /// both, which is what `showDialog` needs to find a Navigator.
+  static Future<void> show(BuildContext context, DateTime date) async {
+    final outcome = await showModalBottomSheet<_LogOutcome>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -30,6 +52,20 @@ class DayEntrySheet extends StatelessWidget {
       ),
       builder: (_) => DayEntrySheet(date: date),
     );
+
+    if (outcome == null || !context.mounted) return;
+
+    if (outcome.earns.isNotEmpty) {
+      await AchievementUnlockDialog.show(context, outcome.earns);
+    } else if (outcome.feedback != null) {
+      await DayFeedbackDialog.show(
+        context,
+        feedback: outcome.feedback!,
+        streak: outcome.streak,
+        badgesEarned: outcome.badgesEarned,
+        variant: feedbackVariant(date, DayFeedbackDialog.variantCount),
+      );
+    }
   }
 
   @override
@@ -43,8 +79,12 @@ class DayEntrySheet extends StatelessWidget {
     final isToday = DateOnly.isSameDay(normalized, DateTime.now());
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+      child: SingleChildScrollView(
+        // A mode with five levels plus the clear-day button does not fit a
+        // short screen — a small phone in landscape, or any phone at a large
+        // text scale — and a Column would simply clip the bottom option.
+        padding: EdgeInsets.fromLTRB(
+            20, 4, 20, 24 + MediaQuery.viewInsetsOf(context).bottom),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,40 +137,25 @@ class DayEntrySheet extends StatelessWidget {
   Future<void> _save(
       BuildContext context, DateTime date, TrackedLevel level) async {
     final vm = context.read<TrackerViewModel>();
-    // Held across the pop: `context` belongs to the sheet, whose route is
-    // about to be torn down, and the dialog has to outlive it. The navigator's
-    // own context sits above the route and under Localizations, so it is
-    // still good for showDialog afterwards.
     final navigator = Navigator.of(context);
     final changed = await vm.logDay(date, level);
     final earns = vm.pendingEarns;
     vm.clearPendingEarns();
 
-    final feedback = feedbackFor(
-      isToday: DateOnly.isSameDay(date, DateTime.now()),
-      isClean: level.isClean,
-      earnedBadge: earns.isNotEmpty,
-      changed: changed,
+    final outcome = _LogOutcome(
+      earns: earns,
+      feedback: feedbackFor(
+        isToday: DateOnly.isSameDay(date, DateTime.now()),
+        isClean: level.isClean,
+        earnedBadge: earns.isNotEmpty,
+        changed: changed,
+      ),
+      streak: vm.stats.currentStreak,
+      badgesEarned: vm.totalEarns,
     );
-    final streak = vm.stats.currentStreak;
-    final badges = vm.totalEarns;
 
-    // `navigator.mounted`, not `context.mounted`: the sheet's context is not
-    // what the dialog below is shown from.
     if (!navigator.mounted) return;
-    navigator.pop();
-
-    if (earns.isNotEmpty) {
-      await AchievementUnlockDialog.show(navigator.context, earns);
-    } else if (feedback != null) {
-      await DayFeedbackDialog.show(
-        navigator.context,
-        feedback: feedback,
-        streak: streak,
-        badgesEarned: badges,
-        variant: feedbackVariant(date, DayFeedbackDialog.variantCount),
-      );
-    }
+    navigator.pop(outcome);
   }
 }
 
