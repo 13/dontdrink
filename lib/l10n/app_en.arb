@@ -278,6 +278,8 @@
   "comfortBoost": "Need a boost",
   "comfortClose": "Close",
 
+  "moreCalendarSubtitle": "The whole month, with a legend and totals",
+
   "startupFailedTitle": "Don't Drink couldn't start",
   "startupFailedBody": "Your data is safe and has not been changed. Please report this error."
 }

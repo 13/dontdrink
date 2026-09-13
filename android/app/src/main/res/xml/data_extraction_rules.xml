@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  API 31+. The app promises that tracking data stays on the device unless the
+  user exports it themselves, so nothing may go to Google's cloud backup.
+
+  Device-to-device transfer is allowed: that moves the data straight to the
+  user's new phone without a third party holding it, which is the same promise,
+  and losing a year of logs to a phone upgrade would be a worse outcome than
+  the transfer itself.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="file" />
+        <exclude domain="external" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="database" path="." />
+        <include domain="sharedpref" path="." />
+    </device-transfer>
+</data-extraction-rules>

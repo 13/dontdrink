@@ -3,24 +3,34 @@ import 'dart:io' show Platform;
 import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/ui/achievements/achievements_screen.dart';
 import 'package:dont_drink/ui/dashboard/dashboard_screen.dart';
+import 'package:dont_drink/ui/more/more_screen.dart';
 import 'package:dont_drink/ui/settings/settings_screen.dart';
 import 'package:dont_drink/ui/statistics/statistics_screen.dart';
 import 'package:dont_drink/viewmodels/update_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-/// Lets a descendant jump to one of the shell's tabs — used by the mode
-/// switcher's "Manage modes…" row.
+/// Lets a descendant jump to one of the shell's tabs, or straight to Settings
+/// — used by the mode switcher's "Manage modes…" row.
 class HomeShellController {
   HomeShellController._();
   static final instance = HomeShellController._();
 
   void Function(int index)? _select;
 
-  /// Index 3 is the Settings tab.
-  static const int settingsTab = 3;
+  /// Index 3 is the More tab, which hosts Settings.
+  static const int moreTab = 3;
 
   void selectTab(int index) => _select?.call(index);
+
+  /// Land on the Settings screen itself rather than the hub that links it:
+  /// "Manage modes…" promises a destination, not a menu.
+  void openSettings(BuildContext context) {
+    selectTab(moreTab);
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+    );
+  }
 }
 
 /// Root scaffold hosting the primary tabs via a [NavigationBar].
@@ -51,7 +61,7 @@ class _HomeShellState extends State<HomeShell> {
     DashboardScreen(),
     AchievementsScreen(),
     StatisticsScreen(),
-    SettingsScreen(),
+    MoreScreen(),
   ];
 
   @override
@@ -79,9 +89,9 @@ class _HomeShellState extends State<HomeShell> {
             label: l10n.navStats,
           ),
           NavigationDestination(
-            icon: _MaybeBadged(child: const Icon(Icons.settings_outlined)),
-            selectedIcon: _MaybeBadged(child: const Icon(Icons.settings)),
-            label: l10n.navSettings,
+            icon: _MaybeBadged(child: const Icon(Icons.more_horiz)),
+            selectedIcon: _MaybeBadged(child: const Icon(Icons.more_horiz)),
+            label: l10n.moreTitle,
           ),
         ],
       ),
@@ -89,8 +99,9 @@ class _HomeShellState extends State<HomeShell> {
   }
 }
 
-/// Wraps [child] in a small dot when an update is waiting, so the Settings tab
-/// advertises it without a dialog.
+/// Wraps [child] in a small dot when an update is waiting, so the More tab —
+/// which leads to Settings and the update card — advertises it without a
+/// dialog.
 ///
 /// Android-only: the updater never runs on iOS (see main.dart), and the
 /// Settings card that could clear this badge is hidden there too, so a badge

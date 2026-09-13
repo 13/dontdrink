@@ -752,6 +752,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comfortClose => 'Close';
 
   @override
+  String get moreCalendarSubtitle =>
+      'The whole month, with a legend and totals';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink couldn\'t start';
 
   @override

@@ -765,6 +765,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get comfortClose => 'Schließen';
 
   @override
+  String get moreCalendarSubtitle => 'Der ganze Monat, mit Legende und Summen';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink konnte nicht starten';
 
   @override

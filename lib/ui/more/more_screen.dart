@@ -1,5 +1,6 @@
 import 'package:dont_drink/core/theme/app_colors.dart';
 import 'package:dont_drink/l10n/app_localizations.dart';
+import 'package:dont_drink/ui/calendar/calendar_screen.dart';
 import 'package:dont_drink/ui/facts/facts_screen.dart';
 import 'package:dont_drink/ui/motivation/motivation_screen.dart';
 import 'package:dont_drink/ui/recovery/recovery_screen.dart';
@@ -34,6 +35,13 @@ class MoreScreen extends StatelessWidget {
           subtitle: pack.factsSubtitle,
           builder: (_) => const FactsScreen(),
         ),
+      _MoreItem(
+        icon: Icons.calendar_month_outlined,
+        color: const Color(0xFF7E57C2),
+        title: l10n.calendarTitle,
+        subtitle: l10n.moreCalendarSubtitle,
+        builder: (_) => const CalendarScreen(),
+      ),
       _MoreItem(
         icon: Icons.favorite_outline,
         color: const Color(0xFFF44336),

@@ -213,6 +213,8 @@
   "comfortBoost": "Ich brauch was Aufbauendes",
   "comfortClose": "Schließen",
 
+  "moreCalendarSubtitle": "Der ganze Monat, mit Legende und Summen",
+
   "startupFailedTitle": "Don't Drink konnte nicht starten",
   "startupFailedBody": "Deine Daten sind sicher und unverändert. Bitte melde diesen Fehler."
 }

@@ -374,6 +374,11 @@ class _AboutCard extends StatefulWidget {
 }
 
 class _AboutCardState extends State<_AboutCard> {
+  /// Stamped by the release workflow with --dart-define=BUILD_DATE. A local
+  /// build leaves it empty and the line is hidden, which is better than the
+  /// hardcoded date this replaced — that one had been wrong for months.
+  static const String _buildDate = String.fromEnvironment('BUILD_DATE');
+
   PackageInfo? _info;
 
   @override
@@ -405,13 +410,15 @@ class _AboutCardState extends State<_AboutCard> {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              AppLocalizations.of(context).settingsBuiltOn('2026-06-04'),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+            if (_buildDate.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                AppLocalizations.of(context).settingsBuiltOn(_buildDate),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
+            ],
             const SizedBox(height: 16),
           ],
           Row(

@@ -29,9 +29,18 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"
         tools:node="remove"/>
 
+    <!-- Android's Auto Backup is on by default, which would upload the
+         tracking database and preferences to the user's Google account. The
+         About card promises the data stays on this device with no cloud sync,
+         so it is switched off here; data_extraction_rules.xml keeps the
+         API 31+ path shut too while still allowing a direct device-to-device
+         transfer, which never involves a third party. -->
     <application
         android:label="Don't Drink"
         android:name="${applicationName}"
+        android:allowBackup="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

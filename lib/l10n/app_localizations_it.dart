@@ -760,6 +760,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get comfortClose => 'Chiudi';
 
   @override
+  String get moreCalendarSubtitle => 'Tutto il mese, con legenda e totali';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink non è riuscita ad avviarsi';
 
   @override

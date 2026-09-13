@@ -100,7 +100,8 @@ jobs:
         run: |
           flutter build apk --release \
             --build-name="${{ steps.version.outputs.version }}" \
-            --build-number="${{ github.run_number }}"
+            --build-number="${{ github.run_number }}" \
+            --dart-define=BUILD_DATE="$(date -u +%Y-%m-%d)"
 
       # ── Signature check ────────────────────────────────────────────────────
       # Prove the APK carries the release cert before it is published.

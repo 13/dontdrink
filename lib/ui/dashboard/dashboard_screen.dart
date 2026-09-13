@@ -35,8 +35,8 @@ class DashboardScreen extends StatelessWidget {
             SliverAppBar(
               floating: true,
               title: ModeSwitcher(
-                onManageModes: () => HomeShellController.instance
-                    .selectTab(HomeShellController.settingsTab),
+                onManageModes: () =>
+                    HomeShellController.instance.openSettings(context),
               ),
             ),
             SliverPadding(

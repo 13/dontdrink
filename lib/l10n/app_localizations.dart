@@ -1222,6 +1222,12 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get comfortClose;
 
+  /// No description provided for @moreCalendarSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole month, with a legend and totals'**
+  String get moreCalendarSubtitle;
+
   /// No description provided for @startupFailedTitle.
   ///
   /// In en, this message translates to:
