@@ -6,6 +6,14 @@ the person who wrote it. Newest first.
 The GitHub release notes are generated from commit subjects; this file is the
 curated version, and it is what an in-app "what's new" should read from.
 
+## 1.6.0 — 2026-09-13
+
+### Added
+- The yearly view can be read as twelve calendars instead of a heatmap: three
+  across, four down, with real day numbers, weekday letters and today ringed.
+  Tap any day to edit it, and the share button sends whichever layout you are
+  looking at.
+
 ## 1.5.3 — 2026-09-13
 
 ### Fixed
