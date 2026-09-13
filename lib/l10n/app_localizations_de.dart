@@ -932,6 +932,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsExportSaved => 'Sicherung gespeichert';
 
   @override
+  String get yearViewHeatmap => 'Heatmap';
+
+  @override
+  String get yearViewMonths => 'Monate';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink konnte nicht starten';
 
   @override

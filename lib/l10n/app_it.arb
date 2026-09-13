@@ -266,6 +266,9 @@
   "settingsShareBackupSubtitle": "Invia il file JSON a un'altra app",
   "settingsExportSaved": "Backup salvato",
 
+  "yearViewHeatmap": "Mappa",
+  "yearViewMonths": "Mesi",
+
   "startupFailedTitle": "Don't Drink non è riuscita ad avviarsi",
   "startupFailedBody": "I tuoi dati sono al sicuro e non sono stati modificati. Segnala questo errore."
 }

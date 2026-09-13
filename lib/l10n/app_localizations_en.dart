@@ -918,6 +918,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsExportSaved => 'Backup saved';
 
   @override
+  String get yearViewHeatmap => 'Heatmap';
+
+  @override
+  String get yearViewMonths => 'Months';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink couldn\'t start';
 
   @override

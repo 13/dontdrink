@@ -6,6 +6,8 @@ import 'package:dont_drink/ui/dashboard/dashboard_screen.dart';
 import 'package:dont_drink/ui/statistics/widgets/distribution_pie.dart';
 import 'package:dont_drink/ui/widgets/badge_share_dialog.dart';
 import 'package:dont_drink/ui/widgets/month_picker_dialog.dart';
+import 'package:dont_drink/ui/widgets/day_entry_sheet.dart';
+import 'package:dont_drink/ui/yearly/widgets/year_months_grid.dart';
 import 'package:dont_drink/ui/yearly/yearly_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -239,6 +241,77 @@ void main() {
         find.widgetWithIcon(IconButton, Icons.chevron_right).first,
       );
       expect(forward.onPressed, isNull);
+    });
+  });
+
+  group('yearly layouts', () {
+    testWidgets('switching to months draws twelve calendars, still shareable',
+        (tester) async {
+      await harness.tracker
+          .logDay(DateTime(DateTime.now().year, 3, 14), kDontDrinkLevels[0]);
+      harness.tracker.clearPendingEarns();
+
+      await tester.pumpWidget(harness.wrap(const YearlyScreen()));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(YearHeatmap), findsOneWidget);
+      expect(find.byType(YearMonthsGrid), findsNothing);
+
+      await tester.tap(find.text('Months'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(YearMonthsGrid), findsOneWidget);
+      expect(find.byType(YearHeatmap), findsNothing);
+      expect(find.text('March'), findsOneWidget,
+          reason: 'each mini calendar names its month');
+      expect(find.text('14'), findsWidgets,
+          reason: 'and carries real day numbers');
+
+      // The share button captures whatever is on screen, so the boundary has
+      // to still be there after the switch.
+      expect(
+        find.descendant(
+          of: find.byType(RepaintBoundary),
+          matching: find.byType(YearMonthsGrid),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('twelve calendars survive a narrow screen and large text',
+        (tester) async {
+      // Twelve calendars of seven columns is the densest thing in the app, and
+      // density is where this app's layout bugs have lived.
+      tester.view.physicalSize = const Size(320 * 3, 640 * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(harness.wrap(
+        const MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(1.8)),
+          child: YearlyScreen(),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Months'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(YearMonthsGrid), findsOneWidget);
+      expect(tester.takeException(), isNull,
+          reason: 'no overflow at 320px wide with 1.8x text');
+    });
+
+    testWidgets('a day in the months layout opens that day', (tester) async {
+      await tester.pumpWidget(harness.wrap(const YearlyScreen()));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Months'));
+      await tester.pumpAndSettle();
+
+      // The 2nd of January is always in the first mini calendar.
+      await tester.tap(find.text('2').first);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DayEntrySheet), findsOneWidget);
     });
   });
 

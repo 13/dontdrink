@@ -6,12 +6,13 @@ import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/ui/widgets/day_entry_sheet.dart';
 import 'package:dont_drink/ui/widgets/share_image_button.dart';
 import 'package:dont_drink/ui/widgets/shareable_palette.dart';
+import 'package:dont_drink/ui/yearly/widgets/year_months_grid.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-/// A whole year, one cell per day.
+/// A whole year, in one of two shapes.
 ///
 /// Twelve rows of up to 31 cells, coloured by the level logged that day, so a
 /// year reads as a pattern rather than a list: the bad month, the week it
@@ -23,8 +24,13 @@ class YearlyScreen extends StatefulWidget {
   State<YearlyScreen> createState() => _YearlyScreenState();
 }
 
+/// Which shape the year is drawn in.
+enum YearLayout { heatmap, months }
+
 class _YearlyScreenState extends State<YearlyScreen> {
   late int _year = DateTime.now().year;
+
+  YearLayout _layout = YearLayout.heatmap;
 
   /// Wraps only the heatmap, so a shared image carries the year and the grid
   /// and nothing else — no counts, no rates, and never a note.
@@ -47,7 +53,7 @@ class _YearlyScreenState extends State<YearlyScreen> {
         actions: [
           ShareImageButton(
             boundaryKey: _shareKey,
-            fileName: 'dont-drink-$_year',
+            fileName: 'dont-drink-$_year-${_layout.name}',
           ),
         ],
       ),
@@ -82,16 +88,48 @@ class _YearlyScreenState extends State<YearlyScreen> {
               ],
             ),
             const SizedBox(height: 12),
+            Center(
+              child: SegmentedButton<YearLayout>(
+                segments: [
+                  ButtonSegment(
+                    value: YearLayout.heatmap,
+                    icon: const Icon(Icons.grid_on, size: 18),
+                    label: Text(l10n.yearViewHeatmap),
+                  ),
+                  ButtonSegment(
+                    value: YearLayout.months,
+                    icon: const Icon(Icons.calendar_view_month, size: 18),
+                    label: Text(l10n.yearViewMonths),
+                  ),
+                ],
+                selected: {_layout},
+                showSelectedIcon: false,
+                onSelectionChanged: (selection) =>
+                    setState(() => _layout = selection.first),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // The share button photographs this boundary, so it shares
+            // whichever layout is on screen — the picture is still exactly
+            // what was being looked at.
             RepaintBoundary(
               key: _shareKey,
               child: ShareablePalette(
                 child: AppCard(
-                  child: YearHeatmap(
-                    year: _year,
-                    entries: entries,
-                    mode: vm.mode,
-                    onDayTap: (date) => DayEntrySheet.show(context, date),
-                  ),
+                  child: switch (_layout) {
+                    YearLayout.heatmap => YearHeatmap(
+                        year: _year,
+                        entries: entries,
+                        mode: vm.mode,
+                        onDayTap: (date) => DayEntrySheet.show(context, date),
+                      ),
+                    YearLayout.months => YearMonthsGrid(
+                        year: _year,
+                        entries: entries,
+                        mode: vm.mode,
+                        onDayTap: (date) => DayEntrySheet.show(context, date),
+                      ),
+                  },
                 ),
               ),
             ),

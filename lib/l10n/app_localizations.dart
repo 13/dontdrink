@@ -1486,6 +1486,18 @@ abstract class AppLocalizations {
   /// **'Backup saved'**
   String get settingsExportSaved;
 
+  /// No description provided for @yearViewHeatmap.
+  ///
+  /// In en, this message translates to:
+  /// **'Heatmap'**
+  String get yearViewHeatmap;
+
+  /// No description provided for @yearViewMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get yearViewMonths;
+
   /// No description provided for @startupFailedTitle.
   ///
   /// In en, this message translates to:

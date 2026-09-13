@@ -927,6 +927,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get settingsExportSaved => 'Backup salvato';
 
   @override
+  String get yearViewHeatmap => 'Mappa';
+
+  @override
+  String get yearViewMonths => 'Mesi';
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink non è riuscita ad avviarsi';
 
   @override

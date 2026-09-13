@@ -266,6 +266,9 @@
   "settingsShareBackupSubtitle": "Die JSON-Datei an eine andere App senden",
   "settingsExportSaved": "Sicherung gespeichert",
 
+  "yearViewHeatmap": "Heatmap",
+  "yearViewMonths": "Monate",
+
   "startupFailedTitle": "Don't Drink konnte nicht starten",
   "startupFailedBody": "Deine Daten sind sicher und unverändert. Bitte melde diesen Fehler."
 }
