@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dont_drink/core/models/day_entry.dart';
+import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/data/database/app_database.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
@@ -177,5 +178,29 @@ void main() {
       expect(id.length, 'custom_'.length + 16);
       expect(RegExp(r'^custom_[0-9a-f]{16}$').hasMatch(id), isTrue);
     }
+  });
+
+  test('getSince reads only from the given day onwards', () async {
+    final entries = EntryRepository();
+    await entries.deleteAllForMode('dont_drink');
+
+    final old = DateTime(2020, 1, 1);
+    final recent = DateTime.now().subtract(const Duration(days: 2));
+    await entries.upsert(DayEntry(
+        modeId: 'dont_drink', date: old, level: kDontDrinkLevels[0]));
+    await entries.upsert(DayEntry(
+        modeId: 'dont_drink', date: recent, level: kDontDrinkLevels[0]));
+
+    final window = await entries.getSince(
+      kDontDrinkMode,
+      DateTime.now().subtract(const Duration(days: 30)),
+    );
+
+    expect(window, hasLength(1));
+    expect(window.single.dateKey, DateOnly.keyFor(recent),
+        reason: 'the 2020 entry is outside the window');
+
+    final all = await entries.getAll(kDontDrinkMode);
+    expect(all, hasLength(2), reason: 'nothing was deleted, only unread');
   });
 }

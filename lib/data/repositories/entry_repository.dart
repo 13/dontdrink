@@ -82,6 +82,22 @@ class EntryRepository {
         mode, DateOnly.firstOfMonth(month), DateOnly.lastOfMonth(month));
   }
 
+  /// Entries from [since] onwards, oldest first.
+  ///
+  /// Exists for the streak cache: a current streak can only be as long as the
+  /// run ending today, so there is no reason to read a decade of history to
+  /// compute it.
+  Future<List<DayEntry>> getSince(ModeDefinition mode, DateTime since) async {
+    final db = await _appDb.database;
+    final rows = await db.query(
+      AppDatabase.tableEntries,
+      where: 'mode_id = ? AND date_key >= ?',
+      whereArgs: [mode.id, DateOnly.keyFor(since)],
+      orderBy: 'date_key ASC',
+    );
+    return [for (final row in rows) DayEntry.fromMap(row, mode)];
+  }
+
   /// Count of entries grouped by level across [mode]'s whole history.
   Future<Map<TrackedLevel, int>> levelCounts(ModeDefinition mode) async {
     final entries = await getAll(mode);

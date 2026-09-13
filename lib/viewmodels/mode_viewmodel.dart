@@ -92,11 +92,21 @@ class ModeViewModel extends ChangeNotifier {
     await refreshStreaks(); // ends in its own notifyListeners()
   }
 
-  /// Recompute the cached streak for every enabled mode. Cheap: at most one
-  /// row per day per mode.
+  /// How far back a current streak is read.
+  ///
+  /// A current streak ends today, so only the run leading up to today can
+  /// matter. Reading everything meant every logged day re-parsed the entire
+  /// history of every enabled mode — three modes and three years is thousands
+  /// of rows for a number that can only be as long as this window. Five years
+  /// is far beyond any plausible unbroken run and still a bounded query.
+  static const int _streakWindowDays = 1826;
+
+  /// Recompute the cached streak for every enabled mode.
   Future<void> refreshStreaks() async {
+    final since =
+        DateTime.now().subtract(const Duration(days: _streakWindowDays));
     for (final mode in enabledModes) {
-      final rows = await _entries.getAll(mode);
+      final rows = await _entries.getSince(mode, since);
       _streaks[mode.id] = _stats.currentStreak(rows);
     }
     notifyListeners();
