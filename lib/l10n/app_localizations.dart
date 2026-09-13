@@ -1450,12 +1450,6 @@ abstract class AppLocalizations {
   /// **'Everything stays on this device.'**
   String get welcomePrivacy;
 
-  /// No description provided for @openCalendar.
-  ///
-  /// In en, this message translates to:
-  /// **'Open the calendar'**
-  String get openCalendar;
-
   /// No description provided for @notesTitle.
   ///
   /// In en, this message translates to:

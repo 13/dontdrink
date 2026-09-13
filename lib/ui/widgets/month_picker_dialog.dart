@@ -6,9 +6,11 @@ import 'package:intl/intl.dart';
 
 /// Jump straight to a month instead of stepping there one arrow at a time.
 ///
-/// Months that hold no entries are dimmed rather than disabled — an empty
-/// month is still worth opening to fill in — and months in the future are
-/// disabled, matching the ‹ › arrows, which already stop at the current one.
+/// Only the future is out of bounds. Months with no entries are dimmed but
+/// selectable — an empty month is exactly the one you open to fill in, and
+/// someone who started today still has last week to record. Anchoring the
+/// lower bound to the first logged month, as this first did, greyed out
+/// eleven of twelve buttons for a new user and made the picker look broken.
 class MonthPickerDialog extends StatefulWidget {
   const MonthPickerDialog({
     super.key,
@@ -23,9 +25,13 @@ class MonthPickerDialog extends StatefulWidget {
   /// First-of-month dates that have at least one entry.
   final Set<DateTime> monthsWithData;
 
-  /// Oldest month the user can reach: their first entry, or this month on a
-  /// fresh install. Stops the year arrows wandering into empty decades.
+  /// Oldest month with an entry, used only to decide how far back the year
+  /// arrows are worth offering — never to block a month from being picked.
   final DateTime firstMonth;
+
+  /// How far back the year arrows go beyond recorded history. Far enough to
+  /// back-fill a past year, short of wandering into empty decades.
+  static const int _extraYearsBack = 2;
 
   /// Returns the chosen month, or null if dismissed.
   static Future<DateTime?> show(
@@ -51,6 +57,15 @@ class MonthPickerDialog extends StatefulWidget {
 class _MonthPickerDialogState extends State<MonthPickerDialog> {
   late int _year = widget.initialMonth.year;
 
+  /// The oldest year the arrows offer: a couple before the oldest entry, and
+  /// before this year too, so a fresh install can still reach last year.
+  int get _earliestYear {
+    final byHistory = widget.firstMonth.year;
+    final byClock = DateTime.now().year;
+    final base = byHistory < byClock ? byHistory : byClock;
+    return base - MonthPickerDialog._extraYearsBack;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -63,8 +78,9 @@ class _MonthPickerDialogState extends State<MonthPickerDialog> {
       title: Row(
         children: [
           IconButton(
-            onPressed:
-                _year > widget.firstMonth.year ? () => setState(() => _year--) : null,
+            onPressed: _year > _earliestYear
+                ? () => setState(() => _year--)
+                : null,
             icon: const Icon(Icons.chevron_left),
           ),
           Expanded(
@@ -99,8 +115,9 @@ class _MonthPickerDialogState extends State<MonthPickerDialog> {
                 selected: _year == widget.initialMonth.year &&
                     month == widget.initialMonth.month,
                 hasData: widget.monthsWithData.contains(DateTime(_year, month)),
-                enabled: !DateTime(_year, month).isAfter(now) &&
-                    !DateTime(_year, month).isBefore(widget.firstMonth),
+                // Only the future is unreachable. Everything else is a day
+                // you might want to fill in.
+                enabled: !DateTime(_year, month).isAfter(now),
               ),
           ],
         ),

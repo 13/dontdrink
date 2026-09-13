@@ -1,7 +1,6 @@
 import 'package:dont_drink/core/theme/app_colors.dart';
 import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/l10n/app_localizations.dart';
-import 'package:dont_drink/ui/calendar/calendar_screen.dart';
 import 'package:dont_drink/ui/calendar/widgets/month_grid.dart';
 import 'package:dont_drink/ui/dashboard/widgets/next_achievement_card.dart';
 import 'package:dont_drink/ui/dashboard/widgets/streak_hero.dart';
@@ -169,18 +168,6 @@ class _MonthCalendarSection extends StatelessWidget {
             IconButton.filledTonal(
               onPressed: isCurrentMonth ? null : vm.nextMonth,
               icon: const Icon(Icons.chevron_right),
-            ),
-            // The dashboard shows the month; the calendar screen shows the
-            // same month with its legend and totals. Rather than grow this
-            // section into a second calendar, point at the one that exists.
-            IconButton(
-              tooltip: AppLocalizations.of(context).openCalendar,
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const CalendarScreen(),
-                ),
-              ),
-              icon: const Icon(Icons.open_in_full, size: 18),
             ),
           ],
         ),

@@ -912,9 +912,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get welcomePrivacy => 'Alles bleibt auf diesem Gerät.';
 
   @override
-  String get openCalendar => 'Kalender öffnen';
-
-  @override
   String get notesTitle => 'Notizen';
 
   @override

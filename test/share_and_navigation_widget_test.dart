@@ -57,6 +57,58 @@ void main() {
       expect(harness.tracker.visibleMonth.month, 3);
     });
 
+    testWidgets('every past month is reachable, even with no history',
+        (tester) async {
+      // The first version bounded the picker by the first logged entry, so a
+      // user whose history started this month found eleven of twelve buttons
+      // greyed out — exactly when back-filling last week matters most.
+      final now = DateTime.now();
+      await tester.pumpWidget(harness.wrap(
+        Scaffold(
+          body: MonthPickerDialog(
+            initialMonth: DateTime(now.year, now.month),
+            monthsWithData: {DateTime(now.year, now.month)},
+            firstMonth: DateTime(now.year, now.month),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      final months = tester
+          .widgetList<TextButton>(find.descendant(
+            of: find.byType(GridView),
+            matching: find.byType(TextButton),
+          ))
+          .toList();
+      final disabled = months.where((b) => b.onPressed == null).length;
+
+      expect(disabled, 12 - now.month,
+          reason: 'only months still in the future may be unreachable');
+      expect(find.byType(FilledButton), findsOneWidget,
+          reason: 'the month being shown is marked as selected');
+    });
+
+    testWidgets('the year arrows reach back before the first entry',
+        (tester) async {
+      final now = DateTime.now();
+      await tester.pumpWidget(harness.wrap(
+        Scaffold(
+          body: MonthPickerDialog(
+            initialMonth: DateTime(now.year, now.month),
+            monthsWithData: const {},
+            firstMonth: DateTime(now.year, now.month),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.chevron_left));
+      await tester.pumpAndSettle();
+
+      expect(find.text('${now.year - 1}'), findsOneWidget,
+          reason: 'last year is reachable on a fresh install');
+    });
+
     testWidgets('a future month cannot be chosen', (tester) async {
       await tester.pumpWidget(harness.wrap(
         Scaffold(
