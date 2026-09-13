@@ -756,6 +756,60 @@ class AppLocalizationsEn extends AppLocalizations {
       'The whole month, with a legend and totals';
 
   @override
+  String get updateErrorNoConnection =>
+      'Could not reach GitHub. Check your connection.';
+
+  @override
+  String get updateErrorInsecureConnection =>
+      'Could not establish a secure connection.';
+
+  @override
+  String get updateErrorConnectionInterrupted =>
+      'The connection was interrupted. Please try again.';
+
+  @override
+  String get updateErrorTimedOut =>
+      'The update check timed out. Please try again.';
+
+  @override
+  String get updateErrorNoReleases => 'No releases have been published yet.';
+
+  @override
+  String get updateErrorRateLimited =>
+      'GitHub is rate-limiting update checks. Try again later.';
+
+  @override
+  String updateErrorUnexpectedStatus(String status) {
+    return 'GitHub answered with status $status.';
+  }
+
+  @override
+  String get updateErrorInvalidJson =>
+      'GitHub returned something that was not valid JSON.';
+
+  @override
+  String get updateErrorUnexpectedShape =>
+      'GitHub returned an unexpected response shape.';
+
+  @override
+  String get updateErrorDownloadIncomplete =>
+      'The download ended early and the file is incomplete. Please try again.';
+
+  @override
+  String get updateErrorNotAnApk =>
+      'That download wasn\'t a valid app file. You may be on a network that intercepts downloads — try a different connection.';
+
+  @override
+  String updateErrorInstallerFailed(String detail) {
+    return 'The installer could not be opened: $detail';
+  }
+
+  @override
+  String updateErrorUnexpected(String detail) {
+    return 'Something went wrong: $detail';
+  }
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink couldn\'t start';
 
   @override

@@ -215,6 +215,20 @@
 
   "moreCalendarSubtitle": "Der ganze Monat, mit Legende und Summen",
 
+  "updateErrorNoConnection": "GitHub war nicht erreichbar. Prüfe deine Verbindung.",
+  "updateErrorInsecureConnection": "Es konnte keine sichere Verbindung aufgebaut werden.",
+  "updateErrorConnectionInterrupted": "Die Verbindung wurde unterbrochen. Bitte versuche es erneut.",
+  "updateErrorTimedOut": "Die Update-Suche hat zu lange gedauert. Bitte versuche es erneut.",
+  "updateErrorNoReleases": "Es wurden noch keine Versionen veröffentlicht.",
+  "updateErrorRateLimited": "GitHub begrenzt die Update-Suche gerade. Versuche es später erneut.",
+  "updateErrorUnexpectedStatus": "GitHub hat mit Status {status} geantwortet.",
+  "updateErrorInvalidJson": "GitHub hat kein gültiges JSON zurückgegeben.",
+  "updateErrorUnexpectedShape": "GitHub hat eine unerwartete Antwortstruktur zurückgegeben.",
+  "updateErrorDownloadIncomplete": "Der Download brach früh ab, die Datei ist unvollständig. Bitte versuche es erneut.",
+  "updateErrorNotAnApk": "Der Download war keine gültige App-Datei. Vielleicht bist du in einem Netzwerk, das Downloads abfängt — probiere eine andere Verbindung.",
+  "updateErrorInstallerFailed": "Das Installationsprogramm ließ sich nicht öffnen: {detail}",
+  "updateErrorUnexpected": "Etwas ist schiefgelaufen: {detail}",
+
   "startupFailedTitle": "Don't Drink konnte nicht starten",
   "startupFailedBody": "Deine Daten sind sicher und unverändert. Bitte melde diesen Fehler."
 }

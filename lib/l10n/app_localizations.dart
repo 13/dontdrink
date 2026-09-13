@@ -1228,6 +1228,84 @@ abstract class AppLocalizations {
   /// **'The whole month, with a legend and totals'**
   String get moreCalendarSubtitle;
 
+  /// No description provided for @updateErrorNoConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach GitHub. Check your connection.'**
+  String get updateErrorNoConnection;
+
+  /// No description provided for @updateErrorInsecureConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not establish a secure connection.'**
+  String get updateErrorInsecureConnection;
+
+  /// No description provided for @updateErrorConnectionInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'The connection was interrupted. Please try again.'**
+  String get updateErrorConnectionInterrupted;
+
+  /// No description provided for @updateErrorTimedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'The update check timed out. Please try again.'**
+  String get updateErrorTimedOut;
+
+  /// No description provided for @updateErrorNoReleases.
+  ///
+  /// In en, this message translates to:
+  /// **'No releases have been published yet.'**
+  String get updateErrorNoReleases;
+
+  /// No description provided for @updateErrorRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub is rate-limiting update checks. Try again later.'**
+  String get updateErrorRateLimited;
+
+  /// No description provided for @updateErrorUnexpectedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub answered with status {status}.'**
+  String updateErrorUnexpectedStatus(String status);
+
+  /// No description provided for @updateErrorInvalidJson.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub returned something that was not valid JSON.'**
+  String get updateErrorInvalidJson;
+
+  /// No description provided for @updateErrorUnexpectedShape.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub returned an unexpected response shape.'**
+  String get updateErrorUnexpectedShape;
+
+  /// No description provided for @updateErrorDownloadIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'The download ended early and the file is incomplete. Please try again.'**
+  String get updateErrorDownloadIncomplete;
+
+  /// No description provided for @updateErrorNotAnApk.
+  ///
+  /// In en, this message translates to:
+  /// **'That download wasn\'t a valid app file. You may be on a network that intercepts downloads — try a different connection.'**
+  String get updateErrorNotAnApk;
+
+  /// No description provided for @updateErrorInstallerFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The installer could not be opened: {detail}'**
+  String updateErrorInstallerFailed(String detail);
+
+  /// No description provided for @updateErrorUnexpected.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong: {detail}'**
+  String updateErrorUnexpected(String detail);
+
   /// No description provided for @startupFailedTitle.
   ///
   /// In en, this message translates to:

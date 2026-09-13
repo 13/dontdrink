@@ -215,6 +215,20 @@
 
   "moreCalendarSubtitle": "Tutto il mese, con legenda e totali",
 
+  "updateErrorNoConnection": "GitHub non è raggiungibile. Controlla la connessione.",
+  "updateErrorInsecureConnection": "Impossibile stabilire una connessione sicura.",
+  "updateErrorConnectionInterrupted": "La connessione si è interrotta. Riprova.",
+  "updateErrorTimedOut": "La ricerca di aggiornamenti è scaduta. Riprova.",
+  "updateErrorNoReleases": "Non è ancora stata pubblicata nessuna versione.",
+  "updateErrorRateLimited": "GitHub sta limitando le ricerche di aggiornamenti. Riprova più tardi.",
+  "updateErrorUnexpectedStatus": "GitHub ha risposto con lo stato {status}.",
+  "updateErrorInvalidJson": "GitHub ha restituito qualcosa che non è JSON valido.",
+  "updateErrorUnexpectedShape": "GitHub ha restituito una risposta di forma inattesa.",
+  "updateErrorDownloadIncomplete": "Il download si è interrotto presto e il file è incompleto. Riprova.",
+  "updateErrorNotAnApk": "Il file scaricato non è un'app valida. Potresti essere su una rete che intercetta i download — prova un'altra connessione.",
+  "updateErrorInstallerFailed": "Impossibile aprire l'installazione: {detail}",
+  "updateErrorUnexpected": "Qualcosa è andato storto: {detail}",
+
   "startupFailedTitle": "Don't Drink non è riuscita ad avviarsi",
   "startupFailedBody": "I tuoi dati sono al sicuro e non sono stati modificati. Segnala questo errore."
 }

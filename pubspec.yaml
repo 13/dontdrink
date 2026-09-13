@@ -63,8 +63,10 @@ dependencies:
   # Milestone celebrations
   confetti: ^0.8.0
 
-  # Local notifications + scheduling
-  flutter_local_notifications: ^22.0.0-dev.3
+  # Local notifications + scheduling. Was pinned to 22.0.0-dev.3: a caret on a
+  # prerelease never resolves forward, so a shipping app sat on a dev build
+  # indefinitely.
+  flutter_local_notifications: ^22.3.1
   timezone: ^0.11.0
 
   # Date formatting

@@ -23,13 +23,13 @@ AppRelease _release(String version) => AppRelease(
 class _FakeService extends UpdateService {
   _FakeService({
     this.release,
-    this.throwMessage,
+    this.throwFailure,
     List<int>? downloadChunks,
     this.downloadTotal = 1000,
   }) : downloadChunks = downloadChunks ?? const [500, 1000];
 
   final AppRelease? release;
-  final String? throwMessage;
+  final UpdateFailure? throwFailure;
   final List<int> downloadChunks;
   final int downloadTotal;
   int fetchCount = 0;
@@ -37,7 +37,7 @@ class _FakeService extends UpdateService {
   @override
   Future<AppRelease?> fetchLatest() async {
     fetchCount++;
-    if (throwMessage != null) throw UpdateException(throwMessage!);
+    if (throwFailure != null) throw UpdateException(throwFailure!);
     return release;
   }
 
@@ -74,8 +74,7 @@ class _FlakyDownloadService extends UpdateService {
   }) async {
     downloadCalls++;
     if (downloadCalls == 1) {
-      throw const UpdateException(
-          'The download ended early and the file is incomplete.');
+      throw const UpdateException(UpdateFailure.downloadIncomplete);
     }
     onProgress?.call(1000, 1000);
     return File('/tmp/does-not-need-to-exist.apk');
@@ -105,7 +104,8 @@ class _FailingInstallService extends UpdateService {
 
   @override
   Future<bool> installApk(File apk) async {
-    throw const UpdateException('Could not open the installer: denied.');
+    throw const UpdateException(UpdateFailure.installerFailed,
+        detail: 'denied');
   }
 }
 
@@ -156,10 +156,12 @@ void main() {
 
     test('surfaces a failure as UpdateCheckError, and it does not badge',
         () async {
-      final vm = _vm(_FakeService(throwMessage: 'Could not reach GitHub.'));
+      final vm =
+          _vm(_FakeService(throwFailure: UpdateFailure.noConnection));
       await vm.checkNow();
       expect(vm.state, isA<UpdateCheckError>());
-      expect((vm.state as UpdateCheckError).message, 'Could not reach GitHub.');
+      expect((vm.state as UpdateCheckError).failure,
+          UpdateFailure.noConnection);
       expect(vm.updateAvailable, isFalse,
           reason: 'a check error means no release is known to be pending');
     });
@@ -224,7 +226,8 @@ void main() {
     });
 
     test('swallows failures entirely — never shows an error on launch', () async {
-      final vm = _vm(_FakeService(throwMessage: 'Could not reach GitHub.'));
+      final vm =
+          _vm(_FakeService(throwFailure: UpdateFailure.noConnection));
       await vm.silentCheck();
       expect(vm.state, isA<UpdateIdle>(),
           reason: 'a failed silent check must be invisible');

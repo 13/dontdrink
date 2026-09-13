@@ -763,6 +763,61 @@ class AppLocalizationsIt extends AppLocalizations {
   String get moreCalendarSubtitle => 'Tutto il mese, con legenda e totali';
 
   @override
+  String get updateErrorNoConnection =>
+      'GitHub non è raggiungibile. Controlla la connessione.';
+
+  @override
+  String get updateErrorInsecureConnection =>
+      'Impossibile stabilire una connessione sicura.';
+
+  @override
+  String get updateErrorConnectionInterrupted =>
+      'La connessione si è interrotta. Riprova.';
+
+  @override
+  String get updateErrorTimedOut =>
+      'La ricerca di aggiornamenti è scaduta. Riprova.';
+
+  @override
+  String get updateErrorNoReleases =>
+      'Non è ancora stata pubblicata nessuna versione.';
+
+  @override
+  String get updateErrorRateLimited =>
+      'GitHub sta limitando le ricerche di aggiornamenti. Riprova più tardi.';
+
+  @override
+  String updateErrorUnexpectedStatus(String status) {
+    return 'GitHub ha risposto con lo stato $status.';
+  }
+
+  @override
+  String get updateErrorInvalidJson =>
+      'GitHub ha restituito qualcosa che non è JSON valido.';
+
+  @override
+  String get updateErrorUnexpectedShape =>
+      'GitHub ha restituito una risposta di forma inattesa.';
+
+  @override
+  String get updateErrorDownloadIncomplete =>
+      'Il download si è interrotto presto e il file è incompleto. Riprova.';
+
+  @override
+  String get updateErrorNotAnApk =>
+      'Il file scaricato non è un\'app valida. Potresti essere su una rete che intercetta i download — prova un\'altra connessione.';
+
+  @override
+  String updateErrorInstallerFailed(String detail) {
+    return 'Impossibile aprire l\'installazione: $detail';
+  }
+
+  @override
+  String updateErrorUnexpected(String detail) {
+    return 'Qualcosa è andato storto: $detail';
+  }
+
+  @override
   String get startupFailedTitle => 'Don\'t Drink non è riuscita ad avviarsi';
 
   @override

@@ -49,26 +49,29 @@ class UpdateReadyToInstall extends UpdateState {
 /// A deliberate [UpdateViewModel.checkNow] failed. There is no known release
 /// to retry with — retry means checking again.
 class UpdateCheckError extends UpdateState {
-  const UpdateCheckError(this.message);
-  final String message;
+  const UpdateCheckError(this.failure, {this.detail});
+  final UpdateFailure failure;
+  final String? detail;
 }
 
 /// [UpdateViewModel.download] failed partway through. [release] is retained
 /// so retry re-downloads the same release rather than losing track of it.
 class UpdateDownloadError extends UpdateState {
-  const UpdateDownloadError(this.release, this.message);
+  const UpdateDownloadError(this.release, this.failure, {this.detail});
   final AppRelease release;
-  final String message;
+  final UpdateFailure failure;
+  final String? detail;
 }
 
 /// [UpdateViewModel.install] failed to hand the APK to the installer.
 /// [release] and [file] are retained so retry reuses the already-downloaded,
 /// already-validated APK rather than re-downloading it.
 class UpdateInstallError extends UpdateState {
-  const UpdateInstallError(this.release, this.file, this.message);
+  const UpdateInstallError(this.release, this.file, this.failure, {this.detail});
   final AppRelease release;
   final File file;
-  final String message;
+  final UpdateFailure failure;
+  final String? detail;
 }
 
 /// Owns the updater's state, the once-per-day throttle on silent checks, and
@@ -125,12 +128,9 @@ class UpdateViewModel extends ChangeNotifier {
       }
       _set(UpdateAvailable(release));
     } on UpdateException catch (e) {
-      _set(UpdateCheckError(e.message));
+      _set(UpdateCheckError(e.failure, detail: e.detail));
     } catch (e) {
-      // No English prefix here: the card above this message already shows a
-      // translated "Couldn't check for updates" title, and this view model
-      // cannot reach AppLocalizations.
-      _set(UpdateCheckError('$e'));
+      _set(UpdateCheckError(UpdateFailure.unexpected, detail: '$e'));
     }
   }
 
@@ -216,9 +216,10 @@ class UpdateViewModel extends ChangeNotifier {
       );
       _set(UpdateReadyToInstall(release, file));
     } on UpdateException catch (e) {
-      _set(UpdateDownloadError(release, e.message));
+      _set(UpdateDownloadError(release, e.failure, detail: e.detail));
     } catch (e) {
-      _set(UpdateDownloadError(release, '$e'));
+      _set(UpdateDownloadError(release, UpdateFailure.unexpected,
+          detail: '$e'));
     }
   }
 
@@ -249,9 +250,10 @@ class UpdateViewModel extends ChangeNotifier {
     try {
       await _service.installApk(file);
     } on UpdateException catch (e) {
-      _set(UpdateInstallError(release, file, e.message));
+      _set(UpdateInstallError(release, file, e.failure, detail: e.detail));
     } catch (e) {
-      _set(UpdateInstallError(release, file, '$e'));
+      _set(UpdateInstallError(release, file, UpdateFailure.unexpected,
+          detail: '$e'));
     }
   }
 

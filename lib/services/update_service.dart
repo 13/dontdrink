@@ -6,13 +6,65 @@ import 'package:dont_drink/core/models/app_release.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// A failure the user should be told about, phrased for display.
+/// Why an update step failed.
+///
+/// The wording lives in the .arb files, like [ImportFailure] and [ModeRule]:
+/// this service runs outside the widget tree and cannot know what language
+/// the user reads.
+enum UpdateFailure {
+  /// GitHub was unreachable — no network, or DNS failed.
+  noConnection,
+
+  /// TLS handshake failed.
+  insecureConnection,
+
+  /// The connection dropped partway through.
+  connectionInterrupted,
+
+  /// The request took longer than the timeout allows.
+  timedOut,
+
+  /// The repository has no published releases at all.
+  noReleases,
+
+  /// Unauthenticated API access is 60 requests an hour per IP.
+  rateLimited,
+
+  /// A status code we do not handle specifically; detail carries it.
+  unexpectedStatus,
+
+  /// The response body was not valid JSON.
+  invalidJson,
+
+  /// Valid JSON, but not the object shape a release has.
+  unexpectedShape,
+
+  /// The download ended short of the expected length.
+  downloadIncomplete,
+
+  /// The bytes are not a ZIP, so not an APK — usually a captive portal.
+  notAnApk,
+
+  /// The system installer could not be opened; detail carries the reason.
+  installerFailed,
+
+  /// Anything not otherwise classified; detail carries the exception text.
+  unexpected,
+}
+
+/// A failure the user should be told about.
 class UpdateException implements Exception {
-  const UpdateException(this.message);
-  final String message;
+  const UpdateException(this.failure, {this.detail});
+
+  final UpdateFailure failure;
+
+  /// Extra context for the failures that carry some — a status code, an
+  /// installer message. Never shown on its own.
+  final String? detail;
 
   @override
-  String toString() => message;
+  String toString() =>
+      'UpdateException(${failure.name}${detail == null ? '' : ': $detail'})';
 }
 
 /// Talks to GitHub Releases and hands a downloaded APK to the system
@@ -53,17 +105,14 @@ class UpdateService {
     try {
       return await _fetchLatestWithTimeout(client);
     } on SocketException {
-      throw const UpdateException(
-          'Could not reach GitHub. Check your connection.');
+      throw const UpdateException(UpdateFailure.noConnection);
     } on HandshakeException {
-      throw const UpdateException('Could not establish a secure connection.');
+      throw const UpdateException(UpdateFailure.insecureConnection);
     } on HttpException {
-      throw const UpdateException(
-          'The connection to GitHub was interrupted. Please try again.');
+      throw const UpdateException(UpdateFailure.connectionInterrupted);
     } on TimeoutException {
       client.close(force: true);
-      throw const UpdateException(
-          'The update check timed out. Please try again.');
+      throw const UpdateException(UpdateFailure.timedOut);
     } finally {
       client.close();
     }
@@ -85,28 +134,25 @@ class UpdateService {
     final body = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 404) {
-      throw const UpdateException('No releases have been published yet.');
+      throw const UpdateException(UpdateFailure.noReleases);
     }
     if (response.statusCode == 403) {
       // Unauthenticated API access is rate-limited to 60/hour per IP.
-      throw const UpdateException(
-          'GitHub is rate-limiting update checks. Try again later.');
+      throw const UpdateException(UpdateFailure.rateLimited);
     }
     if (response.statusCode != 200) {
-      throw UpdateException(
-          'GitHub returned ${response.statusCode} when checking for updates.');
+      throw UpdateException(UpdateFailure.unexpectedStatus,
+          detail: '${response.statusCode}');
     }
 
     final Object? decoded;
     try {
       decoded = jsonDecode(body);
     } on FormatException {
-      throw const UpdateException(
-          'GitHub returned something that was not valid JSON.');
+      throw const UpdateException(UpdateFailure.invalidJson);
     }
     if (decoded is! Map<String, dynamic>) {
-      throw const UpdateException(
-          'GitHub returned an unexpected response shape.');
+      throw const UpdateException(UpdateFailure.unexpectedShape);
     }
 
     return AppRelease.fromGitHubJson(decoded);
@@ -131,8 +177,8 @@ class UpdateService {
       final response = await request.close();
 
       if (response.statusCode != 200) {
-        throw UpdateException(
-            'Download failed with status ${response.statusCode}.');
+        throw UpdateException(UpdateFailure.unexpectedStatus,
+            detail: '${response.statusCode}');
       }
 
       final total = release.apkSizeBytes > 0
@@ -161,8 +207,7 @@ class UpdateService {
       // fragment, not an APK.
       if (total > 0 && received != total) {
         await file.delete();
-        throw const UpdateException(
-            'The download ended early and the file is incomplete. Please try again.');
+        throw const UpdateException(UpdateFailure.downloadIncomplete);
       }
 
       // An APK is a ZIP. A captive portal or CDN error page served with status 200
@@ -179,20 +224,16 @@ class UpdateService {
       }
       if (!looksLikeZip) {
         await file.delete();
-        throw const UpdateException(
-            "That download wasn't a valid app file. You may be on a network that "
-            'intercepts downloads — try a different connection.');
+        throw const UpdateException(UpdateFailure.notAnApk);
       }
 
       return file;
     } on SocketException {
-      throw const UpdateException(
-          'The download was interrupted. Check your connection.');
+      throw const UpdateException(UpdateFailure.noConnection);
     } on HandshakeException {
-      throw const UpdateException('Could not establish a secure connection.');
+      throw const UpdateException(UpdateFailure.insecureConnection);
     } on HttpException {
-      throw const UpdateException(
-          'The connection to GitHub was interrupted. Please try again.');
+      throw const UpdateException(UpdateFailure.connectionInterrupted);
     } finally {
       client.close();
     }
@@ -241,6 +282,7 @@ class UpdateService {
       type: 'application/vnd.android.package-archive',
     );
     if (result.type == ResultType.done) return true;
-    throw UpdateException('Could not open the installer: ${result.message}');
+    throw UpdateException(UpdateFailure.installerFailed,
+        detail: result.message);
   }
 }

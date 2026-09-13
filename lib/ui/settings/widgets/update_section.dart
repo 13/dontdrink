@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:dont_drink/l10n/app_localizations.dart';
+import 'package:dont_drink/services/update_service.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
 import 'package:dont_drink/viewmodels/update_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -132,31 +133,31 @@ class UpdateSection extends StatelessWidget {
               child: Text(l10n.commonInstall),
             ),
           ),
-        UpdateCheckError(:final message) => ListTile(
+        UpdateCheckError(:final failure, :final detail) => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
             title: Text(l10n.updateCheckFailed),
-            subtitle: Text(message),
+            subtitle: Text(_failureMessage(l10n, failure, detail)),
             trailing: TextButton(
               onPressed: () => context.read<UpdateViewModel>().checkNow(),
               child: Text(l10n.commonRetry),
             ),
           ),
-        UpdateDownloadError(:final message) => ListTile(
+        UpdateDownloadError(:final failure, :final detail) => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
             title: Text(l10n.updateDownloadFailed),
-            subtitle: Text(message),
+            subtitle: Text(_failureMessage(l10n, failure, detail)),
             trailing: TextButton(
               onPressed: () => context.read<UpdateViewModel>().download(),
               child: Text(l10n.commonRetry),
             ),
           ),
-        UpdateInstallError(:final message) => ListTile(
+        UpdateInstallError(:final failure, :final detail) => ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             leading: Icon(Icons.error_outline, color: theme.colorScheme.error),
             title: Text(l10n.updateInstallFailed),
-            subtitle: Text(message),
+            subtitle: Text(_failureMessage(l10n, failure, detail)),
             trailing: TextButton(
               onPressed: () => context.read<UpdateViewModel>().install(),
               child: Text(l10n.commonRetry),
@@ -165,6 +166,32 @@ class UpdateSection extends StatelessWidget {
       },
     );
   }
+
+  /// Translated wording for an [UpdateFailure]. The service reports a kind
+  /// and, where there is one, a detail; the language is decided here.
+  static String _failureMessage(
+    AppLocalizations l10n,
+    UpdateFailure failure,
+    String? detail,
+  ) =>
+      switch (failure) {
+        UpdateFailure.noConnection => l10n.updateErrorNoConnection,
+        UpdateFailure.insecureConnection => l10n.updateErrorInsecureConnection,
+        UpdateFailure.connectionInterrupted =>
+          l10n.updateErrorConnectionInterrupted,
+        UpdateFailure.timedOut => l10n.updateErrorTimedOut,
+        UpdateFailure.noReleases => l10n.updateErrorNoReleases,
+        UpdateFailure.rateLimited => l10n.updateErrorRateLimited,
+        UpdateFailure.unexpectedStatus =>
+          l10n.updateErrorUnexpectedStatus(detail ?? '?'),
+        UpdateFailure.invalidJson => l10n.updateErrorInvalidJson,
+        UpdateFailure.unexpectedShape => l10n.updateErrorUnexpectedShape,
+        UpdateFailure.downloadIncomplete => l10n.updateErrorDownloadIncomplete,
+        UpdateFailure.notAnApk => l10n.updateErrorNotAnApk,
+        UpdateFailure.installerFailed =>
+          l10n.updateErrorInstallerFailed(detail ?? ''),
+        UpdateFailure.unexpected => l10n.updateErrorUnexpected(detail ?? ''),
+      };
 
   static String _formatBytes(int bytes) {
     if (bytes >= 1024 * 1024) {

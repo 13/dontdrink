@@ -280,6 +280,23 @@
 
   "moreCalendarSubtitle": "The whole month, with a legend and totals",
 
+  "updateErrorNoConnection": "Could not reach GitHub. Check your connection.",
+  "updateErrorInsecureConnection": "Could not establish a secure connection.",
+  "updateErrorConnectionInterrupted": "The connection was interrupted. Please try again.",
+  "updateErrorTimedOut": "The update check timed out. Please try again.",
+  "updateErrorNoReleases": "No releases have been published yet.",
+  "updateErrorRateLimited": "GitHub is rate-limiting update checks. Try again later.",
+  "updateErrorUnexpectedStatus": "GitHub answered with status {status}.",
+  "@updateErrorUnexpectedStatus": {"placeholders": {"status": {"type": "String"}}},
+  "updateErrorInvalidJson": "GitHub returned something that was not valid JSON.",
+  "updateErrorUnexpectedShape": "GitHub returned an unexpected response shape.",
+  "updateErrorDownloadIncomplete": "The download ended early and the file is incomplete. Please try again.",
+  "updateErrorNotAnApk": "That download wasn't a valid app file. You may be on a network that intercepts downloads — try a different connection.",
+  "updateErrorInstallerFailed": "The installer could not be opened: {detail}",
+  "@updateErrorInstallerFailed": {"placeholders": {"detail": {"type": "String"}}},
+  "updateErrorUnexpected": "Something went wrong: {detail}",
+  "@updateErrorUnexpected": {"placeholders": {"detail": {"type": "String"}}},
+
   "startupFailedTitle": "Don't Drink couldn't start",
   "startupFailedBody": "Your data is safe and has not been changed. Please report this error."
 }
