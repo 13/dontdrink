@@ -1,4 +1,5 @@
 import 'package:dont_drink/data/static/modes/dont_drink_mode.dart';
+import 'package:dont_drink/services/day_feedback.dart';
 import 'package:dont_drink/ui/widgets/achievement_unlock_dialog.dart';
 import 'package:dont_drink/ui/widgets/day_entry_sheet.dart';
 import 'package:dont_drink/ui/widgets/day_feedback_dialog.dart';
@@ -189,5 +190,35 @@ void main() {
         reason: 'the level is untouched');
     expect(find.byType(DayFeedbackDialog), findsNothing,
         reason: 'writing a note is not the same event as logging the day');
+  });
+
+
+  testWidgets('the German comfort buttons stay on a phone-width dialog',
+      (tester) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(harness.wrap(
+      const Scaffold(
+        body: DayFeedbackDialog(
+          feedback: DayFeedback.comfort,
+          streak: 0,
+          badgesEarned: 4,
+          variant: 0,
+        ),
+      ),
+      locale: const Locale('de'),
+    ));
+    await tester.pumpAndSettle();
+
+    // A Row here overflowed and pushed "Schließen" off the dialog.
+    expect(tester.takeException(), isNull);
+    final dialog = tester.getRect(find.byType(Dialog));
+    for (final label in ['Ich brauch was Aufbauendes', 'Schließen']) {
+      final button = tester.getRect(find.text(label));
+      expect(dialog.left <= button.left && button.right <= dialog.right, isTrue,
+          reason: '"$label" must sit inside the dialog');
+    }
   });
 }

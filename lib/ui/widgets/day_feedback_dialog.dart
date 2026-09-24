@@ -118,8 +118,14 @@ class DayFeedbackDialog extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            // An OverflowBar rather than a Row: the German boost label is long
+            // enough to push the close button off the dialog, and here the
+            // buttons stack instead.
+            OverflowBar(
+              alignment: MainAxisAlignment.end,
+              overflowAlignment: OverflowBarAlignment.end,
+              spacing: 8,
+              overflowSpacing: 4,
               children: [
                 if (!isCheer)
                   TextButton(
@@ -136,7 +142,6 @@ class DayFeedbackDialog extends StatelessWidget {
                     },
                     child: Text(l10n.comfortBoost),
                   ),
-                const SizedBox(width: 8),
                 FilledButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(isCheer ? l10n.cheerClose : l10n.comfortClose),
