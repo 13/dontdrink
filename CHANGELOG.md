@@ -6,6 +6,20 @@ the person who wrote it. Newest first.
 The GitHub release notes are generated from commit subjects; this file is the
 curated version, and it is what an in-app "what's new" should read from.
 
+## 1.6.1 — 2026-09-24
+
+### Fixed
+- After logging a hard day in German, the close button slid off the edge of the
+  popup, because "Ich brauch was Aufbauendes" left it no room. The buttons now
+  stack, so neither one gets pushed off.
+
+### Changed
+- The popup after logging a day looks new. The emoji sits in a softly glowing
+  circle on a gently tinted card: teal after a clean day, warm peach after a
+  hard one. It fades in without bouncing.
+- After a hard day, the popup shows what you keep as real numbers ("🏅 4 badges
+  · 🏆 18-day best") instead of a sentence.
+
 ## 1.6.0 — 2026-09-13
 
 ### Added
