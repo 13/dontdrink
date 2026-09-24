@@ -12,6 +12,9 @@ class AppColors {
   static const Color brand = Color(0xFF2E9E83);
   static const Color brandDark = Color(0xFF1F7A65);
 
+  /// Soft peach for comfort after a non-clean day: warm, never alarming.
+  static const Color warm = Color(0xFFE8A87C);
+
   // Light theme surfaces.
   static const Color lightBackground = Color(0xFFF5F7F8);
   static const Color lightSurface = Color(0xFFFFFFFF);

@@ -193,24 +193,36 @@ void main() {
   });
 
 
-  testWidgets('the German comfort buttons stay on a phone-width dialog',
-      (tester) async {
+  /// Pump the dialog on its own, at a phone width.
+  Future<void> pumpDialog(
+    WidgetTester tester, {
+    DayFeedback feedback = DayFeedback.comfort,
+    int badgesEarned = 4,
+    int bestStreak = 18,
+    Locale? locale,
+  }) async {
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(harness.wrap(
-      const Scaffold(
+      Scaffold(
         body: DayFeedbackDialog(
-          feedback: DayFeedback.comfort,
-          streak: 0,
-          badgesEarned: 4,
+          feedback: feedback,
+          streak: 3,
+          badgesEarned: badgesEarned,
+          bestStreak: bestStreak,
           variant: 0,
         ),
       ),
-      locale: const Locale('de'),
+      locale: locale,
     ));
     await tester.pumpAndSettle();
+  }
+
+  testWidgets('the German comfort buttons stay on a phone-width dialog',
+      (tester) async {
+    await pumpDialog(tester, locale: const Locale('de'));
 
     // A Row here overflowed and pushed "Schließen" off the dialog.
     expect(tester.takeException(), isNull);
@@ -220,5 +232,35 @@ void main() {
       expect(dialog.left <= button.left && button.right <= dialog.right, isTrue,
           reason: '"$label" must sit inside the dialog');
     }
+  });
+
+  testWidgets('comfort shows what is kept, as numbers', (tester) async {
+    await pumpDialog(tester);
+
+    expect(find.text('🏅 4 badges'), findsOneWidget);
+    expect(find.text('🏆 18-day best'), findsOneWidget);
+    expect(find.text('STILL YOURS'), findsOneWidget);
+  });
+
+  testWidgets('a part of the chip that is zero is left out', (tester) async {
+    await pumpDialog(tester, badgesEarned: 0);
+
+    expect(find.textContaining('badge'), findsNothing);
+    expect(find.text('🏆 18-day best'), findsOneWidget);
+  });
+
+  testWidgets('with nothing kept yet, there is no chip at all',
+      (tester) async {
+    await pumpDialog(tester, badgesEarned: 0, bestStreak: 0);
+
+    expect(find.text('STILL YOURS'), findsNothing);
+  });
+
+  testWidgets('the cheer has one button and no chip', (tester) async {
+    await pumpDialog(tester, feedback: DayFeedback.cheer);
+
+    expect(find.byType(FilledButton), findsOneWidget);
+    expect(find.byType(TextButton), findsNothing);
+    expect(find.text('STILL YOURS'), findsNothing);
   });
 }

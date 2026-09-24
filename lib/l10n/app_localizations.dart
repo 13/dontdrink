@@ -1204,11 +1204,23 @@ abstract class AppLocalizations {
   /// **'Nothing about this erases the days you already held.'**
   String get comfortBody4;
 
-  /// Reassurance that earned badges are never taken away
+  /// Small label above the chip reassuring that badges and best streak are never taken away
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =0{Your best streak still stands.} =1{Your 1 badge and your best streak are still yours.} other{Your {count} badges and your best streak are still yours.}}'**
-  String comfortKept(int count);
+  /// **'Still yours'**
+  String get comfortKeptLabel;
+
+  /// Chip part: badges earned so far
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 badge} other{{count} badges}}'**
+  String comfortKeptBadges(int count);
+
+  /// Chip part: longest streak ever
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1-day best} other{{count}-day best}}'**
+  String comfortKeptBest(int count);
 
   /// No description provided for @comfortBoost.
   ///

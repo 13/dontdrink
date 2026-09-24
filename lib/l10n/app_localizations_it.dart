@@ -741,13 +741,26 @@ class AppLocalizationsIt extends AppLocalizations {
       'Niente di tutto questo cancella i giorni che hai già tenuto.';
 
   @override
-  String comfortKept(int count) {
+  String get comfortKeptLabel => 'Resta tuo';
+
+  @override
+  String comfortKeptBadges(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'I tuoi $count distintivi e la tua serie record restano tuoi.',
-      one: 'Il tuo 1 distintivo e la tua serie record restano tuoi.',
-      zero: 'La tua serie record resta.',
+      other: '$count distintivi',
+      one: '1 distintivo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String comfortKeptBest(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'record di $count giorni',
+      one: 'record di 1 giorno',
     );
     return '$_temp0';
   }

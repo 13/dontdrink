@@ -18,12 +18,14 @@ class _LogOutcome {
     required this.feedback,
     required this.streak,
     required this.badgesEarned,
+    required this.bestStreak,
   });
 
   final List<AchievementEarn> earns;
   final DayFeedback? feedback;
   final int streak;
   final int badgesEarned;
+  final int bestStreak;
 }
 
 /// Bottom sheet for logging or editing a single day's drink status.
@@ -63,6 +65,7 @@ class DayEntrySheet extends StatefulWidget {
         feedback: outcome.feedback!,
         streak: outcome.streak,
         badgesEarned: outcome.badgesEarned,
+        bestStreak: outcome.bestStreak,
         variant: feedbackVariant(date, DayFeedbackDialog.variantCount),
       );
     }
@@ -251,6 +254,7 @@ class _DayEntrySheetState extends State<DayEntrySheet> {
       ),
       streak: vm.stats.currentStreak,
       badgesEarned: vm.totalEarns,
+      bestStreak: vm.stats.longestStreak,
     );
 
     if (!navigator.mounted) return;

@@ -209,7 +209,9 @@
   "comfortBody2": "Ehrlich zu dir selbst zu sein ist der Teil, der weiter wirkt.",
   "comfortBody3": "Morgen ist ein eigener Tag. Er fängt sauber an.",
   "comfortBody4": "Nichts davon löscht die Tage, die du schon durchgehalten hast.",
-  "comfortKept": "{count, plural, =0{Deine beste Serie bleibt bestehen.} =1{Dein 1 Abzeichen und deine beste Serie bleiben dir.} other{Deine {count} Abzeichen und deine beste Serie bleiben dir.}}",
+  "comfortKeptLabel": "Bleibt dir",
+  "comfortKeptBadges": "{count, plural, =1{1 Abzeichen} other{{count} Abzeichen}}",
+  "comfortKeptBest": "{count, plural, =1{1 Tag Rekord} other{{count} Tage Rekord}}",
   "comfortBoost": "Ich brauch was Aufbauendes",
   "comfortClose": "Schließen",
 

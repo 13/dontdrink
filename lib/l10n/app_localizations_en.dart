@@ -734,13 +734,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nothing about this erases the days you already held.';
 
   @override
-  String comfortKept(int count) {
+  String get comfortKeptLabel => 'Still yours';
+
+  @override
+  String comfortKeptBadges(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Your $count badges and your best streak are still yours.',
-      one: 'Your 1 badge and your best streak are still yours.',
-      zero: 'Your best streak still stands.',
+      other: '$count badges',
+      one: '1 badge',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String comfortKeptBest(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count-day best',
+      one: '1-day best',
     );
     return '$_temp0';
   }

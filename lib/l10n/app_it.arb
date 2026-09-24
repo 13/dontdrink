@@ -209,7 +209,9 @@
   "comfortBody2": "Essere onesto con te stesso è la parte che continua a funzionare.",
   "comfortBody3": "Domani è un giorno a sé. Comincia pulito.",
   "comfortBody4": "Niente di tutto questo cancella i giorni che hai già tenuto.",
-  "comfortKept": "{count, plural, =0{La tua serie record resta.} =1{Il tuo 1 distintivo e la tua serie record restano tuoi.} other{I tuoi {count} distintivi e la tua serie record restano tuoi.}}",
+  "comfortKeptLabel": "Resta tuo",
+  "comfortKeptBadges": "{count, plural, =1{1 distintivo} other{{count} distintivi}}",
+  "comfortKeptBest": "{count, plural, =1{record di 1 giorno} other{record di {count} giorni}}",
   "comfortBoost": "Ho bisogno di una spinta",
   "comfortClose": "Chiudi",
 
