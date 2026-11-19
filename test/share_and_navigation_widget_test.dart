@@ -364,6 +364,36 @@ void main() {
     });
   });
 
+  group('streak card', () {
+    for (final streak in [true, false]) {
+      testWidgets(
+          'fits a narrow screen with large text (streak running: $streak)',
+          (tester) async {
+        tester.view.physicalSize = const Size(320 * 3, 640 * 3);
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+
+        // Today keeps a streak alive; a lone day in January leaves none.
+        await harness.tracker.logDay(
+          streak ? DateTime.now() : DateTime(DateTime.now().year, 1, 5),
+          kDontDrinkLevels[0],
+        );
+        harness.tracker.clearPendingEarns();
+
+        await tester.pumpWidget(harness.wrap(
+          const MediaQuery(
+            data: MediaQueryData(textScaler: TextScaler.linear(1.8)),
+            child: DashboardScreen(),
+          ),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull,
+            reason: 'the labels wrap instead of pushing the badge off');
+      });
+    }
+  });
+
   group('first run', () {
     testWidgets('an empty mode is told what to do, and told once',
         (tester) async {

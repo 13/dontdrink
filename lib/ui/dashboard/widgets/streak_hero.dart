@@ -31,7 +31,7 @@ class StreakHero extends StatelessWidget {
               ? [AppColors.green, const Color(0xFF2E9E83)]
               : [
                   theme.colorScheme.surfaceContainerHighest,
-                  theme.colorScheme.surface
+                  theme.colorScheme.surface,
                 ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -39,54 +39,60 @@ class StreakHero extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                hasStreak ? l10n.streakCurrent : l10n.streakStart,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: hasStreak
-                      ? Colors.white70
-                      : theme.colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    '$currentStreak',
-                    style: theme.textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      height: 1,
-                      color: hasStreak
-                          ? Colors.white
-                          : theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    l10n.dayUnit(currentStreak),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: hasStreak
-                          ? Colors.white70
-                          : theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-              if (hasStreak)
+          // Takes what the best-streak badge leaves and wraps inside it: at
+          // 320px with large text the labels are wider than the card.
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  l10n.streakOf(cleanDayLabel.toLowerCase()),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white70,
+                  hasStreak ? l10n.streakCurrent : l10n.streakStart,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: hasStreak
+                        ? Colors.white70
+                        : theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-            ],
+                const SizedBox(height: 2),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      '$currentStreak',
+                      style: theme.textTheme.displaySmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        height: 1,
+                        color: hasStreak
+                            ? Colors.white
+                            : theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        l10n.dayUnit(currentStreak),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: hasStreak
+                              ? Colors.white70
+                              : theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (hasStreak)
+                  Text(
+                    l10n.streakOf(cleanDayLabel.toLowerCase()),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white70,
+                    ),
+                  ),
+              ],
+            ),
           ),
-          const Spacer(),
+          const SizedBox(width: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
@@ -96,14 +102,13 @@ class StreakHero extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Text(
-                  '🏆',
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text('🏆', style: theme.textTheme.titleMedium),
                 Text(
                   '$longestStreak',
                   style: theme.textTheme.titleMedium?.copyWith(
-                    color: hasStreak ? Colors.white : theme.colorScheme.onSurface,
+                    color: hasStreak
+                        ? Colors.white
+                        : theme.colorScheme.onSurface,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
