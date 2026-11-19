@@ -6,6 +6,25 @@ the person who wrote it. Newest first.
 The GitHub release notes are generated from commit subjects; this file is the
 curated version, and it is what an in-app "what's new" should read from.
 
+## 1.7.0 — 2026-11-19
+
+### Changed
+- The daily reminder stays quiet once today is logged in every mode you
+  track. Clear the day and it comes back.
+- "Best month" in Statistics is now the best of all time rather than of the
+  last six months, and names the year.
+- The year lives on the dashboard only; the duplicate Year entry under More
+  is gone.
+
+### Fixed
+- Statistics, Calendar and Notes no longer run off the edge on a small phone
+  with large text, in any language.
+- Leaving the app open overnight no longer leaves it stuck on yesterday: the
+  streak, the "log today" card, the highlighted day and the current month all
+  move on when you come back to it, and at 4 AM while it is open.
+- Between midnight and 4 AM, the year view highlighted a different day than
+  the month calendar above it. Both now highlight the day you are living.
+
 ## 1.6.2 — 2026-11-19
 
 ### Added
