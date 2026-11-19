@@ -93,9 +93,14 @@ class SettingsViewModel extends ChangeNotifier {
 
   /// A day already logged in every enabled mode, so the reminder skips it.
   ///
-  /// Not persisted: the OS keeps the schedule across restarts, and the app
-  /// recomputes this from the data as soon as it runs.
+  /// Not persisted: the app recomputes it from the data as soon as it runs.
   DateTime? _skipDay;
+
+  /// Whether this run has applied a skip decision yet. The OS keeps the
+  /// schedule across restarts but this process starts with [_skipDay] null,
+  /// so without this a day skipped in an earlier run and cleared in this one
+  /// would look like "no change" and stay skipped.
+  bool _skipApplied = false;
 
   /// Skip the reminder on [day] (a fully logged day), or pass null to stop
   /// skipping. Re-schedules only when this changes something.
@@ -106,9 +111,10 @@ class SettingsViewModel extends ChangeNotifier {
     final same = day == null
         ? _skipDay == null
         : _skipDay != null && DateUtils.isSameDay(day, _skipDay);
-    if (same) return;
+    if (same && _skipApplied) return;
     _skipDay = day;
     if (!_notificationsEnabled) return;
+    _skipApplied = true;
     await _notifications.scheduleDailyReminder(
       _reminderTime,
       copy: copy,
@@ -120,6 +126,7 @@ class SettingsViewModel extends ChangeNotifier {
   /// Does nothing when the reminder is off.
   Future<void> refreshReminderCopy(ReminderCopy copy) async {
     if (!_notificationsEnabled) return;
+    _skipApplied = true;
     await _notifications.scheduleDailyReminder(
       _reminderTime,
       copy: copy,

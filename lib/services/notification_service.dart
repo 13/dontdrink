@@ -82,6 +82,11 @@ class NotificationService {
   /// [skipDay] is a day already logged: if the next reminder would fall on
   /// it, the series starts the day after instead. A nudge to log a day that
   /// is already logged only nags the people doing it right.
+  ///
+  /// Android only, in effect: on iOS the plugin turns a daily repeat into a
+  /// calendar trigger built from the hour and minute alone, dropping the
+  /// start date, so the skipped day still fires there. The app ships as an
+  /// Android APK.
   Future<void> scheduleDailyReminder(
     TimeOfDay time, {
     required ReminderCopy copy,

@@ -9,8 +9,8 @@ curated version, and it is what an in-app "what's new" should read from.
 ## 1.7.0 — 2026-11-19
 
 ### Changed
-- The daily reminder stays quiet once today is logged in every mode you
-  track. Clear the day and it comes back.
+- On Android, the daily reminder stays quiet once today is logged in every
+  mode you track. Clear the day and it comes back.
 - "Best month" in Statistics is now the best of all time rather than of the
   last six months, and names the year.
 - The year lives on the dashboard only; the duplicate Year entry under More
