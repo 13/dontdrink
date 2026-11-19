@@ -51,7 +51,16 @@ class YearOverview extends StatefulWidget {
 }
 
 class _YearOverviewState extends State<YearOverview> {
-  late int _year = DateTime.now().year;
+  /// The year stepped to, or null to follow the current one — so an app left
+  /// open over New Year moves on with it rather than staying in the old year.
+  int? _pickedYear;
+
+  int get _year => _pickedYear ?? DateTime.now().year;
+
+  void _step(int delta) {
+    final year = _year + delta;
+    setState(() => _pickedYear = year == DateTime.now().year ? null : year);
+  }
 
   YearLayout _layout = YearLayout.heatmap;
 
@@ -79,23 +88,20 @@ class _YearOverviewState extends State<YearOverview> {
         Row(
           children: [
             IconButton.filledTonal(
-              onPressed:
-                  _year > firstYear ? () => setState(() => _year--) : null,
+              onPressed: _year > firstYear ? () => _step(-1) : null,
               icon: const Icon(Icons.chevron_left),
             ),
             Expanded(
               child: Text(
                 '$_year',
                 textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w700),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
             IconButton.filledTonal(
-              onPressed:
-                  _year < thisYear ? () => setState(() => _year++) : null,
+              onPressed: _year < thisYear ? () => _step(1) : null,
               icon: const Icon(Icons.chevron_right),
             ),
             ShareImageButton(
@@ -135,17 +141,17 @@ class _YearOverviewState extends State<YearOverview> {
             child: AppCard(
               child: switch (_layout) {
                 YearLayout.heatmap => YearHeatmap(
-                    year: _year,
-                    entries: entries,
-                    mode: vm.mode,
-                    onDayTap: (date) => DayEntrySheet.show(context, date),
-                  ),
+                  year: _year,
+                  entries: entries,
+                  mode: vm.mode,
+                  onDayTap: (date) => DayEntrySheet.show(context, date),
+                ),
                 YearLayout.months => YearMonthsGrid(
-                    year: _year,
-                    entries: entries,
-                    mode: vm.mode,
-                    onDayTap: (date) => DayEntrySheet.show(context, date),
-                  ),
+                  year: _year,
+                  entries: entries,
+                  mode: vm.mode,
+                  onDayTap: (date) => DayEntrySheet.show(context, date),
+                ),
               },
             ),
           ),
@@ -156,8 +162,8 @@ class _YearOverviewState extends State<YearOverview> {
             l10n.yearNoData('$_year'),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
         const SizedBox(height: 16),
@@ -199,8 +205,7 @@ class YearHeatmap extends StatelessWidget {
         // so the cell size follows the screen rather than the other way round.
         const labelWidth = 34.0;
         const spacing = 2.0;
-        final cell =
-            ((constraints.maxWidth - labelWidth) / 31) - spacing;
+        final cell = ((constraints.maxWidth - labelWidth) / 31) - spacing;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,8 +231,10 @@ class YearHeatmap extends StatelessWidget {
                         date: day <= DateOnly.daysInMonth(DateTime(year, month))
                             ? DateTime(year, month, day)
                             : null,
-                        entry: entries[
-                            DateOnly.keyFor(DateTime(year, month, day))],
+                        entry:
+                            entries[DateOnly.keyFor(
+                              DateTime(year, month, day),
+                            )],
                         mode: mode,
                         today: today,
                         onTap: onDayTap,
@@ -276,8 +283,9 @@ class _Cell extends StatelessWidget {
     final isFuture = date!.isAfter(today);
     final color = entry != null
         ? entry!.level.color
-        : theme.colorScheme.surfaceContainerHighest
-            .withValues(alpha: isFuture ? 0.35 : 1);
+        : theme.colorScheme.surfaceContainerHighest.withValues(
+            alpha: isFuture ? 0.35 : 1,
+          );
 
     final l10n = AppLocalizations.of(context);
     final status = isFuture
@@ -303,7 +311,9 @@ class _Cell extends StatelessWidget {
             decoration: BoxDecoration(
               color: color,
               borderRadius: BorderRadius.circular(2),
-              border: DateOnly.isSameDay(date!, today)
+              // Ringed by the tracked day, like the month grid; [today] is
+              // the calendar day and only decides what is in the future.
+              border: DateOnly.isTrackingToday(date!)
                   ? Border.all(color: theme.colorScheme.onSurface, width: 1)
                   : null,
             ),

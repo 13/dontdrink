@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:dont_drink/core/theme/app_theme.dart';
+import 'package:dont_drink/core/utils/date_utils.dart';
 import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/l10n/content/content_strings.dart';
 import 'package:dont_drink/l10n/supported_locales.dart';
@@ -15,11 +18,14 @@ class DontDrinkApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeMode =
-        context.select<SettingsViewModel, ThemeMode>((vm) => vm.themeMode);
+    final themeMode = context.select<SettingsViewModel, ThemeMode>(
+      (vm) => vm.themeMode,
+    );
     // null means "follow the system": MaterialApp then resolves the device
     // locale against supportedLocales and falls back to English.
-    final locale = context.select<SettingsViewModel, Locale?>((vm) => vm.locale);
+    final locale = context.select<SettingsViewModel, Locale?>(
+      (vm) => vm.locale,
+    );
 
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
@@ -35,7 +41,7 @@ class DontDrinkApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const _ContentLanguage(child: HomeShell()),
+      home: const _ContentLanguage(child: DayRollover(child: HomeShell())),
     );
   }
 }
@@ -73,6 +79,76 @@ class _ContentLanguageState extends State<_ContentLanguage> {
       context.read<TrackerViewModel>().setContentStrings(strings);
       context.read<ModeViewModel>().setContentStrings(strings);
     });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+/// Keeps "today" current while the app stays in memory.
+///
+/// Everything that depends on the date — the streak, the "log today" card,
+/// the ringed day, where the future starts — is computed when data changes,
+/// and Android may keep the app alive for days. So the tracker is told to
+/// check the date whenever the app comes back to the foreground, and at the
+/// next day boundary (midnight or 04:00, whichever comes first) while it is
+/// on screen.
+class DayRollover extends StatefulWidget {
+  const DayRollover({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<DayRollover> createState() => _DayRolloverState();
+}
+
+class _DayRolloverState extends State<DayRollover> with WidgetsBindingObserver {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _scheduleNextBoundary();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refresh();
+    } else if (state == AppLifecycleState.paused) {
+      // Nothing to keep current while nobody is looking; resuming checks.
+      _timer?.cancel();
+      _timer = null;
+    }
+  }
+
+  void _refresh() {
+    if (!mounted) return;
+    context.read<TrackerViewModel>().refreshDay();
+    _scheduleNextBoundary();
+  }
+
+  void _scheduleNextBoundary() {
+    _timer?.cancel();
+    final now = DateTime.now();
+    final midnight = DateTime(now.year, now.month, now.day + 1);
+    final dayStart = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      DateOnly.dayStartHour,
+    );
+    final next = dayStart.isAfter(now) ? dayStart : midnight;
+    // A second late, so the clock is unambiguously on the new side.
+    _timer = Timer(next.difference(now) + const Duration(seconds: 1), _refresh);
   }
 
   @override

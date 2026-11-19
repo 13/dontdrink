@@ -111,8 +111,9 @@ class _MiniMonth extends StatelessWidget {
               DateFormat.MMMM(locale).format(month),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelSmall
-                  ?.copyWith(fontWeight: FontWeight.w700),
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: 2),
             Row(
@@ -189,12 +190,16 @@ class _MiniCell extends StatelessWidget {
     final entry = entries[DateOnly.keyFor(date!)];
     final isFuture = date!.isAfter(today);
     final level = entry?.level;
-    final background = level?.color ??
-        theme.colorScheme.surfaceContainerHighest
-            .withValues(alpha: isFuture ? 0.3 : 1);
-    final foreground = level?.onColor ??
-        theme.colorScheme.onSurfaceVariant
-            .withValues(alpha: isFuture ? 0.4 : 1);
+    final background =
+        level?.color ??
+        theme.colorScheme.surfaceContainerHighest.withValues(
+          alpha: isFuture ? 0.3 : 1,
+        );
+    final foreground =
+        level?.onColor ??
+        theme.colorScheme.onSurfaceVariant.withValues(
+          alpha: isFuture ? 0.4 : 1,
+        );
 
     final l10n = AppLocalizations.of(context);
     final status = isFuture
@@ -219,7 +224,10 @@ class _MiniCell extends StatelessWidget {
             decoration: BoxDecoration(
               color: background,
               borderRadius: BorderRadius.circular(3),
-              border: DateOnly.isSameDay(date!, today)
+              // The ring marks the day being lived, as in the month grid:
+              // before 04:00 that is still yesterday. [today] stays the
+              // calendar day, so it alone decides what counts as the future.
+              border: DateOnly.isTrackingToday(date!)
                   ? Border.all(color: theme.colorScheme.primary, width: 1)
                   : null,
             ),

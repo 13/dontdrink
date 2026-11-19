@@ -197,4 +197,65 @@ void main() {
     expect(vm.mode.cleanDayLabel, 'Alkoholfrei');
     expect(vm.nextAchievement?.title, isNot('Better Hydration'));
   });
+
+  group('refreshDay', () {
+    test('a new day recomputes the streak and moves a current month on',
+        () async {
+      final vm = TrackerViewModel(repository: repo, mode: kDontDrinkMode);
+      await vm.load();
+      await vm.logDay(DateOnly.trackingDay(), kDontDrinkLevels[0]);
+      expect(vm.stats.currentStreak, 1);
+      final month = vm.visibleMonth;
+
+      var notified = 0;
+      vm.addListener(() => notified++);
+
+      expect(vm.refreshDay(), isFalse, reason: 'same day: nothing to do');
+      expect(notified, 0);
+
+      // Forty days on, at noon: the run ended long ago, and the calendar,
+      // which was on the current month, follows to the new one.
+      final later = DateTime.now().add(const Duration(days: 40));
+      final noon = DateTime(later.year, later.month, later.day, 12);
+      expect(vm.refreshDay(noon), isTrue);
+      expect(notified, 1);
+      expect(vm.stats.currentStreak, 0);
+      expect(vm.visibleMonth, DateOnly.firstOfMonth(noon));
+      expect(vm.visibleMonth, isNot(month));
+    });
+
+    test('a month someone stepped back to stays put', () async {
+      final vm = TrackerViewModel(repository: repo, mode: kDontDrinkMode);
+      await vm.load();
+      vm.previousMonth();
+      final picked = vm.visibleMonth;
+
+      final later = DateTime.now().add(const Duration(days: 40));
+      vm.refreshDay(DateTime(later.year, later.month, later.day, 12));
+      expect(vm.visibleMonth, picked);
+    });
+
+    test('03:00 is still yesterday; midnight alone moves only the calendar',
+        () async {
+      final vm = TrackerViewModel(repository: repo, mode: kDontDrinkMode);
+      await vm.load();
+      final tomorrow = DateOnly.today().add(const Duration(days: 1));
+      // Past midnight the calendar day has moved even though the tracked day
+      // has not, and that alone decides where the future starts.
+      expect(
+        vm.refreshDay(DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 3)),
+        isTrue,
+      );
+      expect(
+        vm.refreshDay(
+            DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 3, 30)),
+        isFalse,
+      );
+      expect(
+        vm.refreshDay(DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 4)),
+        isTrue,
+        reason: '04:00 is when the tracked day turns',
+      );
+    });
+  });
 }

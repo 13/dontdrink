@@ -21,11 +21,11 @@ class TrackerViewModel extends ChangeNotifier {
     required ModeDefinition mode,
     StatsService stats = const StatsService(),
     AchievementService achievements = const AchievementService(),
-  })  : _repo = repository,
-        _rawMode = mode,
-        _mode = mode,
-        _stats = stats,
-        _achievements = achievements;
+  }) : _repo = repository,
+       _rawMode = mode,
+       _mode = mode,
+       _stats = stats,
+       _achievements = achievements;
 
   final EntryRepository _repo;
 
@@ -103,6 +103,45 @@ class TrackerViewModel extends ChangeNotifier {
   DateTime _visibleMonth = DateOnly.firstOfMonth(DateTime.now());
   DateTime get visibleMonth => _visibleMonth;
 
+  /// The tracked and calendar day everything was last computed for.
+  DateTime _trackedDay = DateOnly.trackingDay();
+  DateTime _calendarDay = DateOnly.today();
+
+  /// Bring everything that depends on "today" up to date, if the day moved.
+  ///
+  /// The streak, the "log today" card, the ringed day and where the future
+  /// starts are all derived from the clock, but only recomputed when data
+  /// changes — and Android can keep this app in memory for days. Called when
+  /// the app comes back to the foreground and at each day boundary while it
+  /// is open. Two boundaries: the tracked day turns at 04:00, the calendar
+  /// day (which decides what is in the future) at midnight.
+  ///
+  /// Returns whether anything moved. [now] is for tests.
+  bool refreshDay([DateTime? now]) {
+    final at = now ?? DateTime.now();
+    final tracked = DateOnly.trackingDay(at);
+    final calendar = DateOnly.normalize(at);
+    if (DateOnly.isSameDay(tracked, _trackedDay) &&
+        DateOnly.isSameDay(calendar, _calendarDay)) {
+      return false;
+    }
+    // Someone looking at the current month keeps looking at the current
+    // month; someone who stepped back to March stays in March.
+    if (DateOnly.isSameDay(
+      _visibleMonth,
+      DateOnly.firstOfMonth(_calendarDay),
+    )) {
+      _visibleMonth = DateOnly.firstOfMonth(calendar);
+    }
+    _trackedDay = tracked;
+    _calendarDay = calendar;
+    _recompute(now: now);
+    notifyListeners();
+    // Other modes' cached streaks moved too.
+    onDataChanged?.call();
+    return true;
+  }
+
   Future<void> load() async {
     _loading = true;
     notifyListeners();
@@ -125,24 +164,26 @@ class TrackerViewModel extends ChangeNotifier {
 
   List<DayEntry> _sortedEntries = const [];
 
-  void _recompute() {
+  void _recompute({DateTime? now}) {
     final entries = _allEntries;
-    _statsCache = _stats.compute(entries, _mode);
+    _statsCache = _stats.compute(entries, _mode, now: now);
     _runs = _stats.cleanRuns(entries);
     _sortedEntries = [...entries]..sort((a, b) => a.date.compareTo(b.date));
     _achievementCache = _achievements.evaluate(
       achievements: _mode.content.achievements,
       runs: _runs,
     );
-    _totalEarns =
-        _achievementCache.fold(0, (sum, status) => sum + status.earnedCount);
+    _totalEarns = _achievementCache.fold(
+      0,
+      (sum, status) => sum + status.earnedCount,
+    );
   }
 
   /// Current earn count per achievement id.
   Map<String, int> _earnCounts() => _achievements.earnCounts(
-        achievements: _mode.content.achievements,
-        runs: _runs,
-      );
+    achievements: _mode.content.achievements,
+    runs: _runs,
+  );
 
   /// Entry for [date], or null if unlogged.
   DayEntry? entryFor(DateTime date) => _entries[DateOnly.keyFor(date)];
@@ -161,9 +202,8 @@ class TrackerViewModel extends ChangeNotifier {
 
   /// First-of-month dates that hold at least one entry, for the month picker.
   Set<DateTime> get monthsWithData => {
-        for (final entry in _entries.values)
-          DateOnly.firstOfMonth(entry.date),
-      };
+    for (final entry in _entries.values) DateOnly.firstOfMonth(entry.date),
+  };
 
   /// Oldest month worth offering: the first entry's, or this month on a fresh
   /// install.
@@ -187,21 +227,22 @@ class TrackerViewModel extends ChangeNotifier {
   /// Returns whether this actually changed anything — re-tapping the level
   /// that is already saved writes the same row again, and the UI uses this to
   /// stay quiet rather than react to a non-event.
-  Future<bool> logDay(DateTime date, TrackedLevel level,
-      {String? note}) async {
+  Future<bool> logDay(DateTime date, TrackedLevel level, {String? note}) async {
     final previousCounts = _earnCounts();
 
     final entry = DayEntry(
-        modeId: _mode.id,
-        date: DateOnly.normalize(date),
-        level: level,
-        note: note);
+      modeId: _mode.id,
+      date: DateOnly.normalize(date),
+      level: level,
+      note: note,
+    );
     final previous = _entries[entry.dateKey];
     // Compare the persisted value, not the level object: the same level in
     // another language is a different object with a different label.
     final changed =
-        previous == null || previous.level.value != level.value ||
-            previous.note != note;
+        previous == null ||
+        previous.level.value != level.value ||
+        previous.note != note;
     await _repo.upsert(entry);
     _entries[entry.dateKey] = entry;
     _recompute();
@@ -264,5 +305,7 @@ class TrackerViewModel extends ChangeNotifier {
   /// progress hint. Based on the current streak, not the personal best: after
   /// a relapse the goal is the first milestone again.
   Achievement? get nextAchievement => _achievements.nextLocked(
-      _mode.content.achievements, _statsCache.currentStreak);
+    _mode.content.achievements,
+    _statsCache.currentStreak,
+  );
 }
