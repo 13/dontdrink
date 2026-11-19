@@ -8,6 +8,11 @@ curated version, and it is what an in-app "what's new" should read from.
 
 ## 1.7.0 — 2026-11-19
 
+### Added
+- The dashboard shows the whole year under the month calendar, as a heatmap or
+  as twelve calendars, without a trip to More. Tap any day to edit it, and
+  share it from there too. It appears once you have logged your first day.
+
 ### Changed
 - On Android, the daily reminder stays quiet once today is logged in every
   mode you track. Clear the day and it comes back.
@@ -17,6 +22,8 @@ curated version, and it is what an in-app "what's new" should read from.
   is gone.
 
 ### Fixed
+- On a small phone with large text, the streak card at the top of the
+  dashboard pushed its best-streak badge off the edge. The labels now wrap.
 - Statistics, Calendar and Notes no longer run off the edge on a small phone
   with large text, in any language.
 - Leaving the app open overnight no longer leaves it stuck on yesterday: the
@@ -24,17 +31,6 @@ curated version, and it is what an in-app "what's new" should read from.
   move on when you come back to it, and at 4 AM while it is open.
 - Between midnight and 4 AM, the year view highlighted a different day than
   the month calendar above it. Both now highlight the day you are living.
-
-## 1.6.2 — 2026-11-19
-
-### Added
-- The dashboard shows the whole year under the month calendar, as a heatmap or
-  as twelve calendars, without a trip to More. Tap any day to edit it, and
-  share it from there too. It appears once you have logged your first day.
-
-### Fixed
-- On a small phone with large text, the streak card at the top of the
-  dashboard pushed its best-streak badge off the edge. The labels now wrap.
 
 ## 1.6.1 — 2026-09-24
 
