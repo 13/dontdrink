@@ -10,6 +10,7 @@ import 'package:dont_drink/ui/widgets/day_entry_sheet.dart';
 import 'package:dont_drink/ui/widgets/mode_switcher.dart';
 import 'package:dont_drink/ui/widgets/month_label_button.dart';
 import 'package:dont_drink/ui/widgets/section_header.dart';
+import 'package:dont_drink/ui/yearly/yearly_screen.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -62,6 +63,14 @@ class DashboardScreen extends StatelessWidget {
                   ],
                   const SizedBox(height: 24),
                   const _MonthCalendarSection(),
+                  // The whole year under the month, so the pattern is on the
+                  // first screen rather than behind More. Not before there is
+                  // a pattern: on a fresh install it would only say "nothing
+                  // logged" under a welcome card that already says so.
+                  if (vm.allEntries.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    const YearOverview(),
+                  ],
                   if (vm.nextAchievement != null) ...[
                     const SizedBox(height: 24),
                     SectionHeader(

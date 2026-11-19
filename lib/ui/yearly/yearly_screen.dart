@@ -12,28 +12,54 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-/// A whole year, in one of two shapes.
-///
-/// Twelve rows of up to 31 cells, coloured by the level logged that day, so a
-/// year reads as a pattern rather than a list: the bad month, the week it
-/// turned around, the stretch that became a streak.
-class YearlyScreen extends StatefulWidget {
+/// The year as its own screen, reached from More.
+class YearlyScreen extends StatelessWidget {
   const YearlyScreen({super.key});
 
   @override
-  State<YearlyScreen> createState() => _YearlyScreenState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(AppLocalizations.of(context).yearlyTitle)),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          children: const [YearOverview()],
+        ),
+      ),
+    );
+  }
 }
 
 /// Which shape the year is drawn in.
 enum YearLayout { heatmap, months }
 
-class _YearlyScreenState extends State<YearlyScreen> {
+/// A whole year, in one of two shapes, with its own year stepper, layout
+/// toggle, share button and legend.
+///
+/// Twelve rows of up to 31 cells, coloured by the level logged that day, so a
+/// year reads as a pattern rather than a list: the bad month, the week it
+/// turned around, the stretch that became a streak. Or twelve small calendars,
+/// for when the question is what happened on the 14th.
+///
+/// A [Column] rather than a list, so it can sit inside the dashboard's
+/// scroll view as well as on its own screen.
+class YearOverview extends StatefulWidget {
+  const YearOverview({super.key});
+
+  @override
+  State<YearOverview> createState() => _YearOverviewState();
+}
+
+class _YearOverviewState extends State<YearOverview> {
   late int _year = DateTime.now().year;
 
   YearLayout _layout = YearLayout.heatmap;
 
-  /// Wraps only the heatmap, so a shared image carries the year and the grid
+  /// Wraps only the grid, so a shared image carries the year and the grid
   /// and nothing else — no counts, no rates, and never a note.
+  ///
+  /// One per State: the dashboard stays mounted under the More tab's pushed
+  /// Year screen, so both overviews exist at once.
   final _shareKey = GlobalKey();
 
   @override
@@ -47,107 +73,96 @@ class _YearlyScreenState extends State<YearlyScreen> {
     final firstYear = vm.firstLoggedMonth.year;
     final thisYear = DateTime.now().year;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.yearlyTitle),
-        actions: [
-          ShareImageButton(
-            boundaryKey: _shareKey,
-            fileName: 'dont-drink-$_year-${_layout.name}',
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                IconButton.filledTonal(
-                  onPressed: _year > firstYear
-                      ? () => setState(() => _year--)
-                      : null,
-                  icon: const Icon(Icons.chevron_left),
-                ),
-                Expanded(
-                  child: Text(
-                    '$_year',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ),
-                IconButton.filledTonal(
-                  onPressed: _year < thisYear
-                      ? () => setState(() => _year++)
-                      : null,
-                  icon: const Icon(Icons.chevron_right),
-                ),
-              ],
+            IconButton.filledTonal(
+              onPressed:
+                  _year > firstYear ? () => setState(() => _year--) : null,
+              icon: const Icon(Icons.chevron_left),
             ),
-            const SizedBox(height: 12),
-            Center(
-              child: SegmentedButton<YearLayout>(
-                segments: [
-                  ButtonSegment(
-                    value: YearLayout.heatmap,
-                    icon: const Icon(Icons.grid_on, size: 18),
-                    label: Text(l10n.yearViewHeatmap),
-                  ),
-                  ButtonSegment(
-                    value: YearLayout.months,
-                    icon: const Icon(Icons.calendar_view_month, size: 18),
-                    label: Text(l10n.yearViewMonths),
-                  ),
-                ],
-                selected: {_layout},
-                showSelectedIcon: false,
-                onSelectionChanged: (selection) =>
-                    setState(() => _layout = selection.first),
-              ),
-            ),
-            const SizedBox(height: 12),
-            // The share button photographs this boundary, so it shares
-            // whichever layout is on screen — the picture is still exactly
-            // what was being looked at.
-            RepaintBoundary(
-              key: _shareKey,
-              child: ShareablePalette(
-                child: AppCard(
-                  child: switch (_layout) {
-                    YearLayout.heatmap => YearHeatmap(
-                        year: _year,
-                        entries: entries,
-                        mode: vm.mode,
-                        onDayTap: (date) => DayEntrySheet.show(context, date),
-                      ),
-                    YearLayout.months => YearMonthsGrid(
-                        year: _year,
-                        entries: entries,
-                        mode: vm.mode,
-                        onDayTap: (date) => DayEntrySheet.show(context, date),
-                      ),
-                  },
-                ),
-              ),
-            ),
-            if (entries.isEmpty) ...[
-              const SizedBox(height: 16),
-              Text(
-                l10n.yearNoData('$_year'),
+            Expanded(
+              child: Text(
+                '$_year',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w700),
               ),
-            ],
-            const SizedBox(height: 16),
-            _Legend(mode: vm.mode),
+            ),
+            IconButton.filledTonal(
+              onPressed:
+                  _year < thisYear ? () => setState(() => _year++) : null,
+              icon: const Icon(Icons.chevron_right),
+            ),
+            ShareImageButton(
+              boundaryKey: _shareKey,
+              fileName: 'dont-drink-$_year-${_layout.name}',
+            ),
           ],
         ),
-      ),
+        const SizedBox(height: 12),
+        Center(
+          child: SegmentedButton<YearLayout>(
+            segments: [
+              ButtonSegment(
+                value: YearLayout.heatmap,
+                icon: const Icon(Icons.grid_on, size: 18),
+                label: Text(l10n.yearViewHeatmap),
+              ),
+              ButtonSegment(
+                value: YearLayout.months,
+                icon: const Icon(Icons.calendar_view_month, size: 18),
+                label: Text(l10n.yearViewMonths),
+              ),
+            ],
+            selected: {_layout},
+            showSelectedIcon: false,
+            onSelectionChanged: (selection) =>
+                setState(() => _layout = selection.first),
+          ),
+        ),
+        const SizedBox(height: 12),
+        // The share button photographs this boundary, so it shares whichever
+        // layout is on screen — the picture is still exactly what was being
+        // looked at.
+        RepaintBoundary(
+          key: _shareKey,
+          child: ShareablePalette(
+            child: AppCard(
+              child: switch (_layout) {
+                YearLayout.heatmap => YearHeatmap(
+                    year: _year,
+                    entries: entries,
+                    mode: vm.mode,
+                    onDayTap: (date) => DayEntrySheet.show(context, date),
+                  ),
+                YearLayout.months => YearMonthsGrid(
+                    year: _year,
+                    entries: entries,
+                    mode: vm.mode,
+                    onDayTap: (date) => DayEntrySheet.show(context, date),
+                  ),
+              },
+            ),
+          ),
+        ),
+        if (entries.isEmpty) ...[
+          const SizedBox(height: 16),
+          Text(
+            l10n.yearNoData('$_year'),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ],
+        const SizedBox(height: 16),
+        _Legend(mode: vm.mode),
+      ],
     );
   }
 }

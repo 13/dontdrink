@@ -364,6 +364,55 @@ void main() {
     });
   });
 
+  group('year on the dashboard', () {
+    testWidgets('the first screen carries the year once there is history',
+        (tester) async {
+      await tester.pumpWidget(harness.wrap(const DashboardScreen()));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(YearOverview), findsNothing,
+          reason: 'a fresh install has no pattern to show yet');
+
+      await harness.tracker
+          .logDay(DateTime(DateTime.now().year, 1, 5), kDontDrinkLevels[0]);
+      harness.tracker.clearPendingEarns();
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(find.byType(YearHeatmap), 200,
+          scrollable: _dashboardScroll);
+      expect(find.byType(YearHeatmap), findsOneWidget);
+
+      await tester.scrollUntilVisible(find.text('Months'), 200,
+          scrollable: _dashboardScroll);
+      await tester.ensureVisible(find.text('Months'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Months'));
+      await tester.pumpAndSettle();
+      expect(find.byType(YearMonthsGrid), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(RepaintBoundary),
+          matching: find.byType(YearMonthsGrid),
+        ),
+        findsOneWidget,
+        reason: 'still shareable from the dashboard',
+      );
+
+      // The 2nd of January, inside the year — not the month grid above it.
+      final januarySecond = find
+          .descendant(
+            of: find.byType(YearMonthsGrid),
+            matching: find.text('2'),
+          )
+          .first;
+      await tester.ensureVisible(januarySecond);
+      await tester.pumpAndSettle();
+      await tester.tap(januarySecond);
+      await tester.pumpAndSettle();
+      expect(find.byType(DayEntrySheet), findsOneWidget);
+    });
+  });
+
   group('streak card', () {
     for (final streak in [true, false]) {
       testWidgets(
@@ -422,3 +471,7 @@ String monthHeaderLabel(DateTime date) {
   ];
   return '${months[date.month - 1]} ${date.year}';
 }
+
+/// The dashboard's own scroll view: the first of several Scrollables on the
+/// screen, so `scrollUntilVisible` has to be told which one to drive.
+final _dashboardScroll = find.byType(Scrollable).first;
