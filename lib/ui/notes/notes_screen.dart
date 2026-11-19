@@ -85,13 +85,17 @@ class _NoteTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    DateFormat.yMMMMd(locale)
-                        .format(DateOnly.normalize(entry.date)),
-                    style: theme.textTheme.labelLarge
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                  Expanded(
+                    child: Text(
+                      DateFormat.yMMMMd(
+                        locale,
+                      ).format(DateOnly.normalize(entry.date)),
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   Text(
                     entry.level.shortLabel,
                     style: theme.textTheme.labelSmall?.copyWith(

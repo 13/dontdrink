@@ -89,10 +89,16 @@ class _LevelRow extends StatelessWidget {
           Expanded(
             child: Text(level.label, style: theme.textTheme.bodyMedium),
           ),
-          Text(
-            AppLocalizations.of(context).dayCount(count),
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(fontWeight: FontWeight.w700),
+          const SizedBox(width: 8),
+          // Flexible: "34 giorni" at large text is wider than what the label
+          // leaves, so the count wraps too rather than overflowing.
+          Flexible(
+            child: Text(
+              AppLocalizations.of(context).dayCount(count),
+              textAlign: TextAlign.end,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),

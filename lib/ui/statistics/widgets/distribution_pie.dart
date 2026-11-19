@@ -24,6 +24,8 @@ class DistributionPie extends StatefulWidget {
 }
 
 class _DistributionPieState extends State<DistributionPie> {
+  static const double _chartHeight = 220;
+
   /// Index into the *present* levels, or null when nothing is selected.
   int? _selected;
 
@@ -50,52 +52,60 @@ class _DistributionPieState extends State<DistributionPie> {
     final present = _present();
 
     if (total == 0) {
-      return Center(child: Text(AppLocalizations.of(context).statsNoDataYet));
+      return SizedBox(
+        height: _chartHeight,
+        child: Center(child: Text(AppLocalizations.of(context).statsNoDataYet)),
+      );
     }
 
     final selected = _selected == null ? null : present[_selected!];
 
+    // The donut has a fixed height; the row takes whichever is taller, it or
+    // the legend, so large text makes the card grow instead of overflowing.
     return Row(
       children: [
         Expanded(
           flex: 3,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              PieChart(
-                PieChartData(
-                  sectionsSpace: 2,
-                  centerSpaceRadius: 44,
-                  pieTouchData: PieTouchData(
-                    touchCallback: (event, response) {
-                      // Only a deliberate tap counts. Without this the
-                      // selection flickers under every hover and drag event
-                      // fl_chart reports.
-                      if (event is! FlTapUpEvent) return;
-                      final index =
-                          response?.touchedSection?.touchedSectionIndex;
-                      if (index == null || index < 0) return;
-                      _select(index);
-                    },
+          child: SizedBox(
+            height: _chartHeight,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                PieChart(
+                  PieChartData(
+                    sectionsSpace: 2,
+                    centerSpaceRadius: 44,
+                    pieTouchData: PieTouchData(
+                      touchCallback: (event, response) {
+                        // Only a deliberate tap counts. Without this the
+                        // selection flickers under every hover and drag event
+                        // fl_chart reports.
+                        if (event is! FlTapUpEvent) return;
+                        final index =
+                            response?.touchedSection?.touchedSectionIndex;
+                        if (index == null || index < 0) return;
+                        _select(index);
+                      },
+                    ),
+                    sections: [
+                      for (var i = 0; i < present.length; i++)
+                        _section(present[i], i, total),
+                    ],
                   ),
-                  sections: [
-                    for (var i = 0; i < present.length; i++)
-                      _section(present[i], i, total),
-                  ],
                 ),
-              ),
-              if (selected != null)
-                _CentreDetail(
-                  level: selected,
-                  count: widget.counts[selected]!,
-                ),
-            ],
+                if (selected != null)
+                  _CentreDetail(
+                    level: selected,
+                    count: widget.counts[selected]!,
+                  ),
+              ],
+            ),
           ),
         ),
         Expanded(
           flex: 2,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for (var i = 0; i < present.length; i++)
@@ -166,8 +176,9 @@ class _CentreDetail extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelSmall
-                ?.copyWith(fontWeight: FontWeight.w700),
+            style: theme.textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),
@@ -203,40 +214,41 @@ class _LegendRow extends StatelessWidget {
           : l10n.a11ySlice(level.shortLabel, count),
       excludeSemantics: true,
       child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-        child: Row(
-          children: [
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: level.color,
-                shape: BoxShape.circle,
-                border: selected
-                    ? Border.all(color: theme.colorScheme.onSurface, width: 2)
-                    : null,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                level.shortLabel,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontWeight: selected ? FontWeight.w800 : null,
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          child: Row(
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: level.color,
+                  shape: BoxShape.circle,
+                  border: selected
+                      ? Border.all(color: theme.colorScheme.onSurface, width: 2)
+                      : null,
                 ),
               ),
-            ),
-            Text(
-              '$count',
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ],
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  level.shortLabel,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: selected ? FontWeight.w800 : null,
+                  ),
+                ),
+              ),
+              Text(
+                '$count',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

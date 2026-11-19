@@ -45,14 +45,25 @@ class QuickStatsRow extends StatelessWidget {
       ),
     ];
 
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.7,
-      children: [for (final t in tiles) _StatTile(data: t)],
+    // Two rows of two, each row as tall as its taller tile. Not a grid with
+    // a fixed aspect ratio: that sets the height from the width, and with
+    // large text the labels need more than the width allows.
+    return Column(
+      children: [
+        for (var i = 0; i < tiles.length; i += 2) ...[
+          if (i > 0) const SizedBox(height: 12),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: _StatTile(data: tiles[i])),
+                const SizedBox(width: 12),
+                Expanded(child: _StatTile(data: tiles[i + 1])),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -82,14 +93,14 @@ class _StatTile extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(data.icon, color: data.color, size: 22),
-          const Spacer(),
+          const SizedBox(height: 8),
           Text(
             data.value,
-            style: theme.textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w800),
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
           ),
           Text(
             data.label,

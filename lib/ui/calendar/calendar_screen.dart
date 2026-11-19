@@ -82,16 +82,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               // the caption is legible in the picture too.
                               Text(
                                 DateFormat.yMMMM(
-                                        Localizations.localeOf(context)
-                                            .toString())
-                                    .format(month),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelMedium
+                                  Localizations.localeOf(context).toString(),
+                                ).format(month),
+                                style: Theme.of(context).textTheme.labelMedium
                                     ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                     ),
                               ),
                             ],
@@ -106,8 +103,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   SectionHeader(
                     AppLocalizations.of(context).calendarMonthStatistics(
                       DateFormat.MMMM(
-                              Localizations.localeOf(context).toString())
-                          .format(month),
+                        Localizations.localeOf(context).toString(),
+                      ).format(month),
                     ),
                   ),
                   _MonthStats(counts: counts, mode: vm.mode),
@@ -148,8 +145,9 @@ class _MonthHeader extends StatelessWidget {
         Expanded(
           child: MonthLabelButton(
             month: month,
-            style: theme.textTheme.titleLarge
-                ?.copyWith(fontWeight: FontWeight.w700),
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         IconButton.filledTonal(
@@ -198,10 +196,7 @@ class _Legend extends StatelessWidget {
 }
 
 class _MonthStats extends StatelessWidget {
-  const _MonthStats({
-    required this.counts,
-    required this.mode,
-  });
+  const _MonthStats({required this.counts, required this.mode});
 
   final Map<TrackedLevel, int> counts;
   final ModeDefinition mode;
@@ -216,16 +211,26 @@ class _MonthStats extends StatelessWidget {
     return AppCard(
       child: Column(
         children: [
+          // Equal thirds rather than natural widths, so a long label wraps
+          // inside its third instead of pushing the row off the card.
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Stat(
+              Expanded(
+                child: _Stat(
                   value: '$total',
-                  label: AppLocalizations.of(context).calendarLogged),
-              _Stat(value: '$clean', label: mode.cleanDayLabel),
-              _Stat(
+                  label: AppLocalizations.of(context).calendarLogged,
+                ),
+              ),
+              Expanded(
+                child: _Stat(value: '$clean', label: mode.cleanDayLabel),
+              ),
+              Expanded(
+                child: _Stat(
                   value: '$pct%',
-                  label: AppLocalizations.of(context).calendarCleanRate),
+                  label: AppLocalizations.of(context).calendarCleanRate,
+                ),
+              ),
             ],
           ),
           const Divider(height: 28),
@@ -237,14 +242,19 @@ class _MonthStats extends StatelessWidget {
                   Container(
                     width: 12,
                     height: 12,
-                    decoration:
-                        BoxDecoration(color: level.color, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                      color: level.color,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(child: Text(level.label)),
-                  Text('${counts[level] ?? 0}',
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.w700)),
+                  Text(
+                    '${counts[level] ?? 0}',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -265,12 +275,19 @@ class _Stat extends StatelessWidget {
     final theme = Theme.of(context);
     return Column(
       children: [
-        Text(value,
-            style: theme.textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w800)),
-        Text(label,
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        Text(
+          value,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
       ],
     );
   }

@@ -36,21 +36,24 @@ class StatisticsScreen extends StatelessWidget {
               sliver: SliverList.list(
                 children: [
                   SectionHeader(l10n.statsQuickStats),
-                  QuickStatsRow(stats: stats, cleanDayLabel: mode.cleanDayLabel),
+                  QuickStatsRow(
+                    stats: stats,
+                    cleanDayLabel: mode.cleanDayLabel,
+                  ),
                   const SizedBox(height: 24),
                   // The month the dashboard and calendar are showing, not
                   // whatever month it is today: stepping back to August and
                   // finding September's numbers here was simply wrong.
                   SectionHeader(
                     DateOnly.isSameDay(
-                      DateOnly.firstOfMonth(vm.visibleMonth),
-                      DateOnly.firstOfMonth(today),
-                    )
+                          DateOnly.firstOfMonth(vm.visibleMonth),
+                          DateOnly.firstOfMonth(today),
+                        )
                         ? l10n.statsThisMonth
                         : l10n.statsMonthOf(
                             DateFormat.yMMMM(
-                                    Localizations.localeOf(context).toString())
-                                .format(vm.visibleMonth),
+                              Localizations.localeOf(context).toString(),
+                            ).format(vm.visibleMonth),
                           ),
                   ),
                   MonthSummaryCard(
@@ -80,13 +83,12 @@ class StatisticsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     SectionHeader(l10n.statsDayDistribution),
+                    // No fixed height: the legend grows with the text size,
+                    // and the donut keeps its own.
                     AppCard(
-                      child: SizedBox(
-                        height: 220,
-                        child: DistributionPie(
-                          counts: stats.levelCounts,
-                          levels: vm.mode.levels,
-                        ),
+                      child: DistributionPie(
+                        counts: stats.levelCounts,
+                        levels: vm.mode.levels,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -135,11 +137,17 @@ class _OverviewCard extends StatelessWidget {
     return AppCard(
       child: Column(
         children: [
-          _row(context, l10n.statLongestStreak,
-              l10n.statsDaysValue(longestStreak)),
+          _row(
+            context,
+            l10n.statLongestStreak,
+            l10n.statsDaysValue(longestStreak),
+          ),
           const Divider(height: 24),
-          _row(context, l10n.statsRateOf(cleanDayLabel),
-              '${cleanDayPercentage.toStringAsFixed(0)}%'),
+          _row(
+            context,
+            l10n.statsRateOf(cleanDayLabel),
+            '${cleanDayPercentage.toStringAsFixed(0)}%',
+          ),
           const Divider(height: 24),
           _row(context, l10n.statsTotalDaysLogged, '$totalLogged'),
           if (bestMonth != null && bestMonth.cleanDays > 0) ...[
@@ -160,21 +168,33 @@ class _OverviewCard extends StatelessWidget {
 
   Widget _row(BuildContext context, String label, String value) {
     final theme = Theme.of(context);
+    // Both sides may wrap: with large text neither a German label nor a
+    // "best month" value fits on one line beside the other.
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-        Text(value,
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.w700)),
+        Expanded(
+          child: Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
       ],
     );
   }
 
   /// Short month name in the active language.
   static String _monthName(BuildContext context, DateTime month) =>
-      DateFormat.MMM(Localizations.localeOf(context).toString())
-          .format(month);
+      DateFormat.MMM(Localizations.localeOf(context).toString()).format(month);
 }
