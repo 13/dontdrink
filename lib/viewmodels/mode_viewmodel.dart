@@ -101,6 +101,17 @@ class ModeViewModel extends ChangeNotifier {
   /// is far beyond any plausible unbroken run and still a bounded query.
   static const int _streakWindowDays = 1826;
 
+  /// Whether [day] is logged in every enabled mode — the reminder is one for
+  /// the whole app, so it is only done with once nothing is left to log.
+  Future<bool> allEnabledLoggedOn(DateTime day) async {
+    final modes = enabledModes;
+    if (modes.isEmpty) return false;
+    for (final mode in modes) {
+      if (await _entries.getForDate(mode, day) == null) return false;
+    }
+    return true;
+  }
+
   /// Recompute the cached streak for every enabled mode.
   Future<void> refreshStreaks() async {
     final since =

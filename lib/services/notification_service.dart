@@ -78,9 +78,14 @@ class NotificationService {
   /// outside the widget tree, so this service has no access to
   /// `AppLocalizations` and would otherwise be the one English corner left in
   /// a translated app.
+  ///
+  /// [skipDay] is a day already logged: if the next reminder would fall on
+  /// it, the series starts the day after instead. A nudge to log a day that
+  /// is already logged only nags the people doing it right.
   Future<void> scheduleDailyReminder(
     TimeOfDay time, {
     required ReminderCopy copy,
+    DateTime? skipDay,
   }) async {
     await init();
     await cancelDailyReminder();
@@ -102,7 +107,7 @@ class NotificationService {
       id: _dailyReminderId,
       title: copy.title,
       body: copy.body,
-      scheduledDate: _nextInstanceOf(time),
+      scheduledDate: _nextInstanceOf(time, skipDay),
       notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -114,20 +119,35 @@ class NotificationService {
     await _plugin.cancel(id: _dailyReminderId);
   }
 
-  /// The next occurrence of [time] in local time, today if still upcoming.
-  tz.TZDateTime _nextInstanceOf(TimeOfDay time) {
+  /// The next occurrence of [time] in [tz.local], skipping [skipDay].
+  tz.TZDateTime _nextInstanceOf(TimeOfDay time, DateTime? skipDay) {
     final now = tz.TZDateTime.now(tz.local);
-    var scheduled = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-    );
-    if (!scheduled.isAfter(now)) {
-      scheduled = scheduled.add(const Duration(days: 1));
+    final at = nextReminderAt(now, time, skipDay: skipDay);
+    return tz.TZDateTime(
+        tz.local, at.year, at.month, at.day, at.hour, at.minute);
+  }
+
+  /// Wall-clock fields of the next occurrence of [time] after [now]: today
+  /// if still upcoming, otherwise tomorrow — and a day later again if that
+  /// lands on [skipDay].
+  ///
+  /// Works on [now]'s fields alone, never its instant, so it means the same
+  /// thing whatever zone [now] is in; and steps by calendar day rather than
+  /// 24 hours, so a DST change cannot shift the reminder by an hour.
+  @visibleForTesting
+  static DateTime nextReminderAt(
+    DateTime now,
+    TimeOfDay time, {
+    DateTime? skipDay,
+  }) {
+    final clock = DateTime(now.year, now.month, now.day, now.hour,
+        now.minute, now.second, now.millisecond);
+    DateTime on(int dayOffset) => DateTime(
+        now.year, now.month, now.day + dayOffset, time.hour, time.minute);
+    var offset = on(0).isAfter(clock) ? 0 : 1;
+    if (skipDay != null && DateUtils.isSameDay(on(offset), skipDay)) {
+      offset++;
     }
-    return scheduled;
+    return on(offset);
   }
 }

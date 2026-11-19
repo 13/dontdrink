@@ -61,7 +61,11 @@ class SettingsViewModel extends ChangeNotifier {
         notifyListeners();
         return false;
       }
-      await _notifications.scheduleDailyReminder(_reminderTime, copy: copy);
+      await _notifications.scheduleDailyReminder(
+        _reminderTime,
+        copy: copy,
+        skipDay: _skipDay,
+      );
     } else {
       await _notifications.cancelDailyReminder();
     }
@@ -79,14 +83,47 @@ class SettingsViewModel extends ChangeNotifier {
     notifyListeners();
     await _repo.setReminderTime(time);
     if (_notificationsEnabled) {
-      await _notifications.scheduleDailyReminder(time, copy: copy);
+      await _notifications.scheduleDailyReminder(
+        time,
+        copy: copy,
+        skipDay: _skipDay,
+      );
     }
+  }
+
+  /// A day already logged in every enabled mode, so the reminder skips it.
+  ///
+  /// Not persisted: the OS keeps the schedule across restarts, and the app
+  /// recomputes this from the data as soon as it runs.
+  DateTime? _skipDay;
+
+  /// Skip the reminder on [day] (a fully logged day), or pass null to stop
+  /// skipping. Re-schedules only when this changes something.
+  Future<void> setReminderSkipDay(
+    DateTime? day, {
+    required ReminderCopy copy,
+  }) async {
+    final same = day == null
+        ? _skipDay == null
+        : _skipDay != null && DateUtils.isSameDay(day, _skipDay);
+    if (same) return;
+    _skipDay = day;
+    if (!_notificationsEnabled) return;
+    await _notifications.scheduleDailyReminder(
+      _reminderTime,
+      copy: copy,
+      skipDay: _skipDay,
+    );
   }
 
   /// Re-schedule the reminder so its wording follows a language change.
   /// Does nothing when the reminder is off.
   Future<void> refreshReminderCopy(ReminderCopy copy) async {
     if (!_notificationsEnabled) return;
-    await _notifications.scheduleDailyReminder(_reminderTime, copy: copy);
+    await _notifications.scheduleDailyReminder(
+      _reminderTime,
+      copy: copy,
+      skipDay: _skipDay,
+    );
   }
 }

@@ -6,6 +6,7 @@ import 'package:dont_drink/l10n/app_localizations.dart';
 import 'package:dont_drink/l10n/content/content_strings.dart';
 import 'package:dont_drink/l10n/supported_locales.dart';
 import 'package:dont_drink/ui/shell/home_shell.dart';
+import 'package:dont_drink/ui/shell/reminder_sync.dart';
 import 'package:dont_drink/viewmodels/mode_viewmodel.dart';
 import 'package:dont_drink/viewmodels/settings_viewmodel.dart';
 import 'package:dont_drink/viewmodels/tracker_viewmodel.dart';
@@ -41,7 +42,9 @@ class DontDrinkApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const _ContentLanguage(child: DayRollover(child: HomeShell())),
+      home: const _ContentLanguage(
+        child: DayRollover(child: ReminderSync(child: HomeShell())),
+      ),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:dont_drink/core/models/mode_definition.dart';
 import 'package:dont_drink/data/repositories/entry_repository.dart';
 import 'package:dont_drink/data/repositories/mode_repository.dart';
 import 'package:dont_drink/services/export_import_service.dart';
+import 'package:dont_drink/ui/shell/reminder_sync.dart';
 import 'package:dont_drink/ui/settings/widgets/modes_section.dart';
 import 'package:dont_drink/ui/settings/widgets/update_section.dart';
 import 'package:dont_drink/ui/widgets/app_card.dart';
@@ -191,12 +192,8 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 
-  static ReminderCopy _reminderCopy(AppLocalizations l10n) => ReminderCopy(
-        title: l10n.appTitle,
-        body: l10n.notificationBody,
-        channelName: l10n.notificationChannelName,
-        channelDescription: l10n.notificationChannelDescription,
-      );
+  static ReminderCopy _reminderCopy(AppLocalizations l10n) =>
+      reminderCopyOf(l10n);
 }
 
 // ── Data section ─────────────────────────────────────────────────────────────
