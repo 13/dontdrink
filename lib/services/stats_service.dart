@@ -231,18 +231,7 @@ extension MonthlyAggregation on StatsService {
     DateTime? now,
   }) {
     final reference = now ?? DateTime.now();
-    final buckets = <String, MonthlyTotals>{};
-
-    for (final entry in entries) {
-      final key = '${entry.date.year}-${entry.date.month}';
-      final existing = buckets[key];
-      final clean = entry.level.isClean ? 1 : 0;
-      buckets[key] = MonthlyTotals(
-        month: DateTime(entry.date.year, entry.date.month),
-        cleanDays: (existing?.cleanDays ?? 0) + clean,
-        otherDays: (existing?.otherDays ?? 0) + (1 - clean),
-      );
-    }
+    final buckets = _byMonth(entries);
 
     final result = <MonthlyTotals>[];
     for (int i = count - 1; i >= 0; i--) {
@@ -253,5 +242,40 @@ extension MonthlyAggregation on StatsService {
       );
     }
     return result;
+  }
+
+  /// The month with the most clean days in the whole of [entries] — the most
+  /// recent one on a tie — or null when no month has a clean day.
+  ///
+  /// All of history, not the six months the chart shows: "best month" reads
+  /// as a record, and a record that forgets last year is not one.
+  MonthlyTotals? bestMonth(List<DayEntry> entries) {
+    MonthlyTotals? best;
+    for (final month in _byMonth(entries).values) {
+      if (month.cleanDays == 0) continue;
+      if (best == null ||
+          month.cleanDays > best.cleanDays ||
+          (month.cleanDays == best.cleanDays &&
+              month.month.isAfter(best.month))) {
+        best = month;
+      }
+    }
+    return best;
+  }
+
+  /// Clean / other totals per month, keyed `year-month`.
+  Map<String, MonthlyTotals> _byMonth(List<DayEntry> entries) {
+    final buckets = <String, MonthlyTotals>{};
+    for (final entry in entries) {
+      final key = '${entry.date.year}-${entry.date.month}';
+      final existing = buckets[key];
+      final clean = entry.level.isClean ? 1 : 0;
+      buckets[key] = MonthlyTotals(
+        month: DateTime(entry.date.year, entry.date.month),
+        cleanDays: (existing?.cleanDays ?? 0) + clean,
+        otherDays: (existing?.otherDays ?? 0) + (1 - clean),
+      );
+    }
+    return buckets;
   }
 }

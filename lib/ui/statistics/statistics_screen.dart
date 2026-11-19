@@ -94,7 +94,7 @@ class StatisticsScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     SectionHeader(l10n.statsOverview),
                     _OverviewCard(
-                      monthly: monthly,
+                      bestMonth: service.bestMonth(vm.allEntries),
                       longestStreak: stats.longestStreak,
                       cleanDayPercentage: stats.cleanDayPercentage,
                       totalLogged: stats.totalLoggedDays,
@@ -114,14 +114,14 @@ class StatisticsScreen extends StatelessWidget {
 
 class _OverviewCard extends StatelessWidget {
   const _OverviewCard({
-    required this.monthly,
+    required this.bestMonth,
     required this.longestStreak,
     required this.cleanDayPercentage,
     required this.totalLogged,
     required this.cleanDayLabel,
   });
 
-  final List<MonthlyTotals> monthly;
+  final MonthlyTotals? bestMonth;
   final int longestStreak;
   final double cleanDayPercentage;
   final int totalLogged;
@@ -130,9 +130,7 @@ class _OverviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final bestMonth = monthly.isEmpty
-        ? null
-        : monthly.reduce((a, b) => a.cleanDays >= b.cleanDays ? a : b);
+    final bestMonth = this.bestMonth;
 
     return AppCard(
       child: Column(
@@ -150,7 +148,7 @@ class _OverviewCard extends StatelessWidget {
           ),
           const Divider(height: 24),
           _row(context, l10n.statsTotalDaysLogged, '$totalLogged'),
-          if (bestMonth != null && bestMonth.cleanDays > 0) ...[
+          if (bestMonth != null) ...[
             const Divider(height: 24),
             _row(
               context,
@@ -194,7 +192,8 @@ class _OverviewCard extends StatelessWidget {
     );
   }
 
-  /// Short month name in the active language.
+  /// Short month and year in the active language — the best month can be
+  /// from any year, so the month alone would be ambiguous.
   static String _monthName(BuildContext context, DateTime month) =>
-      DateFormat.MMM(Localizations.localeOf(context).toString()).format(month);
+      DateFormat.yMMM(Localizations.localeOf(context).toString()).format(month);
 }

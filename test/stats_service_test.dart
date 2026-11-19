@@ -165,6 +165,36 @@ void main() {
     });
   });
 
+  group('bestMonth', () {
+    List<DayEntry> cleanDays(int year, int month, int count) => [
+          for (var d = 1; d <= count; d++)
+            _entry(DateTime(year, month, d), _none),
+        ];
+
+    test('looks at all of history, not the last six months', () {
+      final best = service.bestMonth([
+        ...cleanDays(2024, 2, 20),
+        ...cleanDays(2026, 5, 9),
+      ]);
+      expect(best?.month, DateTime(2024, 2));
+      expect(best?.cleanDays, 20);
+    });
+
+    test('a tie goes to the most recent month', () {
+      final best = service.bestMonth([
+        ...cleanDays(2025, 3, 10),
+        ...cleanDays(2026, 1, 10),
+      ]);
+      expect(best?.month, DateTime(2026, 1));
+    });
+
+    test('no clean day means no best month', () {
+      expect(service.bestMonth([_entry(DateTime(2026, 1, 1), _heavy)]),
+          isNull);
+      expect(service.bestMonth(const []), isNull);
+    });
+  });
+
   group('the tracked day', () {
     test('a late-night streak is not broken by the calendar rolling over', () {
       // 01:00 on 4 June, with entries up to 3 June. Measured against the
