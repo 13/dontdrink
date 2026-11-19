@@ -1324,12 +1324,6 @@ abstract class AppLocalizations {
   /// **'Year'**
   String get yearlyTitle;
 
-  /// No description provided for @moreYearlySubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Every day of the year at a glance'**
-  String get moreYearlySubtitle;
-
   /// No description provided for @yearNoData.
   ///
   /// In en, this message translates to:

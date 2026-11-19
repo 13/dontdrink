@@ -833,9 +833,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get yearlyTitle => 'Anno';
 
   @override
-  String get moreYearlySubtitle => 'Tutto l\'anno in un colpo d\'occhio';
-
-  @override
   String yearNoData(String year) {
     return 'Per il $year non c\'è ancora nulla.';
   }

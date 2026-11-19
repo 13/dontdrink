@@ -826,9 +826,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yearlyTitle => 'Year';
 
   @override
-  String get moreYearlySubtitle => 'Every day of the year at a glance';
-
-  @override
   String yearNoData(String year) {
     return 'Nothing logged in $year yet.';
   }

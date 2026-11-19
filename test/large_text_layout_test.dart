@@ -6,11 +6,11 @@ import 'package:dont_drink/ui/more/more_screen.dart';
 import 'package:dont_drink/ui/notes/notes_screen.dart';
 import 'package:dont_drink/ui/recovery/recovery_screen.dart';
 import 'package:dont_drink/ui/statistics/statistics_screen.dart';
-import 'package:dont_drink/ui/yearly/yearly_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/widget_harness.dart';
+import 'support/year_page.dart';
 
 /// Every main screen, on a small phone with large text, in every language.
 ///
@@ -36,7 +36,7 @@ void main() {
     'statistics': () => const StatisticsScreen(),
     'more': () => const MoreScreen(),
     'calendar': () => const CalendarScreen(),
-    'year': () => const YearlyScreen(),
+    'year': () => const YearPage(),
     'notes': () => const NotesScreen(),
     'recovery': () => const RecoveryScreen(),
   };

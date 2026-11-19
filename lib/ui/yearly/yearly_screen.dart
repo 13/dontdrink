@@ -12,24 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-/// The year as its own screen, reached from More.
-class YearlyScreen extends StatelessWidget {
-  const YearlyScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).yearlyTitle)),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-          children: const [YearOverview()],
-        ),
-      ),
-    );
-  }
-}
-
 /// Which shape the year is drawn in.
 enum YearLayout { heatmap, months }
 

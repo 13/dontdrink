@@ -302,7 +302,6 @@
   "@updateErrorUnexpected": {"placeholders": {"detail": {"type": "String"}}},
 
   "yearlyTitle": "Year",
-  "moreYearlySubtitle": "Every day of the year at a glance",
   "yearNoData": "Nothing logged in {year} yet.",
   "@yearNoData": {"placeholders": {"year": {"type": "String"}}},
   "shareImage": "Share as image",

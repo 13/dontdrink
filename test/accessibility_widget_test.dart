@@ -2,12 +2,12 @@ import 'package:dont_drink/data/static/modes/dont_drink_mode.dart';
 import 'package:dont_drink/ui/achievements/achievements_screen.dart';
 import 'package:dont_drink/ui/calendar/calendar_screen.dart';
 import 'package:dont_drink/ui/statistics/widgets/distribution_pie.dart';
-import 'package:dont_drink/ui/yearly/yearly_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/widget_harness.dart';
+import 'support/year_page.dart';
 
 /// The calendar, the heatmap, the donut and the badges say everything through
 /// colour, which says nothing to a screen reader. These tests pin the labels
@@ -56,7 +56,7 @@ void main() {
     final today = DateTime.now();
     await harness.tracker.logDay(today, kDontDrinkLevels[3]);
 
-    await tester.pumpWidget(harness.wrap(const YearlyScreen()));
+    await tester.pumpWidget(harness.wrap(const YearPage()));
     await tester.pumpAndSettle();
 
     final labels = _semanticLabels(tester);

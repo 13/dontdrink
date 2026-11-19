@@ -232,7 +232,6 @@
   "updateErrorUnexpected": "Qualcosa è andato storto: {detail}",
 
   "yearlyTitle": "Anno",
-  "moreYearlySubtitle": "Tutto l'anno in un colpo d'occhio",
   "yearNoData": "Per il {year} non c'è ancora nulla.",
   "shareImage": "Condividi come immagine",
   "shareFailed": "Impossibile condividere l'immagine.",

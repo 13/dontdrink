@@ -46,7 +46,7 @@ You can edit any past day. Future days are disabled.
 The dashboard shows your current alcohol-free streak and your all-time longest streak. If today hasn't been logged yet, the streak is measured through yesterday so the counter doesn't reset just from not opening the app. A tracked day rolls over at 4 AM rather than midnight, so logging a night out at 1 AM records the night that just happened.
 
 ### Color-Coded Calendar
-Browse any month's color-coded grid. Step month by month, or tap the month name to jump straight to one — months holding entries are picked out in the picker. Tap any day to log or edit it. A **yearly view** shows every day of a year as one cell, so a year reads as a pattern rather than a list.
+Browse any month's color-coded grid. Step month by month, or tap the month name to jump straight to one — months holding entries are picked out in the picker. Tap any day to log or edit it. Below the month, the dashboard shows the **whole year** — as a heatmap, one cell per day, so a year reads as a pattern rather than a list, or as twelve small calendars with real dates.
 
 ### Achievement System
 Nine streak milestones, earned automatically — and **repeatable**. A badge is earned once per clean run that reaches its threshold, so reaching a week five separate times counts five times, shown as a ×5 with the first and last dates. A relapse costs the streak and never a badge. Legendary milestones fire a confetti celebration on every earn.

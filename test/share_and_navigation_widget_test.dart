@@ -14,6 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/widget_harness.dart';
+import 'support/year_page.dart';
 
 void main() {
   WidgetHarness.initDatabase();
@@ -230,7 +231,7 @@ void main() {
       await harness.tracker
           .logDay(DateTime(DateTime.now().year, 1, 5), kDontDrinkLevels[0]);
 
-      await tester.pumpWidget(harness.wrap(const YearlyScreen()));
+      await tester.pumpWidget(harness.wrap(const YearPage()));
       await tester.pumpAndSettle();
 
       expect(find.byType(YearHeatmap), findsOneWidget);
@@ -251,7 +252,7 @@ void main() {
           .logDay(DateTime(DateTime.now().year, 3, 14), kDontDrinkLevels[0]);
       harness.tracker.clearPendingEarns();
 
-      await tester.pumpWidget(harness.wrap(const YearlyScreen()));
+      await tester.pumpWidget(harness.wrap(const YearPage()));
       await tester.pumpAndSettle();
 
       expect(find.byType(YearHeatmap), findsOneWidget);
@@ -289,7 +290,7 @@ void main() {
       await tester.pumpWidget(harness.wrap(
         const MediaQuery(
           data: MediaQueryData(textScaler: TextScaler.linear(1.8)),
-          child: YearlyScreen(),
+          child: YearPage(),
         ),
       ));
       await tester.pumpAndSettle();
@@ -302,7 +303,7 @@ void main() {
     });
 
     testWidgets('a day in the months layout opens that day', (tester) async {
-      await tester.pumpWidget(harness.wrap(const YearlyScreen()));
+      await tester.pumpWidget(harness.wrap(const YearPage()));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Months'));
       await tester.pumpAndSettle();

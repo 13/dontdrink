@@ -232,7 +232,6 @@
   "updateErrorUnexpected": "Etwas ist schiefgelaufen: {detail}",
 
   "yearlyTitle": "Jahr",
-  "moreYearlySubtitle": "Das ganze Jahr auf einen Blick",
   "yearNoData": "Für {year} ist noch nichts eingetragen.",
   "shareImage": "Als Bild teilen",
   "shareFailed": "Das Bild konnte nicht geteilt werden.",
